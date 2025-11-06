@@ -1,0 +1,261 @@
+{
+  "category": "vitamin-khoang-chat",
+  "categoryName": "Vitamin & Khoáng chất",
+  "subcategories": [
+    {
+  "key": "canxi-vitamin-d",
+  "name": "Bổ sung Canxi & Vitamin D",
+      "products": [
+        {
+          "id": 1,
+          "name": "Calcium + D3 Nature cho xương chắc khỏe",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "200000",
+          "support": "180000",
+          "description": "Bổ sung canxi và vitamin D3 cho xương chắc khỏe, phòng ngừa loãng xương",
+          "quantity": "Hộp 60 viên nang mềm",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "canxi-vitamin-d",
+          "inStock": true,
+          "sold": 156,
+          "stock": 400
+        },
+        {
+          "id": 2,
+          "name": "Calci-D3 Kids hỗ trợ phát triển chiều cao cho trẻ",
+          "image": "https://via.placeholder.com/150",
+          "discount": "5%",
+          "price": "180000",
+          "support": "171000",
+          "description": "Bổ sung canxi và vitamin D3 giúp trẻ phát triển chiều cao tối ưu",
+          "quantity": "Hộp 30 gói bột",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "canxi-vitamin-d",
+          "inStock": true,
+          "sold": 203,
+          "stock": 350
+        },
+        {
+          "id": 3,
+          "name": "Calcium Citrate Plus D3 hấp thu tốt cho người lớn tuổi",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "220000",
+          "support": "220000",
+          "description": "Canxi dạng citrate dễ hấp thu, phù hợp người lớn tuổi và người có vấn đề tiêu hóa",
+          "quantity": "Hộp 90 viên nén",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "canxi-vitamin-d",
+          "inStock": true,
+          "sold": 89,
+          "stock": 200
+        }
+      ]
+    },
+    {
+  "key": "vitamin-tong-hop",
+  "name": "Vitamin tổng hợp",
+      "products": [
+        {
+          "id": 4,
+          "name": "Multivitamin Gold Centrum công thức hoàn chỉnh",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "380000",
+          "support": "350000",
+          "description": "Công thức đa vitamin và khoáng chất hoàn chỉnh cho sức khỏe toàn diện",
+          "quantity": "Hộp 100 viên nén bao phim",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "vitamin-tong-hop",
+          "inStock": true,
+          "sold": 187,
+          "stock": 300
+        },
+        {
+          "id": 5,
+          "name": "Daily Multi-Vitamin cho phụ nữ Vitahealth",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "320000",
+          "support": "320000",
+          "description": "Vitamin tổng hợp chuyên biệt cho phụ nữ, bổ sung đầy đủ dưỡng chất",
+          "quantity": "Hộp 60 viên nang",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "vitamin-tong-hop",
+          "inStock": true,
+          "sold": 145,
+          "stock": 250
+        },
+        {
+          "id": 6,
+          "name": "Men's Multi-Vitamin cho nam giới Vitahealth",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "340000",
+          "support": "299200",
+          "description": "Vitamin tổng hợp chuyên biệt cho nam giới, tăng cường sức khỏe và sinh lực",
+          "quantity": "Hộp 60 viên nang",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "vitamin-tong-hop",
+          "inStock": true,
+          "sold": 167,
+          "stock": 280
+        }
+      ]
+    },
+    {
+  "key": "omega-3-dha",
+  "name": "Dầu cá, Omega 3, DHA",
+      "products": [
+        {
+          "id": 7,
+          "name": "Omega 3 Fish Oil Nordic từ cá hồi Na Uy",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "450000",
+          "support": "450000",
+          "description": "Dầu cá Omega-3 chất lượng cao từ cá hồi Na Uy, tốt cho tim mạch và não bộ",
+          "quantity": "Hộp 100 viên nang mềm",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "omega-3-dha",
+          "inStock": true,
+          "sold": 298,
+          "stock": 350
+        },
+        {
+          "id": 8,
+          "name": "DHA Gold IQ cho trẻ em phát triển trí não",
+          "image": "https://via.placeholder.com/150",
+          "discount": "15%",
+          "price": "380000",
+          "support": "323000",
+          "description": "DHA cao cấp hỗ trợ phát triển não bộ và thị lực cho trẻ em",
+          "quantity": "Hộp 60 viên nang mềm",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "omega-3-dha",
+          "inStock": true,
+          "sold": 234,
+          "stock": 300
+        },
+        {
+          "id": 9,
+          "name": "Omega 3-6-9 Triple Strength cân bằng axit béo",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "420000",
+          "support": "420000",
+          "description": "Kết hợp Omega 3, 6, 9 giúp cân bằng axit béo thiết yếu cho cơ thể",
+          "quantity": "Hộp 90 viên nang mềm",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "omega-3-dha",
+          "inStock": true,
+          "sold": 178,
+          "stock": 220
+        }
+      ]
+    },
+    {
+  "key": "vitamin-c",
+  "name": "Vitamin C các loại",
+      "products": [
+        {
+          "id": 10,
+          "name": "Vitamin C 1000mg Pharma tăng cường sức đề kháng",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "150000",
+          "support": "150000",
+          "description": "Bổ sung vitamin C tăng cường sức đề kháng, hỗ trợ hệ miễn dịch và chống oxy hóa",
+          "quantity": "Hộp 30 viên nang",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "vitamin-c",
+          "inStock": true,
+          "sold": 234,
+          "stock": 500
+        },
+        {
+          "id": 11,
+          "name": "Vitamin C sủi 1000mg hương cam tự nhiên",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "120000",
+          "support": "110400",
+          "description": "Viên sủi Vitamin C vị cam dễ uống, hấp thu nhanh",
+          "quantity": "Tuýp 20 viên sủi",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "vitamin-c",
+          "inStock": true,
+          "sold": 345,
+          "stock": 450
+        },
+        {
+          "id": 12,
+          "name": "Vitamin C Ester Plus kháng acid dạ dày",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "280000",
+          "support": "280000",
+          "description": "Vitamin C dạng Ester-C, không gây kích ứng dạ dày, hấp thu tốt hơn",
+          "quantity": "Hộp 90 viên nén",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "vitamin-c",
+          "inStock": true,
+          "sold": 156,
+          "stock": 280
+        }
+      ]
+    },
+    {
+  "key": "sat-axit-folic",
+  "name": "Bổ sung Sắt & Axit Folic",
+      "products": [
+        {
+          "id": 13,
+          "name": "Ferrous Sulfate + Folic Acid cho bà bầu",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "95000",
+          "support": "95000",
+          "description": "Bổ sung sắt và axit folic phòng ngừa thiếu máu cho phụ nữ mang thai",
+          "quantity": "Hộp 30 viên nén bao phim",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "sat-axit-folic",
+          "inStock": true,
+          "sold": 267,
+          "stock": 400
+        },
+        {
+          "id": 14,
+          "name": "Iron Bisglycinate Gentle dễ hấp thu không táo bón",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "180000",
+          "support": "162000",
+          "description": "Sắt dạng Bisglycinate dễ hấp thu, không gây táo bón hay khó chịu dạ dày",
+          "quantity": "Hộp 60 viên nang",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "sat-axit-folic",
+          "inStock": true,
+          "sold": 189,
+          "stock": 320
+        },
+        {
+          "id": 15,
+          "name": "Vitamin B Complex Blackmores giảm mệt mỏi",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "250000",
+          "support": "250000",
+          "description": "Phức hợp vitamin B hỗ trợ chuyển hóa năng lượng và giảm mệt mỏi",
+          "quantity": "Hộp 60 viên nén",
+          "category": "vitamin-khoang-chat",
+          "subcategory": "sat-axit-folic",
+          "inStock": true,
+          "sold": 123,
+          "stock": 280
+        }
+      ]
+    }
+  ]
+}

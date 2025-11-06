@@ -1,0 +1,159 @@
+{
+  "category": "hang-tieu-dung",
+  "categoryName": "Hàng tiêu dùng",
+  "subcategories": [
+    {
+      "key": "giay-uot",
+      "name": "Giấy ướt",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Giấy ướt Giấy ướt 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Giấy ướt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Giấy ướt",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Tã giấy Giấy ướt 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Giấy ướt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Giấy ướt",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Khăn giấy Giấy ướt 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Giấy ướt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Giấy ướt",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "ta-giay",
+      "name": "Tã giấy",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Giấy ướt Tã giấy 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Tã giấy chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Tã giấy",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Tã giấy Tã giấy 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Tã giấy chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Tã giấy",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Khăn giấy Tã giấy 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Tã giấy chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Tã giấy",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "khan-giay",
+      "name": "Khăn giấy, khăn ướt",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Giấy ướt Khăn giấy, khăn ướt 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Khăn giấy, khăn ướt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Khăn giấy, khăn ướt",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Tã giấy Khăn giấy, khăn ướt 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Khăn giấy, khăn ướt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Khăn giấy, khăn ướt",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Khăn giấy Khăn giấy, khăn ướt 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Khăn giấy, khăn ướt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "hang-tieu-dung",
+          "subcategory": "Khăn giấy, khăn ướt",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "category": "dinh-duong",
+  "categoryName": "Dinh dưỡng",
+  "subcategories": [
+    {
+      "key": "dinh-duong-tre-em",
+      "name": "Dinh dưỡng trẻ em",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Sữa bột dinh dưỡng Dinh dưỡng trẻ em 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Dinh dưỡng trẻ em chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng trẻ em",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Viên bổ sung Dinh dưỡng trẻ em 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Dinh dưỡng trẻ em chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng trẻ em",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Bột protein Dinh dưỡng trẻ em 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Dinh dưỡng trẻ em chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng trẻ em",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "dinh-duong-ba-bau",
+      "name": "Dinh dưỡng bà bầu",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Sữa bột dinh dưỡng Dinh dưỡng bà bầu 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Dinh dưỡng bà bầu chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng bà bầu",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Viên bổ sung Dinh dưỡng bà bầu 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Dinh dưỡng bà bầu chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng bà bầu",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Bột protein Dinh dưỡng bà bầu 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Dinh dưỡng bà bầu chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng bà bầu",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "dinh-duong-nguoi-gia",
+      "name": "Dinh dưỡng người già",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Sữa bột dinh dưỡng Dinh dưỡng người già 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Dinh dưỡng người già chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng người già",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Viên bổ sung Dinh dưỡng người già 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Dinh dưỡng người già chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng người già",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Bột protein Dinh dưỡng người già 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Dinh dưỡng người già chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "dinh-duong",
+          "subcategory": "Dinh dưỡng người già",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

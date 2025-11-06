@@ -1,0 +1,114 @@
+{
+  "category": "dung-cu-so-cuu",
+  "categoryName": "Dụng cụ sơ cứu",
+  "subcategories": [
+    {
+      "key": "bang-gac",
+      "name": "Băng gạc",
+      "products": [
+        {
+          "id": 2402,
+          "name": "Băng gạc y tế vô trùng 10cm x 10cm",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "85000",
+          "support": "76500",
+          "description": "Băng gạc vô trùng, hộp 10 miếng",
+          "quantity": "Hộp 10 miếng",
+          "category": "dung-cu-so-cuu",
+          "subcategory": "bang-gac",
+          "inStock": true,
+          "sold": 2890,
+          "stock": 3500
+        },
+        {
+          "id": 2403,
+          "name": "Băng cuộn co giãn 10cm x 4.5m",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "45000",
+          "support": "39600",
+          "description": "Băng co giãn cố định khớp, bó bột",
+          "quantity": "Cuộn",
+          "category": "dung-cu-so-cuu",
+          "subcategory": "bang-gac",
+          "inStock": true,
+          "sold": 1567,
+          "stock": 1800
+        }
+      ]
+    },
+    {
+      "key": "hop-so-cuu",
+      "name": "Hộp sơ cứu",
+      "products": [
+        {
+          "id": 2401,
+          "name": "Hộp sơ cứu gia đình đầy đủ 50 món",
+          "image": "https://via.placeholder.com/150",
+          "discount": "15%",
+          "price": "450000",
+          "support": "382500",
+          "description": "Hộp sơ cứu đầy đủ dụng cụ, thuốc cần thiết",
+          "quantity": "Hộp",
+          "category": "dung-cu-so-cuu",
+          "subcategory": "hop-so-cuu",
+          "inStock": true,
+          "sold": 1234,
+          "stock": 1500
+        },
+        {
+          "id": 2404,
+          "name": "Kéo y tế inox không gỉ 14cm",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "65000",
+          "support": "65000",
+          "description": "Kéo y tế inox sắc bén, cắt băng gạc",
+          "quantity": "Chiếc",
+          "category": "dung-cu-so-cuu",
+          "subcategory": "hop-so-cuu",
+          "inStock": true,
+          "sold": 890,
+          "stock": 1000
+        }
+      ]
+    },
+    {
+      "key": "dung-dich-sat-khuan",
+      "name": "Dung dịch sát khuẩn",
+      "products": [
+        {
+          "id": 2405,
+          "name": "Túi đá lạnh gel chườm nóng lạnh",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "120000",
+          "support": "110400",
+          "description": "Túi chườm đa năng nóng lạnh, giảm đau sưng",
+          "quantity": "Chiếc",
+          "category": "dung-cu-so-cuu",
+          "subcategory": "dung-dich-sat-khuan",
+          "inStock": true,
+          "sold": 1456,
+          "stock": 1600
+        },
+        {
+          "id": 2406,
+          "name": "Dung dịch sát khuẩn vết thương Betadine 100ml",
+          "image": "https://via.placeholder.com/150",
+          "discount": "5%",
+          "price": "95000",
+          "support": "90250",
+          "description": "Sát khuẩn vết thương hiệu quả với Povidone-Iodine",
+          "quantity": "Chai 100ml",
+          "category": "dung-cu-so-cuu",
+          "subcategory": "dung-dich-sat-khuan",
+          "inStock": true,
+          "sold": 2100,
+          "stock": 2500
+        }
+      ]
+    }
+  ]
+}

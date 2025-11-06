@@ -1,0 +1,159 @@
+{
+  "category": "tang-cuong-chuc-nang",
+  "categoryName": "Cải thiện tăng cường chức năng",
+  "subcategories": [
+    {
+  "key": "co-xuong-khop",
+  "name": "Cơ xương khớp",
+      "products": [
+        {
+          "id": 801,
+          "name": "Ginseng Hàn Quốc Korean Red 6 năm tuổi",
+          "image": "https://via.placeholder.com/150",
+          "discount": "9%",
+          "price": "750000",
+          "support": "682500",
+          "description": "Nhân sâm đỏ Hàn Quốc 6 năm tuổi, tăng cường năng lượng và sinh lực",
+          "quantity": "Hộp 60 viên",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "co-xuong-khop",
+          "inStock": true,
+          "sold": 189,
+          "stock": 250
+        },
+        {
+          "id": 802,
+          "name": "Coenzyme Q10 200mg tăng năng lượng tế bào",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "520000",
+          "support": "457600",
+          "description": "CoQ10 giúp sản xuất năng lượng, chống oxy hóa mạnh",
+          "quantity": "Hộp 60 viên",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "co-xuong-khop",
+          "inStock": true,
+          "sold": 156,
+          "stock": 200
+        },
+        {
+          "id": 803,
+          "name": "B-Complex Energy Boost tăng năng lượng",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "280000",
+          "support": "257600",
+          "description": "Phức hợp vitamin B giúp chuyển hóa năng lượng hiệu quả",
+          "quantity": "Hộp 90 viên",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "tang-nang-luong",
+          "inStock": true,
+          "sold": 234,
+          "stock": 300
+        }
+      ]
+    },
+    {
+  "key": "ho-hap-ho-xoang",
+  "name": "Hô hấp, ho, xoang",
+      "products": [
+        {
+          "id": 804,
+          "name": "Whey Protein Isolate 90% xây dựng cơ bắp",
+          "image": "https://via.placeholder.com/150",
+          "discount": "15%",
+          "price": "850000",
+          "support": "722500",
+          "description": "Protein tinh khiết giúp phát triển và phục hồi cơ bắp",
+          "quantity": "Hộp 1kg",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "ho-hap-ho-xoang",
+          "inStock": true,
+          "sold": 278,
+          "stock": 350
+        },
+        {
+          "id": 805,
+          "name": "Creatine Monohydrate tăng sức mạnh cơ bắp",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "450000",
+          "support": "405000",
+          "description": "Creatine giúp tăng sức mạnh và khối lượng cơ",
+          "quantity": "Hộp 300g",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "ho-hap-ho-xoang",
+          "inStock": true,
+          "sold": 198,
+          "stock": 280
+        },
+        {
+          "id": 806,
+          "name": "BCAA 2:1:1 amino acid xây dựng cơ",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "380000",
+          "support": "334400",
+          "description": "Amino acid chuỗi nhánh giúp phục hồi và phát triển cơ",
+          "quantity": "Hộp 200 viên",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "tang-co-bap",
+          "inStock": true,
+          "sold": 167,
+          "stock": 250
+        }
+      ]
+    },
+    {
+  "key": "than-tien-liet-tuyen",
+  "name": "Thận, tiền liệt tuyến",
+      "products": [
+        {
+          "id": 807,
+          "name": "Cordyceps sinensis Tibet đông trùng hạ thảo",
+          "image": "https://via.placeholder.com/150",
+          "discount": "11%",
+          "price": "950000",
+          "support": "845500",
+          "description": "Đông trùng hạ thảo tự nhiên từ Tây Tạng, tăng sức bền thể lực",
+          "quantity": "Hộp 60 viên",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "than-tien-liet-tuyen",
+          "inStock": true,
+          "sold": 145,
+          "stock": 200
+        },
+        {
+          "id": 808,
+          "name": "Beta-Alanine tăng sức bền vận động",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "420000",
+          "support": "386400",
+          "description": "Giúp giảm mỏi cơ, tăng thời gian tập luyện",
+          "quantity": "Hộp 120 viên",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "than-tien-liet-tuyen",
+          "inStock": true,
+          "sold": 178,
+          "stock": 250
+        },
+        {
+          "id": 809,
+          "name": "L-Carnitine 1000mg đốt mỡ tăng năng lượng",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Giúp chuyển hóa mỡ thành năng lượng, tăng sức bền",
+          "quantity": "Hộp 60 viên",
+          "category": "tang-cuong-chuc-nang",
+          "subcategory": "tang-suc-ben",
+          "inStock": true,
+          "sold": 189,
+          "stock": 280
+        }
+      ]
+    }
+  ]
+}

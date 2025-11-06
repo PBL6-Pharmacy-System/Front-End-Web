@@ -1,0 +1,159 @@
+{
+  "category": "tinh-dau",
+  "categoryName": "Tinh dầu",
+  "subcategories": [
+    {
+      "key": "tinh-dau-thien-nhien",
+      "name": "Tinh dầu thiên nhiên",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Tinh dầu Tinh dầu thiên nhiên 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Tinh dầu thiên nhiên chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Tinh dầu thiên nhiên",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Tinh dầu massage Tinh dầu thiên nhiên 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Tinh dầu thiên nhiên chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Tinh dầu thiên nhiên",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Máy xông Tinh dầu thiên nhiên 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Tinh dầu thiên nhiên chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Tinh dầu thiên nhiên",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "tinh-dau-massage",
+      "name": "Tinh dầu massage",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Tinh dầu Tinh dầu massage 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Tinh dầu massage chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Tinh dầu massage",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Tinh dầu massage Tinh dầu massage 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Tinh dầu massage chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Tinh dầu massage",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Máy xông Tinh dầu massage 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Tinh dầu massage chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Tinh dầu massage",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "may-xong-tinh-dau",
+      "name": "Máy xông tinh dầu",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Tinh dầu Máy xông tinh dầu 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Máy xông tinh dầu chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Máy xông tinh dầu",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Tinh dầu massage Máy xông tinh dầu 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Máy xông tinh dầu chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Máy xông tinh dầu",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Máy xông Máy xông tinh dầu 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Máy xông tinh dầu chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "tinh-dau",
+          "subcategory": "Máy xông tinh dầu",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

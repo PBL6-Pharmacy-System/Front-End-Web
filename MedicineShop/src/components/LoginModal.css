@@ -1,0 +1,321 @@
+/* Login Modal Overlay */
+.login-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 100000;
+    animation: fadeIn 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Login Modal Container */
+.login-modal-container {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 100001;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 20px auto;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Close Button */
+.login-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 28px;
+    color: #666;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+.login-modal-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+    transform: rotate(90deg);
+}
+
+/* Modal Content */
+.login-modal-content {
+    padding: 40px 32px 32px 32px;
+}
+
+/* Title */
+.login-modal-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+    text-align: center;
+}
+
+.login-modal-subtitle {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0 0 32px 0;
+    text-align: center;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* Phone Icon */
+.login-phone-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.login-phone-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    border: 3px solid #e0f2fe;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+/* Input Group */
+.login-input-group {
+    margin-bottom: 12px;
+}
+
+.login-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 4px 4px 4px 16px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.login-input-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.login-input-wrapper.error {
+    border-color: #ef4444;
+}
+
+.login-input-prefix {
+    font-size: 14px;
+    color: #64748b;
+    margin-right: 8px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.login-phone-input {
+    flex: 1;
+    border: none;
+    padding: 12px 12px;
+    font-size: 15px;
+    color: #1e293b;
+    outline: none;
+    background: transparent;
+    font-weight: 500;
+}
+
+.login-phone-input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+.login-error-message {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 8px;
+    padding-left: 4px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.login-error-message::before {
+    content: '⚠️';
+    font-size: 14px;
+}
+
+/* Helper Text */
+.login-helper-text {
+    font-size: 13px;
+    color: #64748b;
+    text-align: center;
+    margin: 0 0 24px 0;
+    line-height: 1.4;
+}
+
+/* Continue Button */
+.login-continue-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.login-continue-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+}
+
+.login-continue-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.login-continue-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+}
+
+.login-btn-arrow {
+    font-size: 20px;
+    transition: transform 0.2s ease;
+}
+
+.login-continue-btn:hover:not(:disabled) .login-btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Terms */
+.login-terms {
+    font-size: 12px;
+    color: #64748b;
+    text-align: center;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.login-terms-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.login-terms-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+
+
+/* Responsive */
+@media (max-width: 640px) {
+    .login-modal-container {
+        width: 95%;
+        max-width: none;
+        border-radius: 16px;
+    }
+
+    .login-modal-content {
+        padding: 32px 24px 24px 24px;
+    }
+
+    .login-modal-title {
+        font-size: 24px;
+    }
+
+    .login-features-grid {
+        gap: 8px;
+    }
+
+    .login-feature-item {
+        padding: 12px 6px;
+    }
+
+    .login-feature-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .login-feature-text {
+        font-size: 11px;
+    }
+
+    .login-social-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+}
+
+/* Scrollbar styling */
+.login-modal-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.login-modal-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.login-modal-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.login-modal-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}

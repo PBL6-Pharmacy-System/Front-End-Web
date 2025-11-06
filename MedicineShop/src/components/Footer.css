@@ -1,0 +1,413 @@
+/* Footer Styles - footer-styles.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.demo-content {
+    min-height: 60vh;
+    padding: 50px 20px;
+    text-align: center;
+    background: #f8f9fa;
+}
+
+.demo-content h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* Footer Main Styles */
+.footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 1px solid #dee2e6;
+    margin-top: auto;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.2fr;
+    gap: 40px;
+    padding: 50px 0 30px;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    padding-bottom: 8px;
+}
+
+.footer-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    border-radius: 1px;
+}
+
+.footer-links {
+    list-style: none;
+}
+
+.footer-links li {
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.5;
+    transition: all 0.3s ease;
+    display: block;
+    padding: 2px 0;
+}
+
+.footer-links a:hover {
+    color: #3498db;
+    padding-left: 5px;
+}
+
+/* Contact Info Styles */
+.contact-info {
+    margin-bottom: 25px;
+}
+
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border-left: 3px solid #3498db;
+}
+
+.contact-label {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 4px;
+}
+
+.contact-number {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Social Media Styles */
+.social-title {
+    margin-top: 20px;
+}
+
+.social-media {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  border: 1px solid #e9ecef;
+  padding: 4px; /* Giảm padding */
+}
+
+.social-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.social-link.facebook:hover {
+  border-color: #1877f2;
+}
+
+.social-link.zalo:hover {
+  border-color: #0068ff;
+}
+
+.social-logo {
+  width: 32px; /* Tăng từ 28px lên 32px */
+  height: 32px; /* Tăng từ 28px lên 32px */
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* Hoặc nếu muốn logo chiếm toàn bộ không gian */
+.social-logo-full {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Để logo fill toàn bộ */
+  border-radius: 6px;
+}
+
+/* QR Code Styles */
+.app-title {
+    margin-top: 20px;
+}
+
+.qr-code {
+    margin-bottom: 25px;
+}
+
+.qr-placeholder {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.qr-pattern {
+    width: 70px;
+    height: 70px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+    position: relative;
+}
+
+.qr-square {
+    background: #2c3e50;
+    border-radius: 1px;
+}
+
+.qr-square:nth-child(2n) {
+    background: #3498db;
+}
+
+.qr-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #3498db;
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Certifications */
+.certifications {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.cert-item {
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #e8f4f8, #d4edda);
+    border: 1px solid #b8e6b8;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Payment Methods */
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.payment-row {
+    display: flex;
+    gap: 8px;
+}
+
+.payment-item {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    min-width: 50px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.payment-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-item.visa {
+    color: #1a1f71;
+    border-color: #1a1f71;
+}
+
+.payment-item.mastercard {
+    color: #eb001b;
+    border-color: #eb001b;
+}
+
+.payment-item.jcb {
+    color: #0066cc;
+    border-color: #0066cc;
+}
+
+.payment-item.amex {
+    color: #006fcf;
+    border-color: #006fcf;
+}
+
+.payment-item.vnpay {
+    color: #1976d2;
+    border-color: #1976d2;
+}
+
+.payment-item.zalopay {
+    color: #0068ff;
+    border-color: #0068ff;
+}
+
+.payment-item.momo {
+    color: #d82d8b;
+    border-color: #d82d8b;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    padding: 25px 0;
+    border-top: 1px solid #34495e;
+}
+
+.footer-bottom-content {
+    text-align: center;
+}
+
+.copyright {
+    font-size: 12px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+.license {
+    font-size: 12px;
+    margin-bottom: 12px;
+    opacity: 0.9;
+}
+
+.contact-details {
+    font-size: 11px;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.contact-details a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.contact-details a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 40px 0 20px;
+    }
+    
+    .footer-container {
+        padding: 0 15px;
+    }
+    
+    .contact-item {
+        padding: 10px;
+    }
+    
+    .payment-row {
+        flex-wrap: wrap;
+    }
+    
+    .payment-item {
+        min-width: 45px;
+        padding: 6px 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-title {
+        font-size: 13px;
+    }
+    
+    .footer-links a {
+        font-size: 12px;
+    }
+    
+    .contact-number {
+        font-size: 13px;
+    }
+    
+    .footer-bottom-content {
+        padding: 0 10px;
+    }
+    
+    .copyright,
+    .license {
+        font-size: 11px;
+    }
+    
+    .contact-details {
+        font-size: 10px;
+    }
+}

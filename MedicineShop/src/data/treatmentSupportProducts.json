@@ -1,0 +1,159 @@
+{
+  "category": "ho-tro-dieu-tri",
+  "categoryName": "Hỗ trợ điều trị",
+  "subcategories": [
+    {
+  "key": "ho-tro-dieu-tri-tri",
+  "name": "Hỗ trợ điều trị trĩ",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Viên uống Hỗ trợ điều trị tiểu đường 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Hỗ trợ điều trị tiểu đường chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "ho-tro-dieu-tri-tri",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Thuốc bổ Hỗ trợ điều trị tiểu đường 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Hỗ trợ điều trị tiểu đường chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "Hỗ trợ điều trị tiểu đường",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Cao Hỗ trợ điều trị tiểu đường 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Hỗ trợ điều trị tiểu đường chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "Hỗ trợ điều trị tiểu đường",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+  "key": "ho-tro-dieu-tri-gout",
+  "name": "Hỗ trợ điều trị gout",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Viên uống Hỗ trợ xương khớp 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Hỗ trợ xương khớp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "ho-tro-dieu-tri-gout",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Thuốc bổ Hỗ trợ xương khớp 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Hỗ trợ xương khớp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "Hỗ trợ xương khớp",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Cao Hỗ trợ xương khớp 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Hỗ trợ xương khớp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "Hỗ trợ xương khớp",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "ho-tro-ho-hap",
+      "name": "Hỗ trợ hô hấp",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Viên uống Hỗ trợ hô hấp 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Hỗ trợ hô hấp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "Hỗ trợ hô hấp",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Thuốc bổ Hỗ trợ hô hấp 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Hỗ trợ hô hấp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "Hỗ trợ hô hấp",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Cao Hỗ trợ hô hấp 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Hỗ trợ hô hấp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-dieu-tri",
+          "subcategory": "Hỗ trợ hô hấp",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

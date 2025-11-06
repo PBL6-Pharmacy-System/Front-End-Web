@@ -1,0 +1,159 @@
+{
+  "category": "cham-soc-co-the",
+  "categoryName": "Chăm sóc cơ thể",
+  "subcategories": [
+    {
+      "key": "sua-tam",
+      "name": "Sữa tắm",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Sữa tắm Sữa tắm 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Sữa tắm chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Sữa tắm",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Kem body Sữa tắm 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Sữa tắm chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Sữa tắm",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Xịt khử mùi Sữa tắm 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Sữa tắm chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Sữa tắm",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "kem-duong-the",
+      "name": "Kem dưỡng thể",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Sữa tắm Kem dưỡng thể 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Kem dưỡng thể chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Kem dưỡng thể",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Kem body Kem dưỡng thể 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Kem dưỡng thể chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Kem dưỡng thể",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Xịt khử mùi Kem dưỡng thể 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Kem dưỡng thể chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Kem dưỡng thể",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "tay-te-bao-chet",
+      "name": "Tẩy tế bào chết",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Sữa tắm Tẩy tế bào chết 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Tẩy tế bào chết chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Tẩy tế bào chết",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Kem body Tẩy tế bào chết 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Tẩy tế bào chết chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Tẩy tế bào chết",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Xịt khử mùi Tẩy tế bào chết 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Tẩy tế bào chết chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-co-the",
+          "subcategory": "Tẩy tế bào chết",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

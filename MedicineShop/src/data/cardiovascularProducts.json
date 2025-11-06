@@ -1,0 +1,159 @@
+{
+  "category": "suc-khoe-tim-mach",
+  "categoryName": "Sức khỏe tim mạch",
+  "subcategories": [
+    {
+      "key": "ho-tro-tim-mach",
+      "name": "Hỗ trợ tim mạch",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Viên bổ tim Hỗ trợ tim mạch 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Hỗ trợ tim mạch chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ tim mạch",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Omega-3 Hỗ trợ tim mạch 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Hỗ trợ tim mạch chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ tim mạch",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Viên giảm cholesterol Hỗ trợ tim mạch 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Hỗ trợ tim mạch chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ tim mạch",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "ho-tro-huyet-ap",
+      "name": "Hỗ trợ huyết áp",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Viên bổ tim Hỗ trợ huyết áp 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Hỗ trợ huyết áp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ huyết áp",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Omega-3 Hỗ trợ huyết áp 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Hỗ trợ huyết áp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ huyết áp",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Viên giảm cholesterol Hỗ trợ huyết áp 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Hỗ trợ huyết áp chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ huyết áp",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "ho-tro-tuan-hoan",
+      "name": "Hỗ trợ tuần hoàn",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Viên bổ tim Hỗ trợ tuần hoàn 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Hỗ trợ tuần hoàn chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ tuần hoàn",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Omega-3 Hỗ trợ tuần hoàn 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Hỗ trợ tuần hoàn chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ tuần hoàn",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Viên giảm cholesterol Hỗ trợ tuần hoàn 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Hỗ trợ tuần hoàn chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "suc-khoe-tim-mach",
+          "subcategory": "Hỗ trợ tuần hoàn",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

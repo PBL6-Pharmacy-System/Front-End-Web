@@ -1,0 +1,159 @@
+{
+  "category": "thuc-pham-do-uong",
+  "categoryName": "Thực phẩm & đồ uống",
+  "subcategories": [
+    {
+      "key": "tra-cafe",
+      "name": "Trà & Cà phê",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Trà Trà & Cà phê 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Trà & Cà phê chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Trà & Cà phê",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Cà phê Trà & Cà phê 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Trà & Cà phê chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Trà & Cà phê",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Nước uống bổ dưỡng Trà & Cà phê 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Trà & Cà phê chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Trà & Cà phê",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "banh-keo",
+      "name": "Bánh kẹo",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Trà Bánh kẹo 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Bánh kẹo chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Bánh kẹo",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Cà phê Bánh kẹo 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Bánh kẹo chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Bánh kẹo",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Nước uống bổ dưỡng Bánh kẹo 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Bánh kẹo chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Bánh kẹo",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "do-uong-bo-duong",
+      "name": "Đồ uống bổ dưỡng",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Trà Đồ uống bổ dưỡng 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Đồ uống bổ dưỡng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Đồ uống bổ dưỡng",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Cà phê Đồ uống bổ dưỡng 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Đồ uống bổ dưỡng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Đồ uống bổ dưỡng",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Nước uống bổ dưỡng Đồ uống bổ dưỡng 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Đồ uống bổ dưỡng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "thuc-pham-do-uong",
+          "subcategory": "Đồ uống bổ dưỡng",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "category": "cham-soc-rang-mieng",
+  "categoryName": "Chăm sóc răng miệng",
+  "subcategories": [
+    {
+      "key": "kem-danh-rang",
+      "name": "Kem đánh răng",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Kem đánh răng Kem đánh răng 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Kem đánh răng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Kem đánh răng",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Bàn chải Kem đánh răng 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Kem đánh răng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Kem đánh răng",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Nước súc miệng Kem đánh răng 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Kem đánh răng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Kem đánh răng",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "ban-chai",
+      "name": "Bàn chải",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Kem đánh răng Bàn chải 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Bàn chải chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Bàn chải",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Bàn chải Bàn chải 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Bàn chải chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Bàn chải",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Nước súc miệng Bàn chải 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Bàn chải chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Bàn chải",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "nuoc-suc-mieng",
+      "name": "Nước súc miệng",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Kem đánh răng Nước súc miệng 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Nước súc miệng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Nước súc miệng",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Bàn chải Nước súc miệng 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Nước súc miệng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Nước súc miệng",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Nước súc miệng Nước súc miệng 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Nước súc miệng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-rang-mieng",
+          "subcategory": "Nước súc miệng",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

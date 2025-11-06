@@ -1,0 +1,108 @@
+{
+  "category": "ho-tro-tinh-duc",
+  "categoryName": "Hỗ trợ tình dục",
+  "subcategories": [
+    {
+      "key": "tang-cuong-sinh-luc-nam",
+      "name": "Tăng cường sinh lực nam",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Viên tăng cường Tăng cường sinh lực nam 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Tăng cường sinh lực nam chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-tinh-duc",
+          "subcategory": "Tăng cường sinh lực nam",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Thuốc bổ Tăng cường sinh lực nam 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Tăng cường sinh lực nam chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-tinh-duc",
+          "subcategory": "Tăng cường sinh lực nam",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Viên hỗ trợ Tăng cường sinh lực nam 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Tăng cường sinh lực nam chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-tinh-duc",
+          "subcategory": "Tăng cường sinh lực nam",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "cham-soc-sinh-ly-nu",
+      "name": "Chăm sóc sinh lý nữ",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Viên tăng cường Chăm sóc sinh lý nữ 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Chăm sóc sinh lý nữ chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-tinh-duc",
+          "subcategory": "Chăm sóc sinh lý nữ",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Thuốc bổ Chăm sóc sinh lý nữ 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Chăm sóc sinh lý nữ chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-tinh-duc",
+          "subcategory": "Chăm sóc sinh lý nữ",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Viên hỗ trợ Chăm sóc sinh lý nữ 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Chăm sóc sinh lý nữ chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-tinh-duc",
+          "subcategory": "Chăm sóc sinh lý nữ",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

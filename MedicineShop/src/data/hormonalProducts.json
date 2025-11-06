@@ -1,0 +1,159 @@
+{
+  "category": "sinh-ly-noi-tiet",
+  "categoryName": "Sinh lý - Nội tiết tố",
+  "subcategories": [
+    {
+  "key": "sinh-ly-nam",
+  "name": "Sinh lý nam",
+      "products": [
+        {
+          "id": 601,
+          "name": "Viên uống tăng cường sinh lý nam TestoMax",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Tăng cường testosterone tự nhiên, cải thiện sức khỏe sinh lý nam giới",
+          "quantity": "Hộp 60 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "sinh-ly-nam",
+          "inStock": true,
+          "sold": 234,
+          "stock": 300
+        },
+        {
+          "id": 602,
+          "name": "Sâm Hàn Quốc Korean Ginseng hỗ trợ sinh lực nam",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "580000",
+          "support": "533600",
+          "description": "Sâm Hàn Quốc cao cấp tăng cường sinh lực và sức bền nam giới",
+          "quantity": "Hộp 30 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "sinh-ly-nam",
+          "inStock": true,
+          "sold": 189,
+          "stock": 250
+        },
+        {
+          "id": 603,
+          "name": "Đông trùng hạ thảo Tibet Cordyceps tăng cường sinh lý",
+          "image": "https://via.placeholder.com/150",
+          "discount": "15%",
+          "price": "750000",
+          "support": "637500",
+          "description": "Đông trùng hạ thảo nguyên chất từ Tibet, bổ thận tráng dương",
+          "quantity": "Hộp 30 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "sinh-ly-nam",
+          "inStock": true,
+          "sold": 156,
+          "stock": 200
+        }
+      ]
+    },
+    {
+  "key": "sinh-ly-nu",
+  "name": "Sinh lý nữ",
+      "products": [
+        {
+          "id": 604,
+          "name": "Viên uống cân bằng nội tiết Femibion cho phụ nữ",
+          "image": "https://via.placeholder.com/150",
+          "discount": "9%",
+          "price": "350000",
+          "support": "318500",
+          "description": "Hỗ trợ cân bằng nội tiết tố nữ, giảm triệu chứng tiền mãn kinh",
+          "quantity": "Hộp 60 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "sinh-ly-nu",
+          "inStock": true,
+          "sold": 298,
+          "stock": 400
+        },
+        {
+          "id": 605,
+          "name": "Đông quai nữ hoàng Herbal hỗ trợ sinh sản",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "280000",
+          "support": "252000",
+          "description": "Thảo dược truyền thống hỗ trợ sức khỏe sinh sản và nội tiết nữ",
+          "quantity": "Hộp 60 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "sinh-ly-nu",
+          "inStock": true,
+          "sold": 267,
+          "stock": 350
+        },
+        {
+          "id": 606,
+          "name": "Vitex Agnus giúp cân bằng hormone nữ",
+          "image": "https://via.placeholder.com/150",
+          "discount": "0%",
+          "price": "320000",
+          "support": "320000",
+          "description": "Chiết xuất Vitex giúp điều hòa chu kỳ kinh nguyệt và hormone",
+          "quantity": "Hộp 90 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "sinh-ly-nu",
+          "inStock": true,
+          "sold": 178,
+          "stock": 280
+        }
+      ]
+    },
+    {
+  "key": "tien-man-kinh",
+  "name": "Hỗ trợ mãn kinh",
+      "products": [
+        {
+          "id": 607,
+          "name": "Black Cohosh hỗ trợ giảm triệu chứng mãn kinh",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "380000",
+          "support": "349600",
+          "description": "Giảm bốc hỏa, đổ mồ hôi, cải thiện giấc ngủ cho phụ nữ mãn kinh",
+          "quantity": "Hộp 60 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "tien-man-kinh",
+          "inStock": true,
+          "sold": 234,
+          "stock": 300
+        },
+        {
+          "id": 608,
+          "name": "Mầm đậu nành Soy Isoflavones cho phụ nữ mãn kinh",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "290000",
+          "support": "255200",
+          "description": "Isoflavone tự nhiên giúp cân bằng estrogen, giảm triệu chứng mãn kinh",
+          "quantity": "Hộp 100 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "tien-man-kinh",
+          "inStock": true,
+          "sold": 198,
+          "stock": 280
+        },
+        {
+          "id": 609,
+          "name": "Evening Primrose Oil tinh dầu hoa anh thảo",
+          "image": "https://via.placeholder.com/150",
+          "discount": "5%",
+          "price": "420000",
+          "support": "399000",
+          "description": "Giúp cân bằng hormone, giảm triệu chứng tiền kinh và mãn kinh",
+          "quantity": "Hộp 90 viên",
+          "category": "sinh-ly-noi-tiet",
+          "subcategory": "tien-man-kinh",
+          "inStock": true,
+          "sold": 167,
+          "stock": 250
+        }
+      ]
+    }
+  ]
+}

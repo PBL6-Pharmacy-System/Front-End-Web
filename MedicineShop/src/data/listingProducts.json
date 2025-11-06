@@ -1,0 +1,90 @@
+[
+  { 
+    "id": 1, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "Enterogermina", 
+    "discount": "-10.000đ", 
+    "description": "Hỗn dịch dùng men vi sinh Enterogermina Gut Defense Sanofi tăng...", 
+    "support": "174.000", 
+    "price": "184.000", 
+    "quantity": "2 vỉ x 10 ống",
+    "category": "Tiêu hóa"
+  },
+  { 
+    "id": 2, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "Medsulim S-ALA", 
+    "discount": "-25%", 
+    "description": "Viên uống Medsulim Plus hỗ trợ tăng cường sức khỏe đường...", 
+    "support": "720.000", 
+    "price": "960.000", 
+    "quantity": "60 viên",
+    "category": "Đường huyết"
+  },
+  { 
+    "id": 3, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "AshamGold", 
+    "discount": "-25%", 
+    "description": "Viên uống hỗ trợ tăng cường sức khỏe đường tiêu hóa...", 
+    "support": "1.255.000", 
+    "price": "1.675.000", 
+    "quantity": "60 viên",
+    "category": "Tiêu hóa"
+  },
+  { 
+    "id": 4, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "Kanzo Gold", 
+    "discount": "-37%", 
+    "description": "Viên uống Kanzo Gold hỗ trợ tăng cường sức khỏe gan...", 
+    "support": "604.800", 
+    "price": "966.000", 
+    "quantity": "60 viên",
+    "category": "Gan"
+  },
+  { 
+    "id": 5, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "Nước Hồng Sâm", 
+    "discount": "-20%", 
+    "description": "Nước Hồng Sâm có tác dụng hỗ trợ sức khỏe...", 
+    "support": "1.200.000", 
+    "price": "1.500.000", 
+    "quantity": "10 gói x 10g",
+    "category": "Tăng lực"
+  },
+  { 
+    "id": 6, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "Aloclair Plus", 
+    "discount": "-20%", 
+    "description": "Chai xịt Aloclair Plus Spray dùng tại chỗ hỗ trợ...", 
+    "support": "183.200", 
+    "price": "229.000", 
+    "quantity": "15ml",
+    "category": "Răng miệng"
+  },
+  { 
+    "id": 7, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "Product 7", 
+    "discount": "-15%", 
+    "description": "Description for product 7...", 
+    "support": "300.000", 
+    "price": "350.000", 
+    "quantity": "30 viên",
+    "category": "Vitamin"
+  },
+  { 
+    "id": 8, 
+    "image": "https://via.placeholder.com/150", 
+    "name": "Product 8", 
+    "discount": "-10%", 
+    "description": "Description for product 8...", 
+    "support": "400.000", 
+    "price": "450.000", 
+    "quantity": "20 gói",
+    "category": "Dinh dưỡng"
+  }
+]

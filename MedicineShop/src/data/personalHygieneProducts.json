@@ -1,0 +1,159 @@
+{
+  "category": "ve-sinh-ca-nhan",
+  "categoryName": "Vệ sinh cá nhân",
+  "subcategories": [
+    {
+      "key": "bang-ve-sinh",
+      "name": "Băng vệ sinh",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Băng vệ sinh Băng vệ sinh 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Băng vệ sinh chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Băng vệ sinh",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Bao cao su Băng vệ sinh 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Băng vệ sinh chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Băng vệ sinh",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Dung dịch Băng vệ sinh 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Băng vệ sinh chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Băng vệ sinh",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "bao-cao-su",
+      "name": "Bao cao su",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Băng vệ sinh Bao cao su 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Bao cao su chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Bao cao su",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Bao cao su Bao cao su 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Bao cao su chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Bao cao su",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Dung dịch Bao cao su 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Bao cao su chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Bao cao su",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "dung-dich-ve-sinh",
+      "name": "Dung dịch vệ sinh",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Băng vệ sinh Dung dịch vệ sinh 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Dung dịch vệ sinh chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Dung dịch vệ sinh",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Bao cao su Dung dịch vệ sinh 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Dung dịch vệ sinh chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Dung dịch vệ sinh",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Dung dịch Dung dịch vệ sinh 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Dung dịch vệ sinh chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ve-sinh-ca-nhan",
+          "subcategory": "Dung dịch vệ sinh",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

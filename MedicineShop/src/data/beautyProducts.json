@@ -1,0 +1,159 @@
+{
+  "category": "ho-tro-lam-dep",
+  "categoryName": "Hỗ trợ làm đẹp",
+  "subcategories": [
+    {
+  "key": "cham-soc-da-mat",
+  "name": "Chăm sóc da mặt",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Viên uống đẹp da Làm đẹp da 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Làm đẹp da chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "cham-soc-da-mat",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Collagen Làm đẹp da 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Làm đẹp da chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "cham-soc-da-mat",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Viên chống lão hóa Làm đẹp da 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Làm đẹp da chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "Làm đẹp da",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+  "key": "cham-soc-chuyen-sau-cho-toc",
+  "name": "Chăm sóc chuyên sâu cho tóc",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Viên uống đẹp da Chăm sóc tóc 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Chăm sóc tóc chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "cham-soc-chuyen-sau-cho-toc",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Collagen Chăm sóc tóc 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Chăm sóc tóc chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "cham-soc-chuyen-sau-cho-toc",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Viên chống lão hóa Chăm sóc tóc 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Chăm sóc tóc chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "Chăm sóc tóc",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "cham-soc-mong",
+      "name": "Chăm sóc móng",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Viên uống đẹp da Chăm sóc móng 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Chăm sóc móng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "cham-soc-da-nut-ne",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Collagen Chăm sóc móng 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Chăm sóc móng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "Chăm sóc móng",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Viên chống lão hóa Chăm sóc móng 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Chăm sóc móng chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 60 viên",
+          "category": "ho-tro-lam-dep",
+          "subcategory": "Chăm sóc móng",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "category": "cham-soc-da-mat",
+  "categoryName": "Chăm sóc da mặt",
+  "subcategories": [
+    {
+      "key": "sua-rua-mat",
+      "name": "Sữa rửa mặt (Kem, gel, sữa)",
+      "products": [
+        {
+          "id": 1000,
+          "name": "Kem dưỡng Sữa rửa mặt (Kem, gel, sữa) 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Sữa rửa mặt (Kem, gel, sữa) chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Sữa rửa mặt (Kem, gel, sữa)",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1001,
+          "name": "Sữa rửa mặt Sữa rửa mặt (Kem, gel, sữa) 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Sữa rửa mặt (Kem, gel, sữa) chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Sữa rửa mặt (Kem, gel, sữa)",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1002,
+          "name": "Serum Sữa rửa mặt (Kem, gel, sữa) 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Sữa rửa mặt (Kem, gel, sữa) chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Sữa rửa mặt (Kem, gel, sữa)",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "kem-chong-nang",
+      "name": "Kem chống nắng da mặt",
+      "products": [
+        {
+          "id": 1003,
+          "name": "Kem dưỡng Kem chống nắng da mặt 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Kem chống nắng da mặt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Kem chống nắng da mặt",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1004,
+          "name": "Sữa rửa mặt Kem chống nắng da mặt 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Kem chống nắng da mặt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Kem chống nắng da mặt",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1005,
+          "name": "Serum Kem chống nắng da mặt 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Kem chống nắng da mặt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Kem chống nắng da mặt",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "duong-da-mat",
+      "name": "Dưỡng da mắt",
+      "products": [
+        {
+          "id": 1006,
+          "name": "Kem dưỡng Dưỡng da mặt 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Dưỡng da mặt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Dưỡng da mặt",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1007,
+          "name": "Sữa rửa mặt Dưỡng da mặt 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Dưỡng da mặt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Dưỡng da mặt",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1008,
+          "name": "Serum Dưỡng da mặt 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Dưỡng da mặt chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Dưỡng da mặt",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "mat-na",
+      "name": "Mặt nạ",
+      "products": [
+        {
+          "id": 1009,
+          "name": "Kem dưỡng Mặt nạ 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Mặt nạ chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Mặt nạ",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1010,
+          "name": "Sữa rửa mặt Mặt nạ 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Mặt nạ chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Mặt nạ",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1011,
+          "name": "Serum Mặt nạ 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Mặt nạ chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Mặt nạ",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    },
+    {
+      "key": "serum-essence",
+      "name": "Serum, Essence hoặc Ampoule",
+      "products": [
+        {
+          "id": 1012,
+          "name": "Kem dưỡng Serum, Essence hoặc Ampoule 1",
+          "image": "https://via.placeholder.com/150",
+          "discount": "8%",
+          "price": "250000",
+          "support": "230000",
+          "description": "Sản phẩm Serum, Essence hoặc Ampoule chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Serum, Essence hoặc Ampoule",
+          "inStock": true,
+          "sold": 100,
+          "stock": 200
+        },
+        {
+          "id": 1013,
+          "name": "Sữa rửa mặt Serum, Essence hoặc Ampoule 2",
+          "image": "https://via.placeholder.com/150",
+          "discount": "10%",
+          "price": "350000",
+          "support": "315000",
+          "description": "Sản phẩm Serum, Essence hoặc Ampoule chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Serum, Essence hoặc Ampoule",
+          "inStock": true,
+          "sold": 150,
+          "stock": 250
+        },
+        {
+          "id": 1014,
+          "name": "Serum Serum, Essence hoặc Ampoule 3",
+          "image": "https://via.placeholder.com/150",
+          "discount": "12%",
+          "price": "450000",
+          "support": "396000",
+          "description": "Sản phẩm Serum, Essence hoặc Ampoule chất lượng cao, nhập khẩu chính hãng",
+          "quantity": "Hộp 1 sản phẩm",
+          "category": "cham-soc-da-mat",
+          "subcategory": "Serum, Essence hoặc Ampoule",
+          "inStock": true,
+          "sold": 200,
+          "stock": 300
+        }
+      ]
+    }
+  ]
+}
