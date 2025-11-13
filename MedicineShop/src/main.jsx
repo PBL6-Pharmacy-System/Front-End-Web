@@ -6,9 +6,7 @@ import App1 from './App1.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App1 />
-    </Provider>
-  </React.StrictMode>,
+  <Provider store={store}>
+    <App1 />
+  </Provider>,
 )

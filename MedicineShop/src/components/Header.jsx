@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { selectCartTotalQuantity } from '../store/cartSlice';
 import { MENU_DATA } from '../constants/categories';
@@ -11,9 +11,6 @@ export default function Header({ onNavigate, onCategoryClick }) {
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
-  
-  // Debug: Log cart quantity
-  console.log('🛒 Cart Total Quantity:', cartTotalQuantity);
   
   // Thêm timeout để delay việc ẩn dropdown
   const [hideTimeout, setHideTimeout] = useState(null);

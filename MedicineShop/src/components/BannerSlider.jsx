@@ -2,13 +2,42 @@ import React, { useState, useEffect } from 'react';
 import './BannerSlider.css';
 
 export default function BannerSlider() {
-  // Mock data - sẽ thay bằng data từ database
-  const banners = [
-    { id: 1, title: "Banner 1", image: "1" },
-    { id: 2, title: "Banner 2", image: "2" },
-    { id: 3, title: "Banner 3", image: "3" },
-    { id: 4, title: "Banner 4", image: "4" },
-    { id: 5, title: "Banner 5", image: "5" }
+  // Banner động (4 ảnh cuối)
+  const dynamicBanners = [
+    { 
+      id: 1, 
+      title: "Banner PC 1", 
+      image: "/banners/Banner_Web_PC_805x246_08bf786c89.png" 
+    },
+    { 
+      id: 2, 
+      title: "Banner PC 2", 
+      image: "/banners/Banner_Web_PC_805x246_77941da2d1.png" 
+    },
+    { 
+      id: 3, 
+      title: "Desktop Banner 1", 
+      image: "/banners/D_H1_Desktop_1200x367_3053759f45.png" 
+    },
+    { 
+      id: 4, 
+      title: "Desktop Banner 2", 
+      image: "/banners/D_H1_Desktop_1200x367_8ba0bd390a.png" 
+    }
+  ];
+
+  // Banner tĩnh (2 ảnh đầu)
+  const staticBanners = [
+    {
+      id: 1,
+      title: "Banner H2",
+      image: "/banners/Banner_H2_1_6d86dbb69f.png"
+    },
+    {
+      id: 2,
+      title: "Banner Ung Thư",
+      image: "/banners/Banner_Ung_Thu_1_185705d391.jpg"
+    }
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -19,18 +48,18 @@ export default function BannerSlider() {
     if (!isAutoPlay) return;
     
     const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % banners.length);
+      setCurrentSlide(prev => (prev + 1) % dynamicBanners.length);
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlay, banners.length]);
+  }, [isAutoPlay, dynamicBanners.length]);
 
   const nextSlide = () => {
-    setCurrentSlide(prev => (prev + 1) % banners.length);
+    setCurrentSlide(prev => (prev + 1) % dynamicBanners.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide(prev => (prev - 1 + banners.length) % banners.length);
+    setCurrentSlide(prev => (prev - 1 + dynamicBanners.length) % dynamicBanners.length);
   };
 
   const goToSlide = (index) => {
@@ -40,22 +69,20 @@ export default function BannerSlider() {
   return (
     <div className="banner-slider">
       <div className="slider-container">
-        {/* Main Banner */}
+        {/* Main Banner - Dynamic Slider */}
         <div 
           className="slides-wrapper"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
           onMouseEnter={() => setIsAutoPlay(false)}
           onMouseLeave={() => setIsAutoPlay(true)}
         >
-          {banners.map((banner, index) => (
+          {dynamicBanners.map((banner) => (
             <div key={banner.id} className="slide">
-              <div className="banner-content">
-                <div className="banner-number">{banner.image}</div>
-                <div className="banner-info">
-                  <h3>Banner {banner.image}</h3>
-                  <p>Mô tả cho banner {banner.image}</p>
-                </div>
-              </div>
+              <img 
+                src={banner.image} 
+                alt={banner.title}
+                className="banner-image"
+              />
             </div>
           ))}
         </div>
@@ -83,7 +110,7 @@ export default function BannerSlider() {
 
         {/* Dots Indicator */}
         <div className="dots-container">
-          {banners.map((_, index) => (
+          {dynamicBanners.map((_, index) => (
             <button
               key={index}
               className={`dot ${index === currentSlide ? 'active' : ''}`}
@@ -94,26 +121,17 @@ export default function BannerSlider() {
         </div>
       </div>
 
-      {/* Side Banners */}
+      {/* Side Banners - Static */}
       <div className="side-banners">
-        <div className="side-banner">
-          <div className="side-banner-content">
-            <div className="side-banner-number">A</div>
-            <div className="side-banner-info">
-              <h4>Side Banner A</h4>
-              <p>Mô tả ngắn</p>
-            </div>
+        {staticBanners.map((banner) => (
+          <div key={banner.id} className="side-banner">
+            <img 
+              src={banner.image} 
+              alt={banner.title}
+              className="side-banner-image"
+            />
           </div>
-        </div>
-        <div className="side-banner">
-          <div className="side-banner-content">
-            <div className="side-banner-number">B</div>
-            <div className="side-banner-info">
-              <h4>Side Banner B</h4>
-              <p>Mô tả ngắn</p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

@@ -9,7 +9,7 @@
 .slider-container {
   flex: 2;
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #fff;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -26,6 +26,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #fff;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .banner-content {
@@ -129,15 +137,17 @@
 }
 
 .side-banner {
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  background: #fff;
   border-radius: 12px;
-  padding: 20px;
   height: 130px;
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
 }
 
 .side-banner:hover {
@@ -145,12 +155,11 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.side-banner:first-child {
-  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-}
-
-.side-banner:last-child {
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+.side-banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .side-banner-content {
@@ -195,6 +204,10 @@
     height: 200px;
   }
 
+  .banner-image {
+    object-fit: contain;
+  }
+
   .banner-content {
     flex-direction: column;
     text-align: center;
@@ -219,7 +232,10 @@
 
   .side-banner {
     height: 100px;
-    padding: 15px;
+  }
+
+  .side-banner-image {
+    object-fit: contain;
   }
 
   .nav-arrow {
@@ -250,6 +266,10 @@
     height: 180px;
   }
 
+  .banner-image {
+    object-fit: contain;
+  }
+
   .banner-content {
     padding: 15px;
     gap: 10px;
@@ -273,8 +293,11 @@
 
   .side-banner {
     height: 80px;
-    padding: 10px;
     border-radius: 8px;
+  }
+
+  .side-banner-image {
+    object-fit: contain;
   }
 
   .side-banner-number {

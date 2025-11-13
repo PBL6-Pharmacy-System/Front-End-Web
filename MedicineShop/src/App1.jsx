@@ -7,10 +7,10 @@ import CheckoutPage from "./pages/CheckoutPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CatalogPage from "./pages/CatalogPage";
 import BannerSlider from './components/BannerSlider';
-import ServiceMenu from './components/ServiceMenu';
 import FlashSaleSection from './components/FlashSaleSection';
 import ProductListing from './components/ProductListing';
 import MedicalProductsTabs from './components/MedicalProductsTabs';
+import ChatBox from './components/ChatBox';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -73,7 +73,6 @@ export default function App() {
         return (
           <div className="home-page">
             <BannerSlider onNavigate={setCurrentPage} />
-            <ServiceMenu onNavigate={setCurrentPage} />
             <FlashSaleSection 
               onNavigate={setCurrentPage}
               onProductClick={handleProductClick}
@@ -103,6 +102,9 @@ export default function App() {
         {renderPage()}
       </main>
       {currentPage !== 'login' && currentPage !== 'checkout' && <Footer onNavigate={setCurrentPage} />}
+      
+      {/* ChatBox - hiển thị trên mọi trang */}
+      <ChatBox />
     </div>
   );
 }
