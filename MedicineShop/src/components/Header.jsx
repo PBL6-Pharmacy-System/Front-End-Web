@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { selectCartTotalQuantity } from '../store/cartSlice';
 import { MENU_DATA } from '../constants/categories';
 import LoginModal from './LoginModal';
+import { getCurrentUser, logout, isAuthenticated } from '../services/authApi';
 import './Header.css';
 
 export default function Header({ onNavigate, onCategoryClick }) {
@@ -10,10 +11,85 @@ export default function Header({ onNavigate, onCategoryClick }) {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
+  const [backendCartCount, setBackendCartCount] = useState(0);
   
   // Thêm timeout để delay việc ẩn dropdown
   const [hideTimeout, setHideTimeout] = useState(null);
+
+  // Check authentication status on mount and when login modal closes
+  useEffect(() => {
+    checkAuthStatus();
+    console.log('Header mounted, checking auth status');
+  }, []);
+
+  // Also check when component becomes visible again (tab focus)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkAuthStatus();
+      }
+    };
+
+    const handleCartUpdate = () => {
+      if (isLoggedIn) {
+        fetchCartCount();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [isLoggedIn]);
+
+  const checkAuthStatus = async () => {
+    const authenticated = isAuthenticated();
+    const user = getCurrentUser();
+    console.log('Check auth status:', { authenticated, user });
+    setIsLoggedIn(authenticated);
+    if (authenticated) {
+      setCurrentUser(user);
+      // Fetch cart count from backend
+      await fetchCartCount();
+    } else {
+      setCurrentUser(null);
+      setBackendCartCount(0);
+    }
+  };
+
+  const fetchCartCount = async () => {
+    try {
+      const { getCart } = await import('../services/cartApi');
+      const response = await getCart();
+      if (response.success && response.data && response.data.orderitems) {
+        // Sum up all quantities
+        const totalCount = response.data.orderitems.reduce((sum, item) => sum + item.quantity, 0);
+        setBackendCartCount(totalCount);
+      }
+    } catch (error) {
+      console.error('Error fetching cart count:', error);
+      setBackendCartCount(0);
+    }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+      logout();
+      setIsLoggedIn(false);
+      setCurrentUser(null);
+      window.location.reload();
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    checkAuthStatus();
+  };
 
   const handleMouseEnter = (menuId) => {
     // Clear timeout nếu đang có
@@ -145,19 +221,37 @@ export default function Header({ onNavigate, onCategoryClick }) {
           </div>
 
           <div className="header-actions">
-            <button 
-              className="header-btn header-login-btn"
-              onClick={() => setIsLoginModalOpen(true)}
-            >
-              <span className="header-btn-icon">👤</span>
-              <span>Đăng nhập</span>
-            </button>
+            {isLoggedIn ? (
+              <>
+                <div className="header-user-info">
+                  <span className="header-btn-icon">👤</span>
+                  <span className="header-user-name">
+                    {currentUser?.name || currentUser?.email || 'User'}
+                  </span>
+                </div>
+                <button 
+                  className="header-btn header-logout-btn"
+                  onClick={handleLogout}
+                >
+                  <span className="header-btn-icon">🚪</span>
+                  <span>Đăng xuất</span>
+                </button>
+              </>
+            ) : (
+              <button 
+                className="header-btn header-login-btn"
+                onClick={() => setIsLoginModalOpen(true)}
+              >
+                <span className="header-btn-icon">👤</span>
+                <span>Đăng nhập</span>
+              </button>
+            )}
 
             <button className="header-btn header-cart-btn" onClick={handleCartClick}>
               <span className="header-btn-icon">🛒</span>
               <span>Giỏ hàng</span>
-              {cartTotalQuantity > 0 && (
-                <span className="cart-badge">{cartTotalQuantity}</span>
+              {isLoggedIn && backendCartCount > 0 && (
+                <span className="cart-badge">{backendCartCount}</span>
               )}
             </button>
           </div>
@@ -315,7 +409,8 @@ export default function Header({ onNavigate, onCategoryClick }) {
       {/* Login Modal */}
       <LoginModal 
         isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)} 
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
       />
     </header>
   );

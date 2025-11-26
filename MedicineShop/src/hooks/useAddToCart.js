@@ -4,6 +4,8 @@ import {
   normalizeProductForCart, 
   validateProductForCart 
 } from '../utils/productHelpers';
+import { addToCart as addToCartAPI } from '../services/cartApi';
+import { isAuthenticated } from '../services/authApi';
 
 /**
  * Custom hook để xử lý thêm sản phẩm vào giỏ hàng
@@ -41,7 +43,46 @@ export const useAddToCart = () => {
       // Normalize product data
       const normalizedProduct = normalizeProductForCart(product, source, quantity);
       
-      // Dispatch add to cart action
+      // If user is authenticated, call backend API
+      if (isAuthenticated()) {
+        try {
+          // Extract productUnitId from various possible fields
+          // Backend returns: base_unit_id, product_unit_id, or productUnitId
+          const productUnitId = product.base_unit_id || 
+                                product.product_unit_id || 
+                                product.productUnitId || 
+                                product.baseUnitId;
+          
+          if (!productUnitId) {
+            console.warn('⚠️ No productUnitId found for product:', product.id, product.name);
+            console.warn('⚠️ Available fields:', Object.keys(product));
+            throw new Error('Sản phẩm không có đơn vị tính hợp lệ');
+          }
+          
+          // Call backend API - need productId and productUnitId
+          const requestData = {
+            productId: product.id,
+            quantity: quantity,
+            productUnitId: Number(productUnitId)
+          };
+          console.log('🚀 Calling backend addToCart API:', requestData);
+          
+          const response = await addToCartAPI(
+            product.id,
+            quantity,
+            productUnitId
+          );
+          console.log('✅ Backend response:', response);
+          
+          // Trigger cart count refresh by dispatching custom event
+          window.dispatchEvent(new Event('cartUpdated'));
+        } catch (apiError) {
+          console.error('❌ Backend API error:', apiError);
+          // Continue to add to local cart even if API fails
+        }
+      }
+      
+      // Always update Redux store for UI consistency
       dispatch(addToCart(normalizedProduct));
       
       console.log('✅ Product added to cart successfully');

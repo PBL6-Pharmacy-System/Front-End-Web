@@ -474,6 +474,116 @@
   left: 100%;
 }
 
+/* Product Actions Buttons */
+.product-card .product-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.product-card .view-detail-btn,
+.product-card .add-to-cart-btn {
+  flex: 1;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-card .view-detail-btn {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #495057;
+  border: 2px solid #dee2e6;
+}
+
+.product-card .view-detail-btn:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-card .add-to-cart-btn {
+  background: linear-gradient(135deg, #0096ff 0%, #0066cc 100%);
+  color: white;
+  box-shadow: 
+    0 4px 15px rgba(0, 102, 204, 0.3),
+    0 2px 8px rgba(0, 102, 204, 0.2);
+}
+
+.product-card .add-to-cart-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00a8ff 0%, #0077dd 100%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 20px rgba(0, 102, 204, 0.4),
+    0 3px 12px rgba(0, 102, 204, 0.3);
+}
+
+.product-card .add-to-cart-btn:disabled {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.product-card .add-to-cart-btn:disabled:hover {
+  transform: none;
+}
+
+/* Stock Info Styles */
+.product-card .stock-info {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.product-card .available-stock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-family: 'Poppins', sans-serif;
+}
+
+.product-card .available-stock.out-of-stock {
+  color: #e74c3c;
+}
+
+.product-card .available-stock.low-stock {
+  color: #f39c12;
+}
+
+.product-card .stock-number {
+  font-weight: 800;
+  font-size: 16px;
+  color: #27ae60;
+}
+
+.product-card .stock-number.warning {
+  color: #e67e22;
+  animation: stockWarning 2s ease-in-out infinite;
+}
+
+@keyframes stockWarning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.product-card .stock-status {
+  font-weight: 700;
+  font-size: 14px;
+}
+
 /* Enhanced View All Button */
 .view-all-container {
   text-align: center;

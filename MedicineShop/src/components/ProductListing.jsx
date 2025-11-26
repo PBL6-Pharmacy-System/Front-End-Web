@@ -35,7 +35,8 @@ export default function ProductListing({ onNavigate, onProductClick }) {
 
   const handleProductClick = (product) => {
     if (onProductClick) {
-      onProductClick(product.id, 'listing');
+      // Use API-backed listing source so ProductDetailPage fetches from backend
+      onProductClick(product.id || product.product_id || product.productId, 'listing-api');
     }
   };
 

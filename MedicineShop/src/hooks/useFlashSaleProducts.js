@@ -8,14 +8,15 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let didFetch = false;
     const fetchProducts = async () => {
+      if (didFetch) return;
+      didFetch = true;
       try {
         setLoading(true);
         setError(null);
-        
         console.log('🔄 Fetching flash sale products from API...');
         const response = await getFlashSaleProducts();
-        
         if (response.success) {
           console.log('✅ Flash sale products loaded:', response.data.length);
           setAllProducts(response.data);
@@ -32,8 +33,8 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
         setLoading(false);
       }
     };
-
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Calculate pagination data

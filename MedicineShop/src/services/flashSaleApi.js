@@ -1,7 +1,10 @@
 // Flash Sale API Service
-// API endpoint: http://localhost:3000/api/flashsales
+// Public endpoints do NOT require Authorization header
+import { API_CONFIG } from '../config/api';
+import { transformProductFromAPI } from '../utils/productTransformer';
 
-const API_BASE = '/api/flashsales';
+const API_BASE_URL = API_CONFIG.BASE_URL;
+const API_BASE = `${API_BASE_URL}/flashsales`;
 
 const parseJSON = async (response) => {
   try {
@@ -13,259 +16,265 @@ const parseJSON = async (response) => {
 
 /**
  * Normalize API response to consistent format
- * Expected backend response format:
- * {
- *   success: true,
- *   data: {
- *     flashsales: [...],
- *     pagination: {...}
- *   }
- * }
  */
 const normalizeFlashSaleResponse = (payload) => {
   if (!payload) return { data: [], total: 0, pagination: null };
 
-  // Handle { success: true, data: { flashsales: [], pagination: {} } }
-  if (payload.success && payload.data) {
+  // Case: { success: true, data: { flashsales: [...], pagination: {} } }
+  if (
+    payload.success &&
+    payload.data &&
+    typeof payload.data === 'object' &&
+    !Array.isArray(payload.data) &&
+    (payload.data.flashsales || payload.data.flashSales || payload.data.pagination)
+  ) {
     const flashsales = payload.data.flashsales || payload.data.flashSales || [];
-    const pagination = payload.data.pagination;
-    
-    // Extract products from flashsales array
-    let allProducts = [];
+    const pagination = payload.data.pagination || null;
+
+    // Flatten products from flashsales
+    const allProducts = [];
     if (Array.isArray(flashsales)) {
-      flashsales.forEach(flashsale => {
-        if (flashsale.products && Array.isArray(flashsale.products)) {
-          // Each item in products array has structure: { id, product_id, flash_price, stock_limit, product: {...} }
-          const productsWithFlashSaleInfo = flashsale.products.map(item => {
-            const product = item.product || {};
-            
-            return {
-              // Product data from nested product object
-              ...product,
-              // Flash sale specific data from the wrapper
-              flashSaleItemId: item.id,
-              flashSaleId: flashsale.id,
-              flashSaleName: flashsale.name,
-              flashSaleDescription: flashsale.description,
-              startTime: flashsale.start_time,
-              endTime: flashsale.end_time,
-              flashSaleStatus: flashsale.status,
-              // Price data from flash sale
-              flashPrice: item.flash_price,
-              flashStockLimit: item.stock_limit,
-              flashSoldCount: item.sold_count,
-            };
-          });
-          allProducts.push(...productsWithFlashSaleInfo);
-        }
-      });
+        flashsales.forEach(fs => {
+          console.log('🔍 Processing flashsale:', fs.id, fs.name);
+          // Backend returns: flashsale_products array with nested products object
+          const items = fs.flashsale_products || fs.flashsaleProducts || fs.products || [];
+          console.log('📦 Flashsale items count:', items.length);
+          
+          if (Array.isArray(items) && items.length > 0) {
+            items.forEach(item => {
+              // Extract product from flashsale_product item
+              const product = item.products || item.product || item;
+              
+              if (product && product.id) {
+                console.log('✅ Found product:', product.id, product.name);
+                allProducts.push({
+                  ...product,
+                  flashSaleItemId: item.id,
+                  flashSaleId: fs.id,
+                  flashSaleName: fs.name,
+                  flashSaleDescription: fs.description,
+                  startTime: fs.start_time || fs.startTime,
+                  endTime: fs.end_time || fs.endTime,
+                  flashSaleStatus: fs.status,
+                  flashPrice: item.flash_price || item.flashPrice,
+                  flashStockLimit: item.stock_limit || item.stockLimit,
+                  flashSoldCount: item.sold_count || item.soldCount || 0
+                });
+              } else {
+                console.warn('⚠️ No product found in item:', item);
+              }
+            });
+          } else {
+            console.warn('⚠️ No flashsale_products array found for:', fs.name);
+          }
+        });
     }
-    
+
     return {
       data: allProducts,
       total: pagination?.totalRecords || allProducts.length,
-      pagination: pagination
+      pagination
     };
   }
 
-  // If backend returns { data: [...], total: N }
+  // Case: { data: [...] }
   if (payload.data && Array.isArray(payload.data)) {
-    return { 
-      data: payload.data, 
+    return {
+      data: payload.data,
       total: payload.total || payload.data.length,
       pagination: payload.pagination || null
     };
   }
 
-  // If payload itself is an array
+  // Case: payload is an array
   if (Array.isArray(payload)) {
-    return { 
-      data: payload, 
-      total: payload.length,
-      pagination: null
-    };
+    return { data: payload, total: payload.length, pagination: null };
   }
 
-  // If backend returns { products: [...], total: N }
+  // Case: { products: [...] }
   if (payload.products && Array.isArray(payload.products)) {
-    return { 
-      data: payload.products, 
-      total: payload.total || payload.products.length,
-      pagination: payload.pagination || null
-    };
+    return { data: payload.products, total: payload.total || payload.products.length, pagination: payload.pagination || null };
   }
 
-  // Unexpected shape: return empty
+  // Fallback
   return { data: [], total: 0, pagination: null };
 };
 
-/**
- * Transform product data from API to match frontend format
- */
 const transformProduct = (product) => {
   if (!product) return null;
-
-  // Get original price and flash sale price
-  const originalPrice = parseFloat(product.price || '0');
+  
+  // First apply basic product transformation
+  const baseTransformed = transformProductFromAPI(product);
+  
+  // Then add flash-sale specific fields
+  const originalPrice = parseFloat(product.price || product.price_amount || '0');
   const flashPrice = parseFloat(product.flashPrice || product.flash_price || '0');
   const salePrice = flashPrice > 0 ? flashPrice : originalPrice;
-  
-  // Calculate discount percentage
+
   let discountPercent = 0;
   if (originalPrice > 0 && salePrice > 0 && salePrice < originalPrice) {
     discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
   }
 
-  // Get stock information
-  const stockLimit = product.flashStockLimit || product.flash_stock_limit || product.stock_limit;
-  const soldCount = product.flashSoldCount || product.flash_sold_count || product.sold_count || 0;
-  const availableStock = stockLimit ? (stockLimit - soldCount) : (product.stock || 99);
+  // Calculate available stock from flash sale limits
+  const stockLimit = product.flashStockLimit || product.stock_limit || product.stock || product.totalStock || 100;
+  const soldCount = product.flashSoldCount || product.sold_count || product.sold || 0;
+  const availableStock = Math.max(0, stockLimit - soldCount);
+  
+  console.log(`📦 Product ${product.id || product.name}: stock_limit=${stockLimit}, sold_count=${soldCount}, available=${availableStock}`);
+  console.log(`📦 Product ${product.id || product.name}: stock_limit=${stockLimit}, sold_count=${soldCount}, available=${availableStock}`);
+  
+  // Time fields: prefer product.startTime / product.endTime, fallback to start_time/end_time
+  const startTimeRaw = product.startTime || product.start_time || product.start;
+  const endTimeRaw = product.endTime || product.end_time || product.end;
+
+  const safeParseDate = (v) => {
+    try {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? null : d;
+    } catch {
+      return null;
+    }
+  };
+
+  const startDate = safeParseDate(startTimeRaw);
+  const endDate = safeParseDate(endTimeRaw);
+
+  const startTimeISO = startDate ? startDate.toISOString() : null;
+  const endTimeISO = endDate ? endDate.toISOString() : null;
+  const startTimeLocal = startDate ? startDate.toLocaleString() : null;
+  const endTimeLocal = endDate ? endDate.toLocaleString() : null;
+
+  const now = new Date();
+  const isActive = startDate && endDate ? (now >= startDate && now <= endDate) : false;
 
   return {
-    id: product.id || product.product_id,
-    name: product.name || '',
-    // Original price (giá gốc)
+    ...baseTransformed,
+    // Override with flash sale specific data
     price: String(originalPrice),
-    // Sale price (giá sau giảm = flash_price)
     support: String(salePrice),
-    // Images
-    image: product.image_url || product.images?.[0] || '',
-    images: product.images || [],
-    // Product details
-    quantity: product.specification || product.dosage || '',
     stock: availableStock,
-    totalStock: stockLimit || product.stock || 200,
+    totalStock: stockLimit,
     sold: soldCount,
-    // Discount info
     discount: discountPercent > 0 ? `-${discountPercent}%` : '',
-    discountPercent: discountPercent,
-    // Category and brand
-    category: product.category_id || product.category || '',
-    brand: product.brand || '',
-    manufacturer: product.manufacturer || product.producer || '',
-    description: product.description || '',
-    // Stock status
-    inStock: availableStock > 0,
+    discountPercent,
     // Flash sale specific fields
-    flashSaleId: product.flashSaleId,
+    flashSaleId: product.flashSaleId || product.flash_sale_id,
     flashSaleName: product.flashSaleName,
     flashSaleDescription: product.flashSaleDescription,
-    startTime: product.startTime,
-    endTime: product.endTime,
+    startTime: product.startTime || startTimeISO,
+    endTime: product.endTime || endTimeISO,
+    startTimeISO,
+    endTimeISO,
+    startTimeLocal,
+    endTimeLocal,
+    isActive,
     flashSaleStatus: product.flashSaleStatus,
-    // Additional product info
-    usage: product.usage,
-    faq: product.faq,
-    registNum: product.registNum,
-    manufactor: product.manufactor,
   };
 };
 
-/**
- * Get all flash sale products
- */
+// Fetch helper for public flashsale endpoints (no auth header)
+const defaultHeaders = { 'Content-Type': 'application/json' };
+
 export const getFlashSaleProducts = async () => {
   try {
-    console.log('🔥 Fetching flash sale products from:', API_BASE);
-    
-    const response = await fetch(API_BASE);
-    
+    console.log('🔥 Fetching flash sale products from flash sale API');
+
+    const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
+    // Try active endpoint first
+    let url = `${API_BASE}/active`;
+    let response = await fetch(url, { method: 'GET', headers: defaultHeaders });
+
+    // If no active flashsales (data: null), get all flashsales
+    if (response.ok) {
+      const activeData = await parseJSON(response);
+      console.log('📦 Active flashsales response:', activeData);
+      
+      // If no active flashsales, fallback to all flashsales
+      if (!activeData || !activeData.data || (Array.isArray(activeData.data) && activeData.data.length === 0) || activeData.data === null) {
+        console.log('⚠️ No active flashsales, fetching all flashsales...');
+        url = API_BASE;
+        response = await fetch(url, { method: 'GET', headers: defaultHeaders });
+      } else {
+        // Use active flashsales data
+        const normalized = normalizeFlashSaleResponse(activeData);
+        console.log('📦 Normalized active flashsales:', normalized);
+        const transformed = (normalized.data || []).map(transformProduct).filter(p => p !== null);
+        return { success: true, data: transformed, total: normalized.total, pagination: normalized.pagination };
+      }
+    } else if (response.status === 404) {
+      url = API_BASE;
+      response = await fetch(url, { method: 'GET', headers: defaultHeaders });
+    }
+
+    if (response.status === 429) {
+      const ra = response.headers.get('Retry-After');
+      let waitMs = 5000;
+      if (ra) {
+        const raInt = parseInt(ra, 10);
+        if (!isNaN(raInt)) waitMs = raInt * 1000;
+      }
+      console.warn(`Received 429, retrying after ${waitMs}ms`);
+      await wait(waitMs);
+      response = await fetch(url, { method: 'GET', headers: defaultHeaders });
+    }
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const data = await parseJSON(response);
     console.log('📦 Raw API response:', data);
     
+    // Filter to only show active or pending flashsales (not ended)
+    if (data && data.data && Array.isArray(data.data.flashsales)) {
+      const activeOrPending = data.data.flashsales.filter(fs => 
+        fs.status === 'active' || fs.status === 'pending'
+      );
+      console.log(`📦 Filtered ${activeOrPending.length} active/pending flashsales from ${data.data.flashsales.length} total`);
+      data.data.flashsales = activeOrPending;
+      
+      if (activeOrPending.length > 0) {
+        console.log('📦 First flashsale object:', activeOrPending[0]);
+      }
+    }
+
     const normalized = normalizeFlashSaleResponse(data);
     console.log('📦 Normalized response:', normalized);
-    
-    // Transform products to match frontend format
-    const transformedProducts = normalized.data
-      .map(transformProduct)
-      .filter(p => p !== null);
-    
-    console.log('✅ Flash sale products loaded:', transformedProducts.length, 'products');
-    if (transformedProducts.length > 0) {
-      console.log('📦 Sample product:', transformedProducts[0]);
-    }
-    
-    return { 
-      success: true, 
-      data: transformedProducts, 
-      total: normalized.total,
-      pagination: normalized.pagination
-    };
+
+    const transformed = (normalized.data || []).map(transformProduct).filter(p => p !== null);
+
+    return { success: true, data: transformed, total: normalized.total, pagination: normalized.pagination };
   } catch (error) {
     console.error('❌ Error fetching flash sale products:', error);
-    return { 
-      success: false, 
-      error: error.message,
-      data: [],
-      total: 0
-    };
+    return { success: false, error: error.message, data: [], total: 0 };
   }
 };
 
-/**
- * Get flash sale product by ID
- */
 export const getFlashSaleProductById = async (productId) => {
   try {
-    const response = await fetch(`${API_BASE}/${productId}`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
+    const response = await fetch(`${API_BASE}/${productId}`, { method: 'GET', headers: defaultHeaders });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await parseJSON(response);
-    
-    // Handle both wrapped and direct product responses
-    const product = data.data || data;
-    const transformed = transformProduct(product);
-    
-    return { 
-      success: true, 
-      data: transformed 
-    };
+    const product = (data && data.data) ? data.data : data;
+    return { success: true, data: transformProduct(product) };
   } catch (error) {
     console.error('❌ Error fetching flash sale product by ID:', error);
-    return { 
-      success: false, 
-      error: error.message,
-      data: null
-    };
+    return { success: false, error: error.message, data: null };
   }
 };
 
-/**
- * Get active flash sales
- * Optional: if backend supports filtering active sales
- */
 export const getActiveFlashSales = async () => {
   try {
-    const response = await fetch(`${API_BASE}/active`);
-    
-    if (!response.ok) {
-      // Fallback to getting all products if endpoint doesn't exist
-      return getFlashSaleProducts();
-    }
-    
+    const response = await fetch(`${API_BASE}/active`, { method: 'GET', headers: defaultHeaders });
+    if (!response.ok) return getFlashSaleProducts();
     const data = await parseJSON(response);
     const normalized = normalizeFlashSaleResponse(data);
-    
-    const transformedProducts = normalized.data
-      .map(transformProduct)
-      .filter(p => p !== null);
-    
-    return { 
-      success: true, 
-      data: transformedProducts, 
-      total: normalized.total 
-    };
+    const transformed = (normalized.data || []).map(transformProduct).filter(p => p !== null);
+    return { success: true, data: transformed, total: normalized.total };
   } catch (error) {
     console.error('❌ Error fetching active flash sales:', error);
-    // Fallback to getting all products
     return getFlashSaleProducts();
   }
 };

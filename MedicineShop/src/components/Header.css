@@ -211,10 +211,32 @@
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 20px; /* Tăng khoảng cách từ 14px lên 20px */
-    min-width: 280px;
+    gap: 16px;
+    min-width: 320px;
     justify-content: flex-end;
-    padding: 0 4px; /* Thêm padding để tránh nút chạm viền */
+    padding: 0 4px;
+}
+
+/* User Info Display */
+.header-user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(29, 78, 216, 0.25);
+    border-radius: 24px;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 600;
+    backdrop-filter: blur(20px);
+}
+
+.header-user-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .header-btn {
@@ -235,9 +257,7 @@
     font-family: inherit;
     white-space: nowrap;
     position: relative;
-    /* Giữ kích thước cố định để tránh layout shift */
     flex-shrink: 0;
-    /* Thêm contain để cô lập layout */
     contain: layout style;
 }
 
@@ -260,7 +280,6 @@
 /* Hover effect riêng cho nút đăng nhập */
 .header-login-btn {
     border-color: rgba(29, 78, 216, 0.3);
-    margin-right: 8px;
 }
 
 .header-login-btn:hover {
@@ -268,6 +287,42 @@
     border-color: rgba(29, 78, 216, 0.4);
     color: #1d4ed8;
     box-shadow: 0 6px 20px rgba(29, 78, 216, 0.15);
+}
+
+/* Nút đăng xuất */
+.header-logout-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.header-logout-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.header-logout-btn:hover::before {
+    left: 100%;
+}
+
+.header-logout-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.45);
+    transform: translateY(-1px);
+}
+
+.header-logout-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* Nút giỏ hàng - Enhanced Design */

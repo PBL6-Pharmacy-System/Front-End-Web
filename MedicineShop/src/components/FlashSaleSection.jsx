@@ -9,29 +9,90 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
   const { products, loading, error, pagination } = useFlashSaleProducts(6);
   const { handleAddToCart } = useAddToCart();
 
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 2,
-    minutes: 58,
-    seconds: 34
-  });
+  // Dynamic countdown based on product start/end times
+  const [timeLeft, setTimeLeft] = useState(null); // { hours, minutes, seconds }
+  const [countdownLabel, setCountdownLabel] = useState('Kết thúc trong');
 
-  // Countdown timer
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        }
-        return prev;
-      });
-    }, 1000);
+    let timerId = null;
 
-    return () => clearInterval(timer);
-  }, []);
+    const parseDate = (v) => {
+      if (!v) return null;
+      try {
+        const d = new Date(v);
+        return isNaN(d.getTime()) ? null : d;
+      } catch {
+        return null;
+      }
+    };
+
+    const compute = (startDate, endDate) => {
+      const now = new Date();
+      if (startDate && now < startDate) {
+        // upcoming
+        const diff = startDate.getTime() - now.getTime();
+        setCountdownLabel('Bắt đầu trong');
+        return diff;
+      }
+      if (endDate) {
+        const diff = endDate.getTime() - now.getTime();
+        setCountdownLabel('Kết thúc trong');
+        return diff;
+      }
+      return 0;
+    };
+
+    const msToHms = (ms) => {
+      if (!ms || ms <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+      const total = Math.max(0, Math.floor(ms / 1000));
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const seconds = total % 60;
+      return { hours, minutes, seconds };
+    };
+
+    // Only setup timer when the sale timeframe changes (avoid effect retriggering when `products` reference
+    // changes but content is the same). Use first product's start/end and product count as the key.
+    const p0 = products && products.length > 0 ? products[0] : null;
+    const startKey = p0 ? (p0.startTimeISO || p0.startTime || p0.start_time) : '';
+    const endKey = p0 ? (p0.endTimeISO || p0.endTime || p0.end_time) : '';
+
+    const setupTimerFromProducts = () => {
+      if (!p0) {
+        setTimeLeft(null);
+        return;
+      }
+
+      const startDate = parseDate(startKey);
+      const endDate = parseDate(endKey);
+
+      const update = () => {
+        const ms = compute(startDate, endDate);
+        setTimeLeft(prev => {
+          const next = msToHms(ms);
+          // only update state if values changed to avoid extra re-renders
+          if (!prev || prev.hours !== next.hours || prev.minutes !== next.minutes || prev.seconds !== next.seconds) {
+            return next;
+          }
+          return prev;
+        });
+        // stop when expired
+        if (ms <= 0 && timerId) {
+          clearInterval(timerId);
+        }
+      };
+
+      update();
+      timerId = setInterval(update, 1000);
+    };
+
+    setupTimerFromProducts();
+
+    return () => {
+      if (timerId) clearInterval(timerId);
+    };
+  // Depend only on number of products and the first product's timeframe strings
+  }, [products?.length, products?.[0]?.startTimeISO, products?.[0]?.endTimeISO, products?.[0]?.startTime, products?.[0]?.endTime, products?.[0]?.start_time, products?.[0]?.end_time]);
 
   const handleBuyNow = (product) => {
     console.log(`Mua ngay: ${product.name}`);
@@ -129,12 +190,18 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
         <div className="section-header">
           <h2 className="section-title">⚡ FLASH SALE</h2>
           <div className="countdown-timer">
-            <span>Kết thúc trong: </span>
+            <span>{countdownLabel}: </span>
             <div className="timer">
               <span>
-                {String(timeLeft.hours).padStart(2, '0')}:
-                {String(timeLeft.minutes).padStart(2, '0')}:
-                {String(timeLeft.seconds).padStart(2, '0')}
+                {timeLeft ? (
+                  <>
+                    {String(timeLeft.hours).padStart(2, '0')}:
+                    {String(timeLeft.minutes).padStart(2, '0')}:
+                    {String(timeLeft.seconds).padStart(2, '0')}
+                  </>
+                ) : (
+                  '--:--:--'
+                )}
               </span>
             </div>
           </div>
@@ -143,7 +210,9 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
         <div className="products-grid">
           {products.map(product => {
             const discountPercent = calculateDiscount(product.price, product.support);
-            
+            const hasImage =
+              (product.images && Array.isArray(product.images) && product.images.length > 0 && typeof product.images[0] === 'string' && product.images[0]) ||
+              (product.image && typeof product.image === 'string' && product.image);
             return (
               <div 
                 key={product.id}
@@ -154,34 +223,31 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                 {discountPercent > 0 && (
                   <div className="discount-badge">-{discountPercent}%</div>
                 )}
-                
                 <div className="product-image">
-                  <img 
-                    src={(() => {
-                      // Handle images array
-                      if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-                        const firstImage = product.images[0];
-                        // Normalize URL encoding
-                        if (typeof firstImage === 'string') {
-                          return encodeURI(decodeURI(firstImage));
+                  {hasImage ? (
+                    <img 
+                      src={(() => {
+                        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+                          const firstImage = product.images[0];
+                          if (typeof firstImage === 'string') {
+                            return encodeURI(decodeURI(firstImage));
+                          }
+                          if (firstImage && typeof firstImage === 'object' && firstImage.url) {
+                            return encodeURI(decodeURI(firstImage.url));
+                          }
                         }
-                        if (firstImage && typeof firstImage === 'object' && firstImage.url) {
-                          return encodeURI(decodeURI(firstImage.url));
+                        if (product.image && typeof product.image === 'string') {
+                          return encodeURI(decodeURI(product.image));
                         }
-                      }
-                      // Fallback to single image field
-                      if (product.image && typeof product.image === 'string') {
-                        return encodeURI(decodeURI(product.image));
-                      }
-                      // Default placeholder
-                      return "/api/placeholder/150/150";
-                    })()}
-                    alt={product.name || 'Sản phẩm'} 
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/api/placeholder/150/150";
-                    }}
-                  />
+                        return "";
+                      })()}
+                      alt={product.name || 'Sản phẩm'} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  ) : null}
                 </div>
                 
                 <div className="product-info">
@@ -216,27 +282,15 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                     </div>
                   )}
                   
-                  {/* Số sản phẩm mở bán - Hiển thị chính xác */}
+                  {/* Trạng thái hàng hóa */}
                   <div className="stock-info">
-                    {product.stock !== undefined && product.stock !== null ? (
-                      <div className={`available-stock ${product.stock === 0 ? 'out-of-stock' : product.stock < 10 ? 'low-stock' : ''}`}>
-                        {product.stock === 0 ? (
-                          <span className="stock-status">❌ Hết hàng</span>
-                        ) : product.stock < 20 ? (
-                          <>
-                            ⚡ Chỉ còn: <span className="stock-number warning">{product.stock}</span> sản phẩm
-                          </>
-                        ) : (
-                          <>
-                            ✅ Còn lại: <span className="stock-number">{product.stock}</span> sản phẩm
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="available-stock">
-                        <span className="stock-status">🔥 Flash Sale - Số lượng có hạn</span>
-                      </div>
-                    )}
+                    <div className={`available-stock ${product.inStock === 0 || product.stock === 0 ? 'out-of-stock' : ''}`}>
+                      {product.inStock === 0 || product.stock === 0 ? (
+                        <span className="stock-status">❌ Hết hàng</span>
+                      ) : (
+                        <span className="stock-status">✅ Còn hàng</span>
+                      )}
+                    </div>
                   </div>
                   
                   {/* 2 buttons */}
@@ -250,8 +304,9 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                     <button 
                       className="add-to-cart-btn"
                       onClick={(e) => handleAddToCartClick(product, e)}
+                      disabled={product.inStock === 0 || product.stock === 0}
                     >
-                      🛒 Thêm vào giỏ
+                      {(product.inStock === 0 || product.stock === 0) ? '❌ Hết hàng' : '🛒 Thêm vào giỏ'}
                     </button>
                   </div>
                 </div>

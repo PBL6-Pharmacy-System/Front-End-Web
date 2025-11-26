@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Header from './components/Header';
 import Footer from "./components/Footer";
-import LoginPage from "./pages/LoginPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
@@ -47,8 +46,6 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'login':
-        return <LoginPage onNavigate={setCurrentPage} />;
       case 'cart':
         return <CartPage onNavigate={handleNavigate} />;
       case 'checkout':

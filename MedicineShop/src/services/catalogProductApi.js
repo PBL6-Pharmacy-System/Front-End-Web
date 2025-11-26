@@ -1,10 +1,11 @@
 import { SUBCATEGORY_API_MAP } from './subcategoryApiMap';
 import { MockApiService } from './productApi';
 import { MENU_DATA } from '../constants/categories';
+import { API_CONFIG } from '../config/api';
+import { transformProductsFromAPI } from '../utils/productTransformer';
 
-// Use relative API base so Vite dev server can proxy '/api' to the backend and
-// avoid CORS in development. In production this should point to the real API host.
-const API_BASE = '/api/products/category';
+const API_BASE_URL = API_CONFIG.BASE_URL;
+const API_BASE = `${API_BASE_URL}/products/category`;
 
 const parseJSON = async (response) => {
   try {
@@ -249,7 +250,9 @@ export const getProductsByCategory = async (categoryKey) => {
       console.log(`✅ Combined ${uniqueProducts.length} unique products from parent category "${categoryKey}"`);
       
       if (uniqueProducts.length > 0) {
-        return { success: true, data: uniqueProducts, total: uniqueProducts.length };
+        // Transform products to ensure base_unit_id
+        const transformed = transformProductsFromAPI(uniqueProducts);
+        return { success: true, data: transformed, total: transformed.length };
       }
       
       console.log(`⚠️ No products found from subcategories, trying normal flow...`);
@@ -278,8 +281,10 @@ export const getProductsByCategory = async (categoryKey) => {
         const data = await parseJSON(res);
         const normalized = normalizeApiResponse(data);
         const products = normalizeProducts(normalized.data);
-        console.log(`✅ Successfully fetched ${products.length} products from mapped endpoint`);
-        return { success: true, data: products, total: normalized.total };
+        // Transform to ensure base_unit_id
+        const transformed = transformProductsFromAPI(products);
+        console.log(`✅ Successfully fetched ${transformed.length} products from mapped endpoint`);
+        return { success: true, data: transformed, total: normalized.total };
       } catch (err) {
         console.warn('⚠️ Fetch to mapped subcategory endpoint failed, falling back to mock data.', err.message);
         // fallthrough to mock fallback below
@@ -300,8 +305,10 @@ export const getProductsByCategory = async (categoryKey) => {
       const data = await parseJSON(response);
       const normalized = normalizeApiResponse(data);
       const products = normalizeProducts(normalized.data);
-      console.log(`✅ Successfully fetched ${products.length} products from default endpoint`);
-      return { success: true, data: products, total: normalized.total };
+      // Transform to ensure base_unit_id
+      const transformed = transformProductsFromAPI(products);
+      console.log(`✅ Successfully fetched ${transformed.length} products from default endpoint`);
+      return { success: true, data: transformed, total: normalized.total };
     } catch (err) {
       console.warn('⚠️ Default endpoint also failed:', err.message);
     }
@@ -316,8 +323,10 @@ export const getProductsByCategory = async (categoryKey) => {
           p.subcategory === categoryKey ||
           p.category === categoryKey
         );
-        console.log(`✅ Found ${filtered.length} products in mock data`);
-        return { success: true, data: filtered, total: filtered.length };
+        // Transform to ensure base_unit_id
+        const transformed = transformProductsFromAPI(filtered);
+        console.log(`✅ Found ${transformed.length} products in mock data`);
+        return { success: true, data: transformed, total: transformed.length };
       }
     } catch (err) {
       console.error('❌ Mock fallback also failed:', err.message);

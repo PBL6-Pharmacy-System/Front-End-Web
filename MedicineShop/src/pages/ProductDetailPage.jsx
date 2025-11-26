@@ -32,6 +32,31 @@ export default function ProductDetailPage({ onNavigate, productId, productSource
             const { getProductById: getFlashSaleProduct } = await import('../services/catalogProductApi');
             response = await getFlashSaleProduct(productId);
             break;
+          
+          case 'listing-api':
+            console.log('📡 Fetching listing product from backend API');
+            try {
+              const res = await fetch(`/api/products/${productId}`, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+              if (res.ok) {
+                const payload = await res.json();
+                if (payload && (payload.success && payload.data)) {
+                  response = { success: true, data: payload.data };
+                } else if (payload && payload.data) {
+                  response = { success: true, data: payload.data };
+                } else if (payload) {
+                  // payload may be product object
+                  response = { success: true, data: payload };
+                } else {
+                  response = { success: false, error: 'Không tìm thấy sản phẩm' };
+                }
+              } else {
+                response = { success: false, error: `HTTP ${res.status}` };
+              }
+            } catch (err) {
+              console.warn('Fetch product API failed, falling back to mock:', err);
+              response = null;
+            }
+            break;
             
           case 'catalog':
             console.log('📂 Fetching Catalog product');

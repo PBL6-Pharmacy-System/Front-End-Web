@@ -10,6 +10,8 @@ import {
   toggleSelectAll,
 } from '../store/cartSlice';
 import { formatPrice } from '../utils/productHelpers';
+import { getCart, removeFromCart as removeFromCartAPI, updateCartItem } from '../services/cartApi';
+import { isAuthenticated } from '../services/authApi';
 import './Cart.css';
 
 export default function Cart({ onNavigate }) {
@@ -18,34 +20,151 @@ export default function Cart({ onNavigate }) {
   const selectedTotalAmount = useSelector(selectSelectedTotalAmount);
   
   const [selectAll, setSelectAll] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [backendCartItems, setBackendCartItems] = useState([]);
+  const [displayItems, setDisplayItems] = useState([]);
+
+  // Check authentication and fetch cart from backend
+  useEffect(() => {
+    const checkAuthAndFetchCart = async () => {
+      if (!isAuthenticated()) {
+        // Redirect to home if not authenticated
+        alert('Vui lòng đăng nhập để xem giỏ hàng');
+        if (onNavigate) {
+          onNavigate('home');
+        }
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await getCart();
+        console.log('📦 Backend cart data:', response);
+        
+        if (response.success && response.data && response.data.orderitems) {
+          const items = response.data.orderitems;
+          setBackendCartItems(items);
+          
+          // Transform backend data to display format
+          const transformedItems = items.map(item => ({
+            id: item.id,
+            backendItemId: item.id,
+            productId: item.product_id,
+            name: item.products?.name || 'Sản phẩm',
+            price: Number(item.price) || 0,
+            originalPrice: Number(item.products?.price) || null,
+            image: item.products?.images?.[0] || '/api/placeholder/150/150',
+            quantity: item.quantity,
+            unit: item.productunits?.unit_name || 'Hộp',
+            totalPrice: Number(item.subtotal) || 0,
+            selected: true
+          }));
+          
+          setDisplayItems(transformedItems);
+          console.log('✅ Transformed cart items:', transformedItems);
+        }
+      } catch (error) {
+        console.error('❌ Error fetching cart:', error);
+        // If error is authentication related, redirect to home
+        if (error.message.includes('authenticated')) {
+          alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
+          if (onNavigate) {
+            onNavigate('home');
+          }
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthAndFetchCart();
+  }, [onNavigate]);
 
   useEffect(() => {
     // Cập nhật selectAll dựa trên state của items
-    const allSelected = cartItems.length > 0 && cartItems.every(item => item.selected);
+    const allSelected = displayItems.length > 0 && displayItems.every(item => item.selected);
     setSelectAll(allSelected);
-  }, [cartItems]);
+  }, [displayItems]);
 
   const handleSelectAll = () => {
     const newSelectAll = !selectAll;
     setSelectAll(newSelectAll);
-    dispatch(toggleSelectAll(newSelectAll));
+    setDisplayItems(displayItems.map(item => ({
+      ...item,
+      selected: newSelectAll
+    })));
   };
 
   const handleSelectItem = (id) => {
-    dispatch(toggleSelectItem(id));
+    setDisplayItems(displayItems.map(item => 
+      item.id === id ? { ...item, selected: !item.selected } : item
+    ));
   };
 
-  const handleQuantityChange = (id, change) => {
-    if (change > 0) {
-      dispatch(incrementQuantity(id));
-    } else if (change < 0) {
-      dispatch(decrementQuantity(id));
+  const handleQuantityChange = async (backendItemId, change, currentQuantity) => {
+    const newQuantity = currentQuantity + change;
+    if (newQuantity < 1) return;
+
+    try {
+      // Call backend API
+      await updateCartItem(backendItemId, newQuantity);
+      // Refresh cart from backend
+      const response = await getCart();
+      if (response.success && response.data && response.data.orderitems) {
+        const items = response.data.orderitems;
+        const transformedItems = items.map(item => ({
+          id: item.id,
+          backendItemId: item.id,
+          productId: item.product_id,
+          name: item.products?.name || 'Sản phẩm',
+          price: Number(item.price) || 0,
+          originalPrice: Number(item.products?.price) || null,
+          image: item.products?.images?.[0] || '/api/placeholder/150/150',
+          quantity: item.quantity,
+          unit: item.productunits?.unit_name || 'Hộp',
+          totalPrice: Number(item.subtotal) || 0,
+          selected: true
+        }));
+        setDisplayItems(transformedItems);
+      }
+      // Trigger cart count refresh in header
+      window.dispatchEvent(new Event('cartUpdated'));
+    } catch (error) {
+      console.error('❌ Error updating quantity:', error);
+      alert('Có lỗi xảy ra khi cập nhật số lượng');
     }
   };
 
-  const handleRemoveItem = (id) => {
+  const handleRemoveItem = async (backendItemId) => {
     if (window.confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
-      dispatch(removeFromCart(id));
+      try {
+        // Call backend API
+        await removeFromCartAPI(backendItemId);
+        // Refresh cart from backend
+        const response = await getCart();
+        if (response.success && response.data && response.data.orderitems) {
+          const items = response.data.orderitems;
+          const transformedItems = items.map(item => ({
+            id: item.id,
+            backendItemId: item.id,
+            productId: item.product_id,
+            name: item.products?.name || 'Sản phẩm',
+            price: Number(item.price) || 0,
+            originalPrice: Number(item.products?.price) || null,
+            image: item.products?.images?.[0] || '/api/placeholder/150/150',
+            quantity: item.quantity,
+            unit: item.productunits?.unit_name || 'Hộp',
+            totalPrice: Number(item.subtotal) || 0,
+            selected: true
+          }));
+          setDisplayItems(transformedItems);
+        }
+        // Trigger cart count refresh in header
+        window.dispatchEvent(new Event('cartUpdated'));
+      } catch (error) {
+        console.error('❌ Error removing item:', error);
+        alert('Có lỗi xảy ra khi xóa sản phẩm');
+      }
     }
   };
   
@@ -56,7 +175,7 @@ export default function Cart({ onNavigate }) {
   };
   
   const handleCheckout = () => {
-    const selectedItems = cartItems.filter(item => item.selected);
+    const selectedItems = displayItems.filter(item => item.selected);
     if (selectedItems.length === 0) {
       alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán');
       return;
@@ -67,8 +186,9 @@ export default function Cart({ onNavigate }) {
     }
   };
 
-  const selectedItems = cartItems.filter(item => item.selected);
+  const selectedItems = displayItems.filter(item => item.selected);
   const selectedCount = selectedItems.length;
+  const calculatedTotal = selectedItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
   return (
     <div className="cart-page">
@@ -79,7 +199,7 @@ export default function Cart({ onNavigate }) {
             <span className="back-icon">←</span>
             Tiếp tục mua sắm
           </button>
-          <h1>Giỏ hàng của bạn ({cartItems.length} sản phẩm)</h1>
+          <h1>Giỏ hàng của bạn ({displayItems.length} sản phẩm)</h1>
         </div>
 
         {/* Free Shipping Banner */}
@@ -99,7 +219,7 @@ export default function Cart({ onNavigate }) {
                   onChange={handleSelectAll}
                 />
                 <span className="checkmark"></span>
-                Chọn tất cả ({cartItems.length})
+                Chọn tất cả ({displayItems.length})
               </label>
             </div>
 
@@ -112,7 +232,12 @@ export default function Cart({ onNavigate }) {
 
             {/* Cart Items */}
             <div className="cart-items-list">
-              {cartItems.length === 0 ? (
+              {isLoading ? (
+                <div className="empty-cart">
+                  <div className="empty-cart-icon">⏳</div>
+                  <h3>Đang tải giỏ hàng...</h3>
+                </div>
+              ) : displayItems.length === 0 ? (
                 <div className="empty-cart">
                   <div className="empty-cart-icon">🛒</div>
                   <h3>Giỏ hàng trống</h3>
@@ -122,7 +247,7 @@ export default function Cart({ onNavigate }) {
                   </button>
                 </div>
               ) : (
-                cartItems.map(item => (
+                displayItems.map(item => (
                 <div key={item.id} className="cart-item">
                   <div className="item-select">
                     <label className="checkbox-container">
@@ -154,14 +279,14 @@ export default function Cart({ onNavigate }) {
                     <div className="quantity-controls">
                       <button 
                         className="qty-btn minus"
-                        onClick={() => handleQuantityChange(item.id, -1)}
+                        onClick={() => handleQuantityChange(item.backendItemId, -1, item.quantity)}
                       >
                         −
                       </button>
                       <span className="qty-number">{item.quantity}</span>
                       <button 
                         className="qty-btn plus"
-                        onClick={() => handleQuantityChange(item.id, 1)}
+                        onClick={() => handleQuantityChange(item.backendItemId, 1, item.quantity)}
                       >
                         +
                       </button>
@@ -178,7 +303,7 @@ export default function Cart({ onNavigate }) {
                   <div className="item-actions">
                     <button 
                       className="remove-btn"
-                      onClick={() => handleRemoveItem(item.id)}
+                      onClick={() => handleRemoveItem(item.backendItemId)}
                     >
                       🗑️
                     </button>
@@ -200,7 +325,7 @@ export default function Cart({ onNavigate }) {
             <div className="summary-details">
               <div className="summary-row">
                 <span>Tổng tiền ({selectedCount} sản phẩm)</span>
-                <span className="amount">{formatPrice(selectedTotalAmount)}đ</span>
+                <span className="amount">{formatPrice(calculatedTotal)}đ</span>
               </div>
               <div className="summary-row">
                 <span>Giảm giá trực tiếp</span>
@@ -212,12 +337,12 @@ export default function Cart({ onNavigate }) {
               </div>
               <div className="summary-row">
                 <span>Phí vận chuyển</span>
-                <span className="shipping">{selectedTotalAmount >= 300000 ? 'Miễn phí' : '30.000đ'}</span>
+                <span className="shipping">{calculatedTotal >= 300000 ? 'Miễn phí' : '30.000đ'}</span>
               </div>
               <div className="summary-total">
                 <span>Thành tiền</span>
                 <span className="total-amount">
-                  {formatPrice(selectedTotalAmount + (selectedTotalAmount >= 300000 ? 0 : 30000))}đ
+                  {formatPrice(calculatedTotal + (calculatedTotal >= 300000 ? 0 : 30000))}đ
                 </span>
               </div>
             </div>

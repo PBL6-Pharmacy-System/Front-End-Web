@@ -1,13 +1,3 @@
-import flashSaleData from '../data/flashsaleProducts.json';
-import listingProductsData from '../data/listingProducts.json';
-import medicalProductsData from '../data/medicalProducts.json';
-
-// THÊM: Import 3 file JSON catalog products
-import vitaminData from '../data/vitaminProducts.json';
-import hormonalData from '../data/hormonalProducts.json';
-import functionalData from '../data/functionalProducts.json';
-
-// Simulate API delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // THÊM: Function để gộp tất cả catalog products

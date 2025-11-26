@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { MockApiService } from '../services/productApi';
+import { API_CONFIG } from '../config/api';
+import { transformProductsFromAPI } from '../utils/productTransformer';
 
-export const useListingProducts = (itemsPerPage = 6) => { // Đổi từ 8 thành 6
+const API_BASE_URL = API_CONFIG.BASE_URL;
+
+export const useListingProducts = (itemsPerPage = 6) => {
   const [allProducts, setAllProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -12,17 +15,44 @@ export const useListingProducts = (itemsPerPage = 6) => { // Đổi từ 8 thàn
       try {
         setLoading(true);
         setError(null);
+
+        console.log('🔄 Fetching best-sellers from API...');
+        const res = await fetch(`${API_BASE_URL}/products/best-sellers`, { 
+          method: 'GET', 
+          headers: { 'Content-Type': 'application/json' } 
+        });
         
-        const response = await MockApiService.getListingProducts();
-        
-        if (response.success) {
-          setAllProducts(response.data);
-        } else {
-          setError(response.error);
-          setAllProducts([]);
+        if (!res.ok) {
+          throw new Error(`API returned status ${res.status}`);
         }
+
+        const payload = await res.json();
+        console.log('📦 Best-sellers API response:', payload);
+        
+        // Support multiple response shapes
+        let items = [];
+        if (payload) {
+          if (payload.success && Array.isArray(payload.data)) {
+            items = payload.data;
+          } else if (Array.isArray(payload.data)) {
+            items = payload.data;
+          } else if (Array.isArray(payload)) {
+            items = payload;
+          } else if (Array.isArray(payload.products)) {
+            items = payload.products;
+          }
+        }
+
+        console.log('✅ Loaded', items.length, 'products from API');
+        
+        // Transform products to ensure all have base_unit_id
+        const transformedProducts = transformProductsFromAPI(items);
+        console.log('📦 Transformed products:', transformedProducts.length);
+        
+        setAllProducts(transformedProducts);
       } catch (err) {
-        setError('Unexpected error occurred');
+        console.error('❌ Failed to fetch products:', err);
+        setError(err.message || 'Failed to load products');
         setAllProducts([]);
       } finally {
         setLoading(false);
