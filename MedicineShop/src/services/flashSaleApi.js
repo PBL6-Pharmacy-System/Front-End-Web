@@ -20,7 +20,54 @@ const parseJSON = async (response) => {
 const normalizeFlashSaleResponse = (payload) => {
   if (!payload) return { data: [], total: 0, pagination: null };
 
-  // Case: { success: true, data: { flashsales: [...], pagination: {} } }
+  // Case 1: { success: true, data: { flashsale_products: [...] } } - Single flashsale object from /active
+  if (
+    payload.success &&
+    payload.data &&
+    typeof payload.data === 'object' &&
+    !Array.isArray(payload.data) &&
+    payload.data.flashsale_products
+  ) {
+    const flashsale = payload.data;
+    const allProducts = [];
+    
+    console.log('🔍 Processing single flashsale:', flashsale.id, flashsale.name);
+    const items = flashsale.flashsale_products || [];
+    console.log('📦 Flashsale items count:', items.length);
+    
+    if (Array.isArray(items) && items.length > 0) {
+      items.forEach(item => {
+        const product = item.products || item.product || item;
+        
+        if (product && product.id) {
+          console.log('✅ Found product:', product.id, product.name);
+          allProducts.push({
+            ...product,
+            flashSaleItemId: item.id,
+            flashSaleId: flashsale.id,
+            flashSaleName: flashsale.name,
+            flashSaleDescription: flashsale.description,
+            startTime: flashsale.start_time || flashsale.startTime,
+            endTime: flashsale.end_time || flashsale.endTime,
+            flashSaleStatus: flashsale.status,
+            flashPrice: item.flash_price || item.flashPrice,
+            flashStockLimit: item.stock_limit || item.stockLimit,
+            flashSoldCount: item.sold_count || item.soldCount || 0
+          });
+        } else {
+          console.warn('⚠️ No product found in item:', item);
+        }
+      });
+    }
+    
+    return {
+      data: allProducts,
+      total: allProducts.length,
+      pagination: null
+    };
+  }
+
+  // Case 2: { success: true, data: { flashsales: [...], pagination: {} } } - Multiple flashsales
   if (
     payload.success &&
     payload.data &&
@@ -77,7 +124,7 @@ const normalizeFlashSaleResponse = (payload) => {
     };
   }
 
-  // Case: { data: [...] }
+  // Case 3: { data: [...] }
   if (payload.data && Array.isArray(payload.data)) {
     return {
       data: payload.data,
@@ -86,12 +133,12 @@ const normalizeFlashSaleResponse = (payload) => {
     };
   }
 
-  // Case: payload is an array
+  // Case 4: payload is an array
   if (Array.isArray(payload)) {
     return { data: payload, total: payload.length, pagination: null };
   }
 
-  // Case: { products: [...] }
+  // Case 5: { products: [...] }
   if (payload.products && Array.isArray(payload.products)) {
     return { data: payload.products, total: payload.total || payload.products.length, pagination: payload.pagination || null };
   }
@@ -137,16 +184,38 @@ const transformProduct = (product) => {
     }
   };
 
+  // Convert UTC to Vietnam timezone (UTC+7)
+  const toVietnamTime = (date) => {
+    if (!date) return null;
+    // Create new date and add 7 hours for Vietnam timezone
+    const vietnamDate = new Date(date.getTime() + (7 * 60 * 60 * 1000));
+    return vietnamDate;
+  };
+
   const startDate = safeParseDate(startTimeRaw);
   const endDate = safeParseDate(endTimeRaw);
+  
+  // Convert to Vietnam timezone for display
+  const startDateVN = toVietnamTime(startDate);
+  const endDateVN = toVietnamTime(endDate);
 
   const startTimeISO = startDate ? startDate.toISOString() : null;
   const endTimeISO = endDate ? endDate.toISOString() : null;
-  const startTimeLocal = startDate ? startDate.toLocaleString() : null;
-  const endTimeLocal = endDate ? endDate.toLocaleString() : null;
+  // Use Vietnam timezone for local display
+  const startTimeLocal = startDateVN ? startDateVN.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : null;
+  const endTimeLocal = endDateVN ? endDateVN.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : null;
 
+  // Use Vietnam time for active status check
   const now = new Date();
-  const isActive = startDate && endDate ? (now >= startDate && now <= endDate) : false;
+  const nowVN = toVietnamTime(now);
+  const isActive = startDateVN && endDateVN ? (nowVN >= startDateVN && nowVN <= endDateVN) : false;
+  
+  console.log(`⏰ Time check for ${product.name || product.id}:`);
+  console.log(`   UTC now: ${now.toISOString()}`);
+  console.log(`   VN now: ${nowVN ? nowVN.toISOString() : 'null'}`);
+  console.log(`   Start (VN): ${startDateVN ? startDateVN.toISOString() : 'null'}`);
+  console.log(`   End (VN): ${endDateVN ? endDateVN.toISOString() : 'null'}`);
+  console.log(`   Is Active: ${isActive}`);
 
   return {
     ...baseTransformed,
@@ -186,16 +255,15 @@ export const getFlashSaleProducts = async () => {
     let url = `${API_BASE}/active`;
     let response = await fetch(url, { method: 'GET', headers: defaultHeaders });
 
-    // If no active flashsales (data: null), get all flashsales
+    // If no active flashsales (data: null), return empty (don't fallback to /flashsales as it requires auth)
     if (response.ok) {
       const activeData = await parseJSON(response);
       console.log('📦 Active flashsales response:', activeData);
       
-      // If no active flashsales, fallback to all flashsales
+      // If no active flashsales, return empty result (don't fallback to auth-required endpoint)
       if (!activeData || !activeData.data || (Array.isArray(activeData.data) && activeData.data.length === 0) || activeData.data === null) {
-        console.log('⚠️ No active flashsales, fetching all flashsales...');
-        url = API_BASE;
-        response = await fetch(url, { method: 'GET', headers: defaultHeaders });
+        console.log('⚠️ No active flashsales available');
+        return { success: true, data: [], total: 0, pagination: null };
       } else {
         // Use active flashsales data
         const normalized = normalizeFlashSaleResponse(activeData);
@@ -203,9 +271,10 @@ export const getFlashSaleProducts = async () => {
         const transformed = (normalized.data || []).map(transformProduct).filter(p => p !== null);
         return { success: true, data: transformed, total: normalized.total, pagination: normalized.pagination };
       }
-    } else if (response.status === 404) {
-      url = API_BASE;
-      response = await fetch(url, { method: 'GET', headers: defaultHeaders });
+    } else if (response.status === 404 || response.status === 401) {
+      // No active flashsale endpoint available or unauthorized, return empty
+      console.log('⚠️ Flash sale endpoint not available or unauthorized');
+      return { success: true, data: [], total: 0, pagination: null };
     }
 
     if (response.status === 429) {

@@ -12,12 +12,14 @@ import {
 import { formatPrice } from '../utils/productHelpers';
 import { getCart, removeFromCart as removeFromCartAPI, updateCartItem } from '../services/cartApi';
 import { isAuthenticated } from '../services/authApi';
+import { useToast } from './Toast';
 import './Cart.css';
 
 export default function Cart({ onNavigate }) {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
   const selectedTotalAmount = useSelector(selectSelectedTotalAmount);
+  const toast = useToast();
   
   const [selectAll, setSelectAll] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +31,7 @@ export default function Cart({ onNavigate }) {
     const checkAuthAndFetchCart = async () => {
       if (!isAuthenticated()) {
         // Redirect to home if not authenticated
-        alert('Vui lòng đăng nhập để xem giỏ hàng');
+        toast.warning('Vui lòng đăng nhập để xem giỏ hàng');
         if (onNavigate) {
           onNavigate('home');
         }
@@ -67,7 +69,7 @@ export default function Cart({ onNavigate }) {
         console.error('❌ Error fetching cart:', error);
         // If error is authentication related, redirect to home
         if (error.message.includes('authenticated')) {
-          alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
+          toast.warning('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
           if (onNavigate) {
             onNavigate('home');
           }
@@ -131,7 +133,7 @@ export default function Cart({ onNavigate }) {
       window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       console.error('❌ Error updating quantity:', error);
-      alert('Có lỗi xảy ra khi cập nhật số lượng');
+      toast.error('Có lỗi xảy ra khi cập nhật số lượng');
     }
   };
 
@@ -163,7 +165,7 @@ export default function Cart({ onNavigate }) {
         window.dispatchEvent(new Event('cartUpdated'));
       } catch (error) {
         console.error('❌ Error removing item:', error);
-        alert('Có lỗi xảy ra khi xóa sản phẩm');
+        toast.error('Có lỗi xảy ra khi xóa sản phẩm');
       }
     }
   };
@@ -177,7 +179,7 @@ export default function Cart({ onNavigate }) {
   const handleCheckout = () => {
     const selectedItems = displayItems.filter(item => item.selected);
     if (selectedItems.length === 0) {
-      alert('Vui lòng chọn ít nhất một sản phẩm để thanh toán');
+      toast.warning('Vui lòng chọn ít nhất một sản phẩm để thanh toán');
       return;
     }
     // Chuyển đến trang thanh toán
@@ -188,7 +190,9 @@ export default function Cart({ onNavigate }) {
 
   const selectedItems = displayItems.filter(item => item.selected);
   const selectedCount = selectedItems.length;
+  const selectedQuantityTotal = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
   const calculatedTotal = selectedItems.reduce((sum, item) => sum + item.totalPrice, 0);
+  const totalQuantityInCart = displayItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="cart-page">
@@ -199,7 +203,7 @@ export default function Cart({ onNavigate }) {
             <span className="back-icon">←</span>
             Tiếp tục mua sắm
           </button>
-          <h1>Giỏ hàng của bạn ({displayItems.length} sản phẩm)</h1>
+          <h1>Giỏ hàng của bạn ({totalQuantityInCart} sản phẩm)</h1>
         </div>
 
         {/* Free Shipping Banner */}
@@ -324,7 +328,7 @@ export default function Cart({ onNavigate }) {
 
             <div className="summary-details">
               <div className="summary-row">
-                <span>Tổng tiền ({selectedCount} sản phẩm)</span>
+                <span>Tổng tiền ({selectedQuantityTotal} sản phẩm)</span>
                 <span className="amount">{formatPrice(calculatedTotal)}đ</span>
               </div>
               <div className="summary-row">
@@ -352,7 +356,7 @@ export default function Cart({ onNavigate }) {
               onClick={handleCheckout}
               disabled={selectedCount === 0}
             >
-              Mua hàng ({selectedCount} sản phẩm)
+              Mua hàng ({selectedQuantityTotal} sản phẩm)
             </button>
 
             <p className="checkout-note">

@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Footer from "./components/Footer";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CatalogPage from "./pages/CatalogPage";
 import BannerSlider from './components/BannerSlider';
@@ -50,6 +51,8 @@ export default function App() {
         return <CartPage onNavigate={handleNavigate} />;
       case 'checkout':
         return <CheckoutPage onNavigate={handleNavigate} />;
+      case 'orders':
+        return <OrderHistoryPage onNavigate={handleNavigate} />;
       case 'catalog':
         return (
           <CatalogPage 

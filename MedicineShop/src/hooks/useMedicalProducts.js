@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react';
-import { MockApiService } from '../services/productApi';
+import { fetchCategoryTree, fetchProductsByCategoryId } from '../services/categoryApi';
+
+// Map từ tab key sang category name để tìm trong tree
+const TAB_TO_CATEGORY_MAP = {
+  'vitaminTab': 'Vitamin',
+  'functionalFoodTab': 'Thực phẩm chức năng',
+  'supplementTab': 'Thực phẩm bổ sung',
+  'beautyTab': 'Mỹ phẩm',
+  'equipmentTab': 'Thiết bị y tế'
+};
 
 export const useMedicalProducts = (category, itemsPerPage = 4) => {
   const [categoryData, setCategoryData] = useState(null);
@@ -7,38 +16,89 @@ export const useMedicalProducts = (category, itemsPerPage = 4) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [categoryTree, setCategoryTree] = useState([]);
   
+  // Fetch category tree on mount
+  useEffect(() => {
+    const fetchTree = async () => {
+      try {
+        const response = await fetchCategoryTree();
+        if (response.success) {
+          setCategoryTree(response.data);
+          console.log('✅ Category tree loaded:', response.data);
+        }
+      } catch (err) {
+        console.error('❌ Error loading category tree:', err);
+      }
+    };
+    fetchTree();
+  }, []);
+
+  // Find category ID from tree based on tab
+  const findCategoryId = (tree, categoryName) => {
+    if (!tree || !Array.isArray(tree)) return null;
+    
+    for (const cat of tree) {
+      // Match by name (case insensitive, partial match)
+      if (cat.name && cat.name.toLowerCase().includes(categoryName.toLowerCase())) {
+        return cat.id;
+      }
+      // Search in children
+      if (cat.children && cat.children.length > 0) {
+        const found = findCategoryId(cat.children, categoryName);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        console.log('Fetching medical products for category:', category);
+        // Get category name from tab key
+        const categoryName = TAB_TO_CATEGORY_MAP[category];
+        if (!categoryName) {
+          console.warn('Unknown category tab:', category);
+          setProducts([]);
+          setLoading(false);
+          return;
+        }
+
+        console.log('🔍 Searching for category:', categoryName);
         
-        const response = await MockApiService.getMedicalProductsByCategory(category);
-        console.log('Medical products response:', response);
+        // Find category ID from tree
+        const categoryId = findCategoryId(categoryTree, categoryName);
+        
+        if (!categoryId) {
+          console.warn('Category not found in tree:', categoryName);
+          // Try to fetch with a default ID or show empty
+          setProducts([]);
+          setLoading(false);
+          return;
+        }
+
+        console.log(`📡 Fetching products for category ID: ${categoryId} (${categoryName})`);
+        
+        // Fetch products by category ID
+        const response = await fetchProductsByCategoryId(categoryId, {
+          limit: 20, // Fetch more to allow client-side pagination
+          page: 1
+        });
+        
+        console.log('Products response:', response);
         
         if (response.success) {
-          setCategoryData(response.data);
-          
-          // Handle different data structures
-          if (Array.isArray(response.data)) {
-            // If data is directly an array
-            setProducts(response.data);
-          } else if (response.data && Array.isArray(response.data.products)) {
-            // If data has products property
-            setProducts(response.data.products);
-          } else {
-            console.warn('Unexpected data structure:', response.data);
-            setProducts([]);
-          }
+          setCategoryData({ id: categoryId, name: categoryName });
+          setProducts(response.products || []);
         } else {
           setError(response.error);
           setProducts([]);
         }
       } catch (err) {
-        console.error('Error fetching medical products:', err);
+        console.error('Error fetching products:', err);
         setError(err.message);
         setProducts([]);
       } finally {
@@ -46,9 +106,14 @@ export const useMedicalProducts = (category, itemsPerPage = 4) => {
       }
     };
 
-    if (category) {
+    if (category && categoryTree.length > 0) {
       fetchData();
     }
+  }, [category, categoryTree]);
+
+  // Reset page when category changes
+  useEffect(() => {
+    setCurrentPage(1);
   }, [category]);
 
   // Pagination logic
@@ -90,7 +155,7 @@ export const useMedicalCategories = () => {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const response = await MockApiService.getMedicalCategories();
+        const response = await fetchCategoryTree();
         
         if (response.success) {
           setCategories(response.data);
@@ -98,7 +163,7 @@ export const useMedicalCategories = () => {
           setError(response.error);
         }
       } catch (err) {
-        console.error('Error fetching medical categories:', err);
+        console.error('Error fetching categories:', err);
         setError(err.message);
       } finally {
         setLoading(false);

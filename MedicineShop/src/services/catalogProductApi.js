@@ -1,11 +1,179 @@
-import { SUBCATEGORY_API_MAP } from './subcategoryApiMap';
+import { fetchCategoryTree, fetchProductsByCategoryId } from './categoryApi';
 import { MockApiService } from './productApi';
 import { MENU_DATA } from '../constants/categories';
 import { API_CONFIG } from '../config/api';
-import { transformProductsFromAPI } from '../utils/productTransformer';
+import { transformProductFromAPI, transformProductsFromAPI } from '../utils/productTransformer';
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
-const API_BASE = `${API_BASE_URL}/products/category`;
+const API_BASE = `${API_BASE_URL}/products`;
+
+// ==================== CACHE SYSTEM ====================
+const CACHE_PREFIX = 'catalog_cache_';
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5 phút (ms)
+
+// 🚀 Clear old cache on module load (for development - remove in production)
+if (typeof window !== 'undefined') {
+  console.log('🧹 Clearing old catalog cache on module load...');
+  Object.keys(localStorage)
+    .filter(k => k.startsWith(CACHE_PREFIX))
+    .forEach(k => localStorage.removeItem(k));
+}
+
+// Lưu vào localStorage với timestamp
+const setCache = (key, data) => {
+  try {
+    const cacheData = {
+      data,
+      timestamp: Date.now(),
+      expiry: CACHE_EXPIRY
+    };
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(cacheData));
+    console.log(`💾 Cached: ${key}`);
+  } catch (e) {
+    console.warn('⚠️ Cache save failed:', e.message);
+    // Nếu localStorage đầy, xóa cache cũ
+    clearExpiredCache();
+  }
+};
+
+// Lấy từ localStorage nếu chưa hết hạn
+const getCache = (key) => {
+  try {
+    const cached = localStorage.getItem(CACHE_PREFIX + key);
+    if (!cached) return null;
+    
+    const { data, timestamp, expiry } = JSON.parse(cached);
+    const isExpired = Date.now() - timestamp > expiry;
+    
+    if (isExpired) {
+      localStorage.removeItem(CACHE_PREFIX + key);
+      console.log(`🗑️ Cache expired: ${key}`);
+      return null;
+    }
+    
+    console.log(`📦 Cache hit: ${key}`);
+    return data;
+  } catch (e) {
+    console.warn('⚠️ Cache read failed:', e.message);
+    return null;
+  }
+};
+
+// Xóa cache đã hết hạn
+const clearExpiredCache = () => {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(CACHE_PREFIX)) {
+        const cached = localStorage.getItem(key);
+        if (cached) {
+          const { timestamp, expiry } = JSON.parse(cached);
+          if (Date.now() - timestamp > expiry) {
+            keysToRemove.push(key);
+          }
+        }
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    if (keysToRemove.length > 0) {
+      console.log(`🧹 Cleared ${keysToRemove.length} expired cache entries`);
+    }
+  } catch (e) {
+    console.warn('⚠️ Clear cache failed:', e.message);
+  }
+};
+
+// Xóa toàn bộ cache (khi cần refresh)
+export const clearAllCache = () => {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(CACHE_PREFIX)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    categoryTreeCache = null;
+    categoryTreePromise = null;
+    console.log(`🧹 Cleared all ${keysToRemove.length} cache entries`);
+  } catch (e) {
+    console.warn('⚠️ Clear all cache failed:', e.message);
+  }
+};
+
+// ==================== CATEGORY TREE CACHE ====================
+// Cache category tree
+let categoryTreeCache = null;
+let categoryTreePromise = null;
+
+// Fetch and cache category tree (với localStorage)
+const getCategoryTree = async () => {
+  // Check memory cache first
+  if (categoryTreeCache) return categoryTreeCache;
+  
+  // Check localStorage cache
+  const cachedTree = getCache('category_tree');
+  if (cachedTree) {
+    categoryTreeCache = cachedTree;
+    return categoryTreeCache;
+  }
+  
+  if (!categoryTreePromise) {
+    categoryTreePromise = fetchCategoryTree().then(response => {
+      if (response.success) {
+        categoryTreeCache = response.data;
+        // Save to localStorage
+        setCache('category_tree', categoryTreeCache);
+        return categoryTreeCache;
+      }
+      return [];
+    });
+  }
+  
+  return categoryTreePromise;
+};
+
+// Find category ID from tree by name or key
+const findCategoryIdFromTree = (tree, searchKey) => {
+  if (!tree || !Array.isArray(tree)) return null;
+  
+  // Normalize search key - decode special characters
+  const normalizeString = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/&amp;/g, '&')
+      .replace(/\u0026/g, '&')
+      .trim();
+  };
+  
+  const searchLower = normalizeString(searchKey);
+  
+  for (const cat of tree) {
+    const catNameNormalized = normalizeString(cat.name);
+    
+    // Exact match first
+    if (catNameNormalized === searchLower) {
+      console.log(`✅ Exact match found: "${cat.name}" (ID: ${cat.id})`);
+      return { id: cat.id, name: cat.name, count: cat.count || cat.product_count || 0 };
+    }
+    
+    // Partial match
+    if (catNameNormalized.includes(searchLower) || searchLower.includes(catNameNormalized)) {
+      console.log(`✅ Partial match found: "${cat.name}" (ID: ${cat.id}) for search: "${searchKey}"`);
+      return { id: cat.id, name: cat.name, count: cat.count || cat.product_count || 0 };
+    }
+    
+    // Search in children recursively
+    if (cat.children && cat.children.length > 0) {
+      const found = findCategoryIdFromTree(cat.children, searchKey);
+      if (found) return found;
+    }
+  }
+  return null;
+};
 
 const parseJSON = async (response) => {
   try {
@@ -100,10 +268,11 @@ const normalizeProducts = (data) => {
 };
 
 // 🔹 Lấy toàn bộ sản phẩm
-export const getAllCatalogProducts = async () => {
+export const getAllCatalogProducts = async (limit = 50) => {
   try {
-    console.log('🔄 Fetching all catalog products from:', API_BASE);
-    const response = await fetch(API_BASE);
+    const url = `${API_BASE}?limit=${limit}`;
+    console.log('🔄 Fetching all catalog products from:', url);
+    const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -112,8 +281,10 @@ export const getAllCatalogProducts = async () => {
     const data = await parseJSON(response);
     const normalized = normalizeApiResponse(data);
     const products = normalizeProducts(normalized.data);
-    console.log(`✅ Successfully fetched ${products.length} products`);
-    return { success: true, data: products, total: normalized.total };
+    // Transform products
+    const transformed = transformProductsFromAPI(products);
+    console.log(`✅ Successfully fetched ${transformed.length} products`);
+    return { success: true, data: transformed, total: normalized.total };
   } catch (error) {
     console.error("❌ Error fetching all products:", error.message);
     return { success: false, error: error.message, data: [], total: 0 };
@@ -141,11 +312,13 @@ const findCategoryInParent = (categoryKey) => {
   return null;
 };
 
-// Helper: Get all subcategory API endpoints
+// Helper: Get all subcategory titles for fetching by categoryId
 // - Cấp 1 (Parent Menu): Lấy tất cả subcategories của tất cả categories
 // - Cấp 2 (Category): Lấy tất cả subcategories của category đó
+// NOTE: We only return titles now, NOT endpoints, because /api/products/category/{name} does NOT exist
+// Instead, we use titles to find categoryId from category tree, then fetch by categoryId
 const getSubcategoryEndpoints = (categoryKey) => {
-  const endpoints = [];
+  const subcategories = [];
 
   // Case 1: Parent Menu (Cấp 1) - Thực phẩm chức năng
   if (isParentMenu(categoryKey)) {
@@ -157,11 +330,10 @@ const getSubcategoryEndpoints = (categoryKey) => {
         // Lấy tất cả subcategories của mỗi category
         if (cat.subcategories && Array.isArray(cat.subcategories)) {
           cat.subcategories.forEach(sub => {
-            if (sub.key && SUBCATEGORY_API_MAP[sub.key]) {
-              endpoints.push({
+            if (sub.key && sub.title) {
+              subcategories.push({
                 key: sub.key,
-                title: sub.title,
-                endpoint: SUBCATEGORY_API_MAP[sub.key]
+                title: sub.title
               });
             }
           });
@@ -169,7 +341,7 @@ const getSubcategoryEndpoints = (categoryKey) => {
       });
     }
     
-    return endpoints.length > 0 ? endpoints : null;
+    return subcategories.length > 0 ? subcategories : null;
   }
 
   // Case 2: Category (Cấp 2) - Vitamin & Khoáng chất
@@ -179,17 +351,16 @@ const getSubcategoryEndpoints = (categoryKey) => {
     
     if (categoryData.subcategories && Array.isArray(categoryData.subcategories)) {
       categoryData.subcategories.forEach(sub => {
-        if (sub.key && SUBCATEGORY_API_MAP[sub.key]) {
-          endpoints.push({
+        if (sub.key && sub.title) {
+          subcategories.push({
             key: sub.key,
-            title: sub.title,
-            endpoint: SUBCATEGORY_API_MAP[sub.key]
+            title: sub.title
           });
         }
       });
     }
     
-    return endpoints.length > 0 ? endpoints : null;
+    return subcategories.length > 0 ? subcategories : null;
   }
 
   // Case 3: Subcategory (Cấp 3) - Bổ sung Canxi & Vitamin D
@@ -198,143 +369,161 @@ const getSubcategoryEndpoints = (categoryKey) => {
   return null;
 };
 
-// 🔹 Lấy sản phẩm theo danh mục
-export const getProductsByCategory = async (categoryKey) => {
+// Helper: Find category title from MENU_DATA
+const findCategoryTitle = (categoryKey) => {
+  if (!MENU_DATA) return null;
+  
+  let categoryTitle = null;
+  
+  // 🔹 Check if categoryKey matches a main menu (Level 1)
+  if (MENU_DATA[categoryKey]) {
+    return MENU_DATA[categoryKey].title;
+  }
+  
+  Object.values(MENU_DATA).forEach(mainMenu => {
+    // 🔹 Also check by mainMenu.key (in case categoryKey matches)
+    if (mainMenu.key === categoryKey && mainMenu.title) {
+      categoryTitle = mainMenu.title;
+    }
+    
+    if (mainMenu.categories) {
+      mainMenu.categories.forEach(parentCat => {
+        if (parentCat.key === categoryKey && parentCat.title) {
+          categoryTitle = parentCat.title;
+        }
+        if (parentCat.subcategories) {
+          parentCat.subcategories.forEach(sub => {
+            if (sub.key === categoryKey && sub.title) {
+              categoryTitle = sub.title;
+            }
+          });
+        }
+      });
+    }
+  });
+  
+  return categoryTitle;
+};
+
+// 🔹 Lấy sản phẩm theo danh mục - SỬ DỤNG API MỚI VỚI categoryId
+export const getProductsByCategory = async (categoryKey, limit = 50) => {
   try {
     // no key -> return all
     if (!categoryKey || categoryKey === 'all') {
-      return getAllCatalogProducts();
+      return getAllCatalogProducts(limit);
     }
 
-    // Check if this is a parent category - if so, fetch all subcategories
-    const subcategoryEndpoints = getSubcategoryEndpoints(categoryKey);
-    if (subcategoryEndpoints && subcategoryEndpoints.length > 0) {
-      console.log(`🎯 "${categoryKey}" is a parent category with ${subcategoryEndpoints.length} subcategories:`, 
-        subcategoryEndpoints.map(s => s.title));
+    console.log(`🔍 Getting products for category key: "${categoryKey}"`);
+    
+    // ✨ CHECK CACHE FIRST
+    const cacheKey = `products_${categoryKey}_${limit}`;
+    const cachedData = getCache(cacheKey);
+    if (cachedData) {
+      console.log(`📦 Using cached products for "${categoryKey}": ${cachedData.data?.length || 0} items`);
+      return cachedData;
+    }
+
+    // 1. Lấy category tree từ API
+    const categoryTree = await getCategoryTree();
+    console.log(`📂 Category tree loaded:`, categoryTree?.length || 0, 'top-level categories');
+    
+    if (categoryTree && categoryTree.length > 0) {
+      // 2. Tìm category title từ MENU_DATA
+      const categoryTitle = findCategoryTitle(categoryKey);
+      console.log(`📋 Category title from MENU_DATA for key "${categoryKey}":`, categoryTitle);
       
-      // Fetch products from all subcategories in parallel
-      const allProducts = [];
-      const fetchPromises = subcategoryEndpoints.map(async ({ key, title, endpoint }) => {
-        try {
-          console.log(`🔄 Fetching "${title}" from:`, endpoint);
-          const res = await fetch(endpoint);
+      if (categoryTitle) {
+        console.log(`📋 Found category title: "${categoryTitle}" for key: "${categoryKey}"`);
+        
+        // 3. Tìm categoryId từ tree bằng title
+        const categoryInfo = findCategoryIdFromTree(categoryTree, categoryTitle);
+        console.log(`🔍 Search result for "${categoryTitle}":`, categoryInfo);
+        
+        if (categoryInfo) {
+          console.log(`✅ Found category in tree: ID=${categoryInfo.id}, Name="${categoryInfo.name}", Count=${categoryInfo.count}`);
           
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          // 4. Fetch products bằng categoryId
+          const response = await fetchProductsByCategoryId(categoryInfo.id, { limit });
+          console.log(`📦 fetchProductsByCategoryId response:`, response);
+          
+          if (response.success && response.products.length > 0) {
+            console.log(`✅ Fetched ${response.products.length} products for category ID ${categoryInfo.id}`);
+            const result = { success: true, data: response.products, total: response.total };
+            setCache(cacheKey, result); // 💾 Save to cache
+            return result;
           }
           
-          const data = await parseJSON(res);
-          const normalized = normalizeApiResponse(data);
-          const products = normalizeProducts(normalized.data);
-          console.log(`✅ Fetched ${products.length} products from "${title}"`);
-          return products;
-        } catch (err) {
-          console.warn(`⚠️ Failed to fetch "${title}":`, err.message);
-          return [];
+          console.log(`⚠️ No products found for category ID ${categoryInfo.id}, trying subcategories...`);
+        } else {
+          console.warn(`❌ Category "${categoryTitle}" not found in tree`);
         }
-      });
+      } else {
+        console.warn(`❌ No title found in MENU_DATA for key: "${categoryKey}"`);
+      }
+      
+      // 5. Nếu không tìm thấy, thử tìm trực tiếp bằng key trong tree
+      const directMatch = findCategoryIdFromTree(categoryTree, categoryKey);
+      if (directMatch) {
+        console.log(`✅ Direct match found: ID=${directMatch.id}, Name="${directMatch.name}"`);
+        
+        const response = await fetchProductsByCategoryId(directMatch.id, { limit });
+        
+        if (response.success && response.products.length > 0) {
+          console.log(`✅ Fetched ${response.products.length} products for category ID ${directMatch.id}`);
+          const result = { success: true, data: response.products, total: response.total };
+          setCache(cacheKey, result); // 💾 Save to cache
+          return result;
+        }
+      }
+    }
 
-      // Wait for all fetches to complete
+    // 6. Fallback: Check if this is a parent category - fetch all subcategories
+    const subcategoryEndpoints = getSubcategoryEndpoints(categoryKey);
+    if (subcategoryEndpoints && subcategoryEndpoints.length > 0) {
+      console.log(`🎯 "${categoryKey}" is a parent category, fetching from ${subcategoryEndpoints.length} subcategories by ID`);
+      
+      // Lấy tất cả categoryInfo trước
+      const categoryInfos = subcategoryEndpoints
+        .map(({ title }) => findCategoryIdFromTree(categoryTree, title))
+        .filter(Boolean);
+      
+      console.log(`📋 Found ${categoryInfos.length} valid category IDs to fetch`);
+      
+      // Fetch SONG SONG tất cả subcategories (thay vì tuần tự)
+      const fetchPromises = categoryInfos.map(catInfo => 
+        fetchProductsByCategoryId(catInfo.id, { limit: 10 })
+          .catch(err => {
+            console.warn(`⚠️ Failed to fetch category ${catInfo.id}:`, err.message);
+            return { success: false, products: [] };
+          })
+      );
+      
       const results = await Promise.all(fetchPromises);
-      results.forEach(products => {
-        if (products && products.length > 0) {
-          allProducts.push(...products);
-        }
-      });
+      
+      // Gom tất cả sản phẩm
+      const allProducts = results
+        .filter(r => r.success && r.products.length > 0)
+        .flatMap(r => r.products);
 
       // Remove duplicates based on product ID
       const uniqueProducts = Array.from(
         new Map(allProducts.map(p => [p.id, p])).values()
       );
 
-      console.log(`✅ Combined ${uniqueProducts.length} unique products from parent category "${categoryKey}"`);
-      
       if (uniqueProducts.length > 0) {
-        // Transform products to ensure base_unit_id
-        const transformed = transformProductsFromAPI(uniqueProducts);
-        return { success: true, data: transformed, total: transformed.length };
-      }
-      
-      console.log(`⚠️ No products found from subcategories, trying normal flow...`);
-    }
-
-    // If a mapped endpoint exists for this subcategory, call it directly
-    // Use exact matching only for safety (no fuzzy matching to avoid wrong matches)
-    let mappedEndpoint = null;
-    if (SUBCATEGORY_API_MAP && SUBCATEGORY_API_MAP[categoryKey]) {
-      mappedEndpoint = SUBCATEGORY_API_MAP[categoryKey];
-      console.log(`🎯 Found mapped endpoint for "${categoryKey}":`, mappedEndpoint);
-    } else {
-      console.log(`⚠️ No mapped endpoint found for "${categoryKey}"`);
-    }
-    
-    if (mappedEndpoint) {
-      const endpoint = mappedEndpoint;
-      try {
-        console.log(`🔄 Fetching from mapped endpoint:`, endpoint);
-        const res = await fetch(endpoint);
-        
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
-        
-        const data = await parseJSON(res);
-        const normalized = normalizeApiResponse(data);
-        const products = normalizeProducts(normalized.data);
-        // Transform to ensure base_unit_id
-        const transformed = transformProductsFromAPI(products);
-        console.log(`✅ Successfully fetched ${transformed.length} products from mapped endpoint`);
-        return { success: true, data: transformed, total: normalized.total };
-      } catch (err) {
-        console.warn('⚠️ Fetch to mapped subcategory endpoint failed, falling back to mock data.', err.message);
-        // fallthrough to mock fallback below
+        console.log(`✅ Combined ${uniqueProducts.length} unique products from ${categoryInfos.length} subcategories (parallel fetch)`);
+        const result = { success: true, data: uniqueProducts, total: uniqueProducts.length };
+        setCache(cacheKey, result); // 💾 Save to cache
+        return result;
       }
     }
 
-    // Fallback 1: Try default endpoint with category key
-    console.log(`🔄 Trying default endpoint with categoryKey: "${categoryKey}"`);
-    try {
-      const url = `${API_BASE}/${encodeURIComponent(categoryKey)}`;
-      console.log('🔄 Fetching from default endpoint:', url);
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await parseJSON(response);
-      const normalized = normalizeApiResponse(data);
-      const products = normalizeProducts(normalized.data);
-      // Transform to ensure base_unit_id
-      const transformed = transformProductsFromAPI(products);
-      console.log(`✅ Successfully fetched ${transformed.length} products from default endpoint`);
-      return { success: true, data: transformed, total: normalized.total };
-    } catch (err) {
-      console.warn('⚠️ Default endpoint also failed:', err.message);
-    }
-    
-    // Fallback 2: Use local mock data as last resort
-    console.log('🔄 Falling back to mock data...');
-    try {
-      const mockRes = await MockApiService.getAllCatalogProducts();
-      if (mockRes && mockRes.success && Array.isArray(mockRes.data)) {
-        const filtered = mockRes.data.filter(p => 
-          p.categoryKey === categoryKey || 
-          p.subcategory === categoryKey ||
-          p.category === categoryKey
-        );
-        // Transform to ensure base_unit_id
-        const transformed = transformProductsFromAPI(filtered);
-        console.log(`✅ Found ${transformed.length} products in mock data`);
-        return { success: true, data: transformed, total: transformed.length };
-      }
-    } catch (err) {
-      console.error('❌ Mock fallback also failed:', err.message);
-    }
-    
-    // All attempts failed
-    console.error(`❌ All attempts to fetch products for category "${categoryKey}" failed`);
-    return { success: false, error: 'Unable to fetch products', data: [], total: 0 };
+    // 7. OLD FALLBACK REMOVED - endpoint /api/products/category/{name} does not exist in backend
+    // The backend only supports /api/products?categoryId={id}
+    // If we reach here, it means no products were found via categoryId method
+
+    console.error(`❌ No products found for category "${categoryKey}"`);
+    return { success: false, error: 'No products found', data: [], total: 0 };
   } catch (error) {
     console.error("❌ Unexpected error in getProductsByCategory:", error.message);
     return { success: false, error: error.message, data: [], total: 0 };
@@ -367,8 +556,9 @@ export const searchProducts = async (query) => {
 export const getProductById = async (productId) => {
   try {
     console.log('🔍 Fetching product by ID:', productId);
-    // Use correct endpoint for single product: /api/products/:id (not /api/products/category/:id)
-    const response = await fetch(`/api/products/${productId}`);
+    // Use correct endpoint for single product
+    const url = `${API_BASE_URL}/products/${productId}`;
+    const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -387,8 +577,10 @@ export const getProductById = async (productId) => {
     
     // Normalize the product
     const normalizedProduct = normalizeProduct(product);
-    console.log('✅ Product found and normalized:', normalizedProduct.name || normalizedProduct.id);
-    return { success: true, data: normalizedProduct };
+    // Transform single product
+    const transformed = transformProductFromAPI(normalizedProduct);
+    console.log('✅ Product found and normalized:', transformed.name || transformed.id);
+    return { success: true, data: transformed };
   } catch (error) {
     console.error("❌ Error fetching product by ID:", error.message);
     return { success: false, error: error.message, data: null };
@@ -435,5 +627,6 @@ export default {
   getProductsByCategory,
   searchProducts,
   getProductById,
+  getCategoryTree,
   filterHelpers
 };

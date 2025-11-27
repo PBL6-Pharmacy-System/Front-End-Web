@@ -1,0 +1,249 @@
+/* Order Success Modal Styles */
+.order-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.order-success-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success Icon */
+.order-success-icon {
+  margin-bottom: 24px;
+}
+
+.success-circle {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  animation: scaleIn 0.5s ease 0.2s both;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.success-circle svg {
+  width: 40px;
+  height: 40px;
+  animation: checkmark 0.5s ease 0.5s both;
+}
+
+@keyframes checkmark {
+  from {
+    stroke-dashoffset: 30;
+    stroke-dasharray: 30;
+  }
+  to {
+    stroke-dashoffset: 0;
+    stroke-dasharray: 30;
+  }
+}
+
+/* Title */
+.order-success-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.order-success-subtitle {
+  font-size: 15px;
+  color: #64748b;
+  margin: 0 0 28px 0;
+}
+
+/* Order Details */
+.order-success-details {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.order-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.order-detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 600;
+  text-align: right;
+}
+
+.detail-value.order-id {
+  color: #3b82f6;
+  font-size: 16px;
+}
+
+.detail-value.total-amount {
+  color: #ef4444;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.address-row {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.address-row .detail-label {
+  margin-bottom: 4px;
+}
+
+.address-row .detail-value {
+  text-align: left;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Info Note */
+.order-success-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.note-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.order-success-note p {
+  font-size: 14px;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Actions */
+.order-success-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-view-orders,
+.btn-continue-shopping {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-view-orders {
+  background: white;
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+}
+
+.btn-view-orders:hover {
+  background: #eff6ff;
+}
+
+.btn-continue-shopping {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: none;
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-continue-shopping:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .order-success-modal {
+    padding: 30px 20px;
+  }
+
+  .order-success-title {
+    font-size: 24px;
+  }
+
+  .order-success-actions {
+    flex-direction: column;
+  }
+
+  .success-circle {
+    width: 70px;
+    height: 70px;
+  }
+
+  .success-circle svg {
+    width: 35px;
+    height: 35px;
+  }
+}

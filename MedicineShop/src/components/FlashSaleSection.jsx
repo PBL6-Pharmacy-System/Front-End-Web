@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import './FlashSaleSection.css';
 import { useFlashSaleProducts } from '../hooks/useFlashSaleProducts';
 import { useAddToCart } from '../hooks/useAddToCart';
-import ProductCard from './ProductCard';
+import { useToast } from './Toast';
 import PaginationControls from './PaginationControls';
 
 export default function FlashSaleSection({ onNavigate, onProductClick }) {
   const { products, loading, error, pagination } = useFlashSaleProducts(6);
   const { handleAddToCart } = useAddToCart();
+  const toast = useToast();
 
   // Dynamic countdown based on product start/end times
-  const [timeLeft, setTimeLeft] = useState(null); // { hours, minutes, seconds }
+  const [timeLeft, setTimeLeft] = useState(null);
   const [countdownLabel, setCountdownLabel] = useState('Kết thúc trong');
 
   useEffect(() => {
@@ -28,14 +29,15 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
 
     const compute = (startDate, endDate) => {
       const now = new Date();
-      if (startDate && now < startDate) {
-        // upcoming
-        const diff = startDate.getTime() - now.getTime();
+      const nowVN = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+      
+      if (startDate && nowVN < startDate) {
+        const diff = startDate.getTime() - nowVN.getTime();
         setCountdownLabel('Bắt đầu trong');
         return diff;
       }
       if (endDate) {
-        const diff = endDate.getTime() - now.getTime();
+        const diff = endDate.getTime() - nowVN.getTime();
         setCountdownLabel('Kết thúc trong');
         return diff;
       }
@@ -43,16 +45,15 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
     };
 
     const msToHms = (ms) => {
-      if (!ms || ms <= 0) return { hours: 0, minutes: 0, seconds: 0 };
+      if (!ms || ms <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
       const total = Math.max(0, Math.floor(ms / 1000));
-      const hours = Math.floor(total / 3600);
+      const days = Math.floor(total / 86400); // 86400 seconds in a day
+      const hours = Math.floor((total % 86400) / 3600);
       const minutes = Math.floor((total % 3600) / 60);
       const seconds = total % 60;
-      return { hours, minutes, seconds };
+      return { days, hours, minutes, seconds };
     };
 
-    // Only setup timer when the sale timeframe changes (avoid effect retriggering when `products` reference
-    // changes but content is the same). Use first product's start/end and product count as the key.
     const p0 = products && products.length > 0 ? products[0] : null;
     const startKey = p0 ? (p0.startTimeISO || p0.startTime || p0.start_time) : '';
     const endKey = p0 ? (p0.endTimeISO || p0.endTime || p0.end_time) : '';
@@ -70,13 +71,11 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
         const ms = compute(startDate, endDate);
         setTimeLeft(prev => {
           const next = msToHms(ms);
-          // only update state if values changed to avoid extra re-renders
-          if (!prev || prev.hours !== next.hours || prev.minutes !== next.minutes || prev.seconds !== next.seconds) {
+          if (!prev || prev.days !== next.days || prev.hours !== next.hours || prev.minutes !== next.minutes || prev.seconds !== next.seconds) {
             return next;
           }
           return prev;
         });
-        // stop when expired
         if (ms <= 0 && timerId) {
           clearInterval(timerId);
         }
@@ -91,12 +90,7 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
     return () => {
       if (timerId) clearInterval(timerId);
     };
-  // Depend only on number of products and the first product's timeframe strings
   }, [products?.length, products?.[0]?.startTimeISO, products?.[0]?.endTimeISO, products?.[0]?.startTime, products?.[0]?.endTime, products?.[0]?.start_time, products?.[0]?.end_time]);
-
-  const handleBuyNow = (product) => {
-    console.log(`Mua ngay: ${product.name}`);
-  };
 
   const formatPrice = (price) => {
     if (!price) return '0';
@@ -117,22 +111,16 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
     const result = await handleAddToCart(product, 'flash-sale', 1);
     
     if (result.success) {
-      // Hiển thị thông báo thành công
-      alert(`✅ ${result.message}`);
+      toast.success(result.message);
     } else {
-      // Hiển thị thông báo lỗi
-      alert(`❌ ${result.message}`);
+      toast.error(result.message);
     }
   };
 
   const handleProductClick = (product) => {
     if (onProductClick) {
-      onProductClick(product.id, 'flash-sale');
+      onProductClick(product.id || product.product_id || product.productId, 'flash-sale');
     }
-  };
-
-  const getProgressPercentage = (sold, stock) => {
-    return Math.min((sold / stock) * 100, 100);
   };
 
   if (loading) {
@@ -171,11 +159,8 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
             </div>
           </div>
           <div className="error-message">
-            <p>Không thể tải sản phẩm: {error}</p>
-            <button 
-              className="retry-btn"
-              onClick={() => window.location.reload()}
-            >
+            <p>Lỗi: {error}</p>
+            <button className="retry-btn" onClick={() => window.location.reload()}>
               Thử lại
             </button>
           </div>
@@ -195,59 +180,43 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
               <span>
                 {timeLeft ? (
                   <>
-                    {String(timeLeft.hours).padStart(2, '0')}:
-                    {String(timeLeft.minutes).padStart(2, '0')}:
-                    {String(timeLeft.seconds).padStart(2, '0')}
+                    {timeLeft.days > 0 && <>{timeLeft.days} ngày </>}
+                    {String(timeLeft.hours).padStart(2, '0')} giờ{' '}
+                    {String(timeLeft.minutes).padStart(2, '0')} phút{' '}
+                    {String(timeLeft.seconds).padStart(2, '0')} giây
                   </>
                 ) : (
-                  '--:--:--'
+                  '-- ngày -- giờ -- phút'
                 )}
               </span>
             </div>
           </div>
         </div>
         
+        {pagination && (
+          <div className="product-listing-info">
+            Hiển thị {pagination.startIndex} - {pagination.endIndex} trong tổng số {pagination.totalProducts} sản phẩm
+          </div>
+        )}
+        
         <div className="products-grid">
           {products.map(product => {
             const discountPercent = calculateDiscount(product.price, product.support);
-            const hasImage =
-              (product.images && Array.isArray(product.images) && product.images.length > 0 && typeof product.images[0] === 'string' && product.images[0]) ||
-              (product.image && typeof product.image === 'string' && product.image);
+            
             return (
               <div 
-                key={product.id}
+                key={product.id} 
                 className="product-card"
-                onClick={() => handleProductClick(product)}
-                style={{ cursor: 'pointer' }}
               >
                 {discountPercent > 0 && (
                   <div className="discount-badge">-{discountPercent}%</div>
                 )}
+                
                 <div className="product-image">
-                  {hasImage ? (
-                    <img 
-                      src={(() => {
-                        if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-                          const firstImage = product.images[0];
-                          if (typeof firstImage === 'string') {
-                            return encodeURI(decodeURI(firstImage));
-                          }
-                          if (firstImage && typeof firstImage === 'object' && firstImage.url) {
-                            return encodeURI(decodeURI(firstImage.url));
-                          }
-                        }
-                        if (product.image && typeof product.image === 'string') {
-                          return encodeURI(decodeURI(product.image));
-                        }
-                        return "";
-                      })()}
-                      alt={product.name || 'Sản phẩm'} 
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  ) : null}
+                  <img 
+                    src={product.image || "/api/placeholder/150/150"} 
+                    alt={product.name || 'Sản phẩm'} 
+                  />
                 </div>
                 
                 <div className="product-info">
@@ -256,7 +225,7 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                   </h3>
                   
                   {/* Giá bán sau giảm giá */}
-                  <div className="sale-price">
+                  <div className="current-price">
                     {formatPrice(product.support || product.price)}đ
                     <span className="price-unit"> / Hộp</span>
                   </div>
@@ -275,23 +244,19 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                     </div>
                   )}
                   
+                  {/* Mô tả ngắn */}
+                  {product.description && (
+                    <div className="product-description">
+                      {product.description}
+                    </div>
+                  )}
+                  
                   {/* Định lượng */}
                   {product.quantity && (
                     <div className="product-quantity">
                       Quy cách: {product.quantity}
                     </div>
                   )}
-                  
-                  {/* Trạng thái hàng hóa */}
-                  <div className="stock-info">
-                    <div className={`available-stock ${product.inStock === 0 || product.stock === 0 ? 'out-of-stock' : ''}`}>
-                      {product.inStock === 0 || product.stock === 0 ? (
-                        <span className="stock-status">❌ Hết hàng</span>
-                      ) : (
-                        <span className="stock-status">✅ Còn hàng</span>
-                      )}
-                    </div>
-                  </div>
                   
                   {/* 2 buttons */}
                   <div className="product-actions">
@@ -304,9 +269,8 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                     <button 
                       className="add-to-cart-btn"
                       onClick={(e) => handleAddToCartClick(product, e)}
-                      disabled={product.inStock === 0 || product.stock === 0}
                     >
-                      {(product.inStock === 0 || product.stock === 0) ? '❌ Hết hàng' : '🛒 Thêm vào giỏ'}
+                      🛒 Thêm vào giỏ
                     </button>
                   </div>
                 </div>
@@ -315,9 +279,7 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
           })}
         </div>
         
-        {pagination && pagination.totalPages > 1 && (
-          <PaginationControls pagination={pagination} />
-        )}
+        <PaginationControls pagination={pagination} />
       </div>
     </section>
   );

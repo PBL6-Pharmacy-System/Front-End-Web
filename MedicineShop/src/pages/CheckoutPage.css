@@ -301,6 +301,17 @@
 .checkout-payment-icon {
     font-size: 24px;
     flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkout-payment-icon img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
 }
 
 .checkout-payment-text {
@@ -404,16 +415,38 @@
     transition: all 0.2s ease;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
     margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.checkout-submit-btn:hover {
+.checkout-submit-btn:hover:not(:disabled) {
     background: linear-gradient(135deg, #2563eb, #1d4ed8);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
 }
 
-.checkout-submit-btn:active {
+.checkout-submit-btn:active:not(:disabled) {
     transform: translateY(0);
+}
+
+.checkout-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.checkout-submit-btn.loading {
+    background: linear-gradient(135deg, #64748b, #475569);
+}
+
+.checkout-btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
 }
 
 /* Terms */
@@ -535,6 +568,103 @@
     opacity: 0.6;
 }
 
+/* Change Address Button */
+.checkout-change-address-btn {
+    margin-left: auto;
+    background: none;
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.checkout-change-address-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Selected Address Display */
+.checkout-selected-address {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.checkout-selected-address-info {
+    flex: 1;
+}
+
+.checkout-selected-address-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.checkout-selected-address-name strong {
+    color: #1f2937;
+    font-size: 15px;
+}
+
+.checkout-selected-address-divider {
+    color: #d1d5db;
+}
+
+.checkout-default-badge {
+    background: #ef4444;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.checkout-selected-address-detail {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.checkout-edit-address-btn {
+    background: none;
+    border: none;
+    color: #3b82f6;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 8px;
+    white-space: nowrap;
+}
+
+.checkout-edit-address-btn:hover {
+    text-decoration: underline;
+}
+
+/* Loading Spinner */
+.checkout-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: checkout-spin 0.8s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes checkout-spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .checkout-content {
@@ -561,5 +691,14 @@
 
     .checkout-section {
         padding: 16px;
+    }
+
+    .checkout-selected-address {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .checkout-edit-address-btn {
+        align-self: flex-end;
     }
 }

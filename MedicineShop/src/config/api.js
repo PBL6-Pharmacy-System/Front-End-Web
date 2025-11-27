@@ -17,16 +17,24 @@ export const API_CONFIG = {
       REMOVE_ITEM: (customerId, itemId) => `/cart/${customerId}/items/${itemId}`,
       CLEAR: (customerId) => `/cart/${customerId}`,
     },
+    // Categories
+    CATEGORIES: {
+      TREE: '/categories/tree',
+    },
     // Products
     PRODUCTS: {
+      LIST: '/products',
       BEST_SELLERS: '/products/best-sellers',
-      BY_CATEGORY: (categoryName) => `/products/category/${categoryName}`,
+      // NOTE: BY_CATEGORY endpoint does NOT exist in backend - use BY_CATEGORY_ID instead
+      // BY_CATEGORY: (categoryName) => `/products/category/${categoryName}`, // REMOVED - does not exist
+      BY_CATEGORY_ID: (categoryId, limit = 10) => `/products?categoryId=${categoryId}&limit=${limit}`,
       SEARCH: '/products/search',
       BY_ID: (id) => `/products/${id}`,
     },
     // Flash Sales
     FLASHSALES: {
-      LIST: '/flashsales',
+      LIST: '/flashsales', // NOTE: Requires auth - use ACTIVE for public access
+      ACTIVE: '/flashsales/active', // Public endpoint
       BY_ID: (id) => `/flashsales/${id}`,
     },
   }

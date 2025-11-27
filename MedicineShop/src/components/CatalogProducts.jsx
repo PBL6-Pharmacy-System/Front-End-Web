@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import ProductCard from './ProductCard';
 import { useCatalogProducts } from '../hooks/useCatalogProducts';
 import { useAddToCart } from '../hooks/useAddToCart';
+import { useToast } from './Toast';
 import LoadingSpinner from './LoadingSpinner';
 import { 
   FILTER_CONFIG, 
@@ -22,6 +23,7 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
   const [searchTerms, setSearchTerms] = useState({});
   const [displayCount, setDisplayCount] = useState(10); // Mặc định hiển thị 10 sản phẩm
   const { handleAddToCart } = useAddToCart();
+  const toast = useToast();
 
   // Xử lý categoryKey từ nhiều dạng input
   const categoryKey = useMemo(() => {
@@ -154,9 +156,9 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
     const result = await handleAddToCart(product, 'catalog', 1);
     
     if (result.success) {
-      alert(`✅ ${result.message}`);
+      toast.success(result.message);
     } else {
-      alert(`❌ ${result.message}`);
+      toast.error(result.message);
     }
   };
 

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useToast } from './Toast';
 import './ProductDetail.css';
 
 export default function ProductDetail({ product, onNavigate }) {
+  const toast = useToast();
   console.log('🎨 ProductDetail received product:', product);
   console.log('🎨 Product type:', typeof product);
   console.log('🎨 Product keys:', product ? Object.keys(product) : 'null');
@@ -357,7 +359,7 @@ export default function ProductDetail({ product, onNavigate }) {
                 </button>
                 <button 
                   className="btn-find-store"
-                  onClick={() => alert('Tìm nhà thuốc')}
+                  onClick={() => toast.info('Tìm nhà thuốc')}
                 >
                   Tìm nhà thuốc
                 </button>

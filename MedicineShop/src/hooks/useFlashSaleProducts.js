@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getFlashSaleProducts } from '../services/flashSaleApi';
+import { API_CONFIG } from '../config/api';
+import { transformProductFromAPI } from '../utils/productTransformer';
+
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 export const useFlashSaleProducts = (itemsPerPage = 6) => {
   const [allProducts, setAllProducts] = useState([]);
@@ -8,33 +11,78 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let didFetch = false;
     const fetchProducts = async () => {
-      if (didFetch) return;
-      didFetch = true;
       try {
         setLoading(true);
         setError(null);
-        console.log('🔄 Fetching flash sale products from API...');
-        const response = await getFlashSaleProducts();
-        if (response.success) {
-          console.log('✅ Flash sale products loaded:', response.data.length);
-          setAllProducts(response.data);
-        } else {
-          console.error('❌ Failed to load flash sale products:', response.error);
-          setError(response.error);
-          setAllProducts([]);
+
+        console.log('🔥 Fetching flash sale products from API...');
+        const res = await fetch(`${API_BASE_URL}/flashsales/active`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!res.ok) {
+          throw new Error(`API returned status ${res.status}`);
         }
+
+        const payload = await res.json();
+        console.log('📦 Flash sale API response:', payload);
+
+        // Extract products from flashsale response
+        let products = [];
+        if (payload && payload.success && payload.data) {
+          const flashsale = payload.data;
+          const items = flashsale.flashsale_products || [];
+          
+          console.log('📦 Found', items.length, 'flashsale items');
+          
+          items.forEach(item => {
+            const product = item.products || item.product;
+            if (product && product.id) {
+              // Add flash sale specific fields
+              products.push({
+                ...product,
+                flashSaleId: flashsale.id,
+                flashSaleName: flashsale.name,
+                startTime: flashsale.start_time,
+                endTime: flashsale.end_time,
+                flashPrice: item.flash_price,
+                originalPrice: product.price,
+                flashStock: item.stock_limit - (item.sold_count || 0)
+              });
+            }
+          });
+        }
+
+        console.log('✅ Loaded', products.length, 'flash sale products');
+        
+        // Transform products similar to ProductListing
+        const transformedProducts = products.map(p => {
+          const base = transformProductFromAPI(p);
+          // Override price with flash price
+          return {
+            ...base,
+            price: p.originalPrice || p.price,
+            support: p.flashPrice || p.price,
+            startTime: p.startTime,
+            endTime: p.endTime,
+            flashSaleId: p.flashSaleId,
+            flashSaleName: p.flashSaleName
+          };
+        });
+        
+        setAllProducts(transformedProducts);
       } catch (err) {
-        console.error('❌ Unexpected error:', err);
-        setError('Không thể tải sản phẩm flash sale');
+        console.error('❌ Failed to fetch flash sale products:', err);
+        setError(err.message || 'Không thể tải sản phẩm flash sale');
         setAllProducts([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Calculate pagination data
@@ -46,18 +94,33 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
   const goToNextPage = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(currentPage + 1);
+      // Scroll to top khi chuyển trang
+      window.scrollTo({
+        top: document.querySelector('.flash-sale-section')?.offsetTop - 100 || 0,
+        behavior: 'smooth'
+      });
     }
   };
 
   const goToPreviousPage = () => {
     if (currentPage > 0) {
       setCurrentPage(currentPage - 1);
+      // Scroll to top khi chuyển trang
+      window.scrollTo({
+        top: document.querySelector('.flash-sale-section')?.offsetTop - 100 || 0,
+        behavior: 'smooth'
+      });
     }
   };
 
   const goToPage = (pageIndex) => {
     if (pageIndex >= 0 && pageIndex < totalPages) {
       setCurrentPage(pageIndex);
+      // Scroll to top khi chuyển trang
+      window.scrollTo({
+        top: document.querySelector('.flash-sale-section')?.offsetTop - 100 || 0,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -65,7 +128,7 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
     products: currentProducts,
     loading,
     error,
-    pagination: {
+    pagination: totalPages > 1 ? {
       currentPage,
       totalPages,
       totalProducts: allProducts.length,
@@ -73,7 +136,10 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
       hasPrevious: currentPage > 0,
       goToNextPage,
       goToPreviousPage,
-      goToPage
-    }
+      goToPage,
+      // Thêm thông tin để debug
+      startIndex: startIndex + 1,
+      endIndex: Math.min(endIndex, allProducts.length)
+    } : null
   };
 };

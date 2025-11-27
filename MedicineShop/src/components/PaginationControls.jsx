@@ -2,6 +2,9 @@ import React from 'react';
 import './PaginationControls.css';
 
 const PaginationControls = ({ pagination }) => {
+  // Check if pagination exists
+  if (!pagination) return null;
+  
   const {
     currentPage,
     totalPages,

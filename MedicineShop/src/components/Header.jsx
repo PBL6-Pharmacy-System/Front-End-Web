@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { selectCartTotalQuantity } from '../store/cartSlice';
 import { MENU_DATA } from '../constants/categories';
@@ -13,6 +13,8 @@ export default function Header({ onNavigate, onCategoryClick }) {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const [backendCartCount, setBackendCartCount] = useState(0);
   
@@ -83,6 +85,7 @@ export default function Header({ onNavigate, onCategoryClick }) {
       logout();
       setIsLoggedIn(false);
       setCurrentUser(null);
+      setShowUserMenu(false);
       window.location.reload();
     }
   };
@@ -90,6 +93,18 @@ export default function Header({ onNavigate, onCategoryClick }) {
   const handleLoginSuccess = () => {
     checkAuthStatus();
   };
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleMouseEnter = (menuId) => {
     // Clear timeout nếu đang có
@@ -223,19 +238,70 @@ export default function Header({ onNavigate, onCategoryClick }) {
           <div className="header-actions">
             {isLoggedIn ? (
               <>
-                <div className="header-user-info">
-                  <span className="header-btn-icon">👤</span>
-                  <span className="header-user-name">
-                    {currentUser?.name || currentUser?.email || 'User'}
-                  </span>
+                <div className="header-user-dropdown" ref={userMenuRef}>
+                  <button 
+                    className="header-btn header-user-btn"
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                  >
+                    <span className="header-btn-icon">👤</span>
+                    <span className="header-user-name">
+                      {currentUser?.name || currentUser?.email || 'User'}
+                    </span>
+                    <span className={`header-dropdown-arrow ${showUserMenu ? 'open' : ''}`}>▼</span>
+                  </button>
+                  
+                  {showUserMenu && (
+                    <div className="header-user-menu">
+                      <div className="header-user-menu-header">
+                        <span className="header-user-avatar">👤</span>
+                        <div className="header-user-info-text">
+                          <span className="header-user-fullname">{currentUser?.name || 'Khách hàng'}</span>
+                          <span className="header-user-email">{currentUser?.email || ''}</span>
+                        </div>
+                      </div>
+                      <div className="header-user-menu-items">
+                        <button 
+                          className="header-user-menu-item"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            onNavigate('orders');
+                          }}
+                        >
+                          <span className="menu-item-icon">📦</span>
+                          <span>Lịch sử đơn hàng</span>
+                        </button>
+                        <button 
+                          className="header-user-menu-item"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            // onNavigate('profile');
+                          }}
+                        >
+                          <span className="menu-item-icon">⚙️</span>
+                          <span>Thông tin tài khoản</span>
+                        </button>
+                        <button 
+                          className="header-user-menu-item"
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            // onNavigate('addresses');
+                          }}
+                        >
+                          <span className="menu-item-icon">📍</span>
+                          <span>Sổ địa chỉ</span>
+                        </button>
+                        <div className="header-user-menu-divider"></div>
+                        <button 
+                          className="header-user-menu-item logout"
+                          onClick={handleLogout}
+                        >
+                          <span className="menu-item-icon">🚪</span>
+                          <span>Đăng xuất</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button 
-                  className="header-btn header-logout-btn"
-                  onClick={handleLogout}
-                >
-                  <span className="header-btn-icon">🚪</span>
-                  <span>Đăng xuất</span>
-                </button>
               </>
             ) : (
               <button 

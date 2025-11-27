@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useMedicalProducts, useMedicalCategories } from '../hooks/useMedicalProducts';
 import { useAddToCart } from '../hooks/useAddToCart';
+import { useToast } from './Toast';
 import './MedicalProductsTabs.css';
 
 const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
   const [activeTab, setActiveTab] = useState('vitaminTab'); // Đổi sang tab có dữ liệu
+  const toast = useToast();
   
   // Sử dụng hooks thay vì hardcoded data
   const { categories } = useMedicalCategories();
@@ -42,16 +44,16 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
     
     // Kiểm tra stock trước
     if (!product.inStock) {
-      alert(`❌ Sản phẩm "${product.name}" hiện đang hết hàng!`);
+      toast.error(`Sản phẩm "${product.name}" hiện đang hết hàng!`);
       return;
     }
     
     const result = await handleAddToCart(product, 'medical', 1);
     
     if (result.success) {
-      alert(`✅ ${result.message}\nGiá: ${formatPrice(product.support || product.price)}đ`);
+      toast.success(`${result.message}\nGiá: ${formatPrice(product.support || product.price)}đ`);
     } else {
-      alert(`❌ ${result.message}`);
+      toast.error(result.message);
     }
   };
 

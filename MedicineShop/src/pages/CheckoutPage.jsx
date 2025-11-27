@@ -1,40 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { selectCartItems, selectSelectedTotalAmount } from '../store/cartSlice';
 import { formatPrice } from '../utils/productHelpers';
+import { useToast } from '../components/Toast';
+import AddressModal from '../components/AddressModal';
+import OrderSuccessModal from '../components/OrderSuccessModal';
+import * as shippingAddressApi from '../services/shippingAddressApi';
+import { getCart } from '../services/cartApi';
+import { checkout, processCodPayment, createMomoPayment, createVnpayPayment } from '../services/paymentApi';
+import { getCustomerId, isAuthenticated } from '../services/authApi';
 import './CheckoutPage.css';
 
-// Dữ liệu địa chỉ Việt Nam
-const vietnamLocations = {
-  'Đà Nẵng': {
-    'Quận Hải Châu': ['Phường Hòa Thuận Tây', 'Phường Hòa Thuận Đông', 'Phường Nam Dương', 'Phường Bình Hiên', 'Phường Bình Thuận', 'Phường Hải Châu 1', 'Phường Hải Châu 2', 'Phường Phước Ninh', 'Phường Thanh Bình', 'Phường Thạch Thang', 'Phường Thạch Thang', 'Phường Hòa Cường Bắc', 'Phường Hòa Cường Nam'],
-    'Quận Thanh Khê': ['Phường Tam Thuận', 'Phường Thanh Khê Đông', 'Phường Thanh Khê Tây', 'Phường Xuân Hà', 'Phường Tân Chính', 'Phường Chính Gián', 'Phường Vĩnh Trung', 'Phường Thạc Gián', 'Phường An Khê', 'Phường Hòa Khê'],
-    'Quận Sơn Trà': ['Phường Thọ Quang', 'Phường Nại Hiên Đông', 'Phường Mân Thái', 'Phường An Hải Bắc', 'Phường Phước Mỹ', 'Phường An Hải Tây', 'Phường An Hải Đông'],
-    'Quận Ngũ Hành Sơn': ['Phường Mỹ An', 'Phường Khuê Mỹ', 'Phường Hòa Quý', 'Phường Hòa Hải'],
-    'Quận Liên Chiểu': ['Phường Hòa Hiệp Bắc', 'Phường Hòa Hiệp Nam', 'Phường Hòa Khánh Bắc', 'Phường Hòa Khánh Nam', 'Phường Hòa Minh'],
-    'Quận Cẩm Lệ': ['Phường Khuê Trung', 'Phường Hòa Phát', 'Phường Hòa An', 'Phường Hòa Thọ Tây', 'Phường Hòa Thọ Đông', 'Phường Hòa Xuân'],
-    'Huyện Hòa Vang': ['Xã Hòa Bắc', 'Xã Hòa Liên', 'Xã Hòa Ninh', 'Xã Hòa Sơn', 'Xã Hòa Nhơn', 'Xã Hòa Phú', 'Xã Hòa Phong', 'Xã Hòa Châu', 'Xã Hòa Tiến', 'Xã Hòa Phước', 'Xã Hòa Khương']
-  },
-  'Hà Nội': {
-    'Quận Ba Đình': ['Phường Phúc Xá', 'Phường Trúc Bạch', 'Phường Vĩnh Phúc', 'Phường Cống Vị', 'Phường Liễu Giai', 'Phường Nguyễn Trung Trực', 'Phường Quán Thánh', 'Phường Ngọc Hà', 'Phường Điện Biên', 'Phường Đội Cấn', 'Phường Ngọc Khánh', 'Phường Kim Mã', 'Phường Giảng Võ', 'Phường Thành Công'],
-    'Quận Hoàn Kiếm': ['Phường Phúc Tân', 'Phường Đồng Xuân', 'Phường Hàng Mã', 'Phường Hàng Buồm', 'Phường Hàng Đào', 'Phường Hàng Bồ', 'Phường Cửa Đông', 'Phường Lý Thái Tổ', 'Phường Hàng Bạc', 'Phường Hàng Gai', 'Phường Chương Dương Độ', 'Phường Cửa Nam', 'Phường Hàng Trống', 'Phường Phan Chu Trinh', 'Phường Tràng Tiền', 'Phường Trần Hưng Đạo', 'Phường Pháo Đài Láng', 'Phường Hàng Bài'],
-    'Quận Đống Đa': ['Phường Cát Linh', 'Phường Văn Miếu', 'Phường Quốc Tử Giám', 'Phường Láng Thượng', 'Phường Ô Chợ Dừa', 'Phường Văn Chương', 'Phường Hàng Bột', 'Phường Láng Hạ', 'Phường Khâm Thiên', 'Phường Thổ Quan', 'Phường Nam Đồng', 'Phường Trung Phụng', 'Phường Quang Trung', 'Phường Trung Liệt', 'Phường Phương Liên', 'Phường Thịnh Quang', 'Phường Trung Tự', 'Phường Kim Liên', 'Phường Phương Mai', 'Phường Ngã Tư Sở', 'Phường Khương Thượng'],
-    'Quận Hai Bà Trưng': ['Phường Nguyễn Du', 'Phường Bạch Đằng', 'Phường Phạm Đình Hổ', 'Phường Lê Đại Hành', 'Phường Đồng Nhân', 'Phường Phố Huế', 'Phường Đống Mác', 'Phường Thanh Lương', 'Phường Thanh Nhân', 'Phường Cầu Dền', 'Phường Bách Khoa', 'Phường Đồng Tâm', 'Phường Vĩnh Tuy', 'Phường Bạch Mai', 'Phường Quỳnh Mai', 'Phường Quỳnh Lôi', 'Phường Minh Khai', 'Phường Trương Định']
-  },
-  'TP. Hồ Chí Minh': {
-    'Quận 1': ['Phường Tân Định', 'Phường Đa Kao', 'Phường Bến Nghé', 'Phường Bến Thành', 'Phường Nguyễn Thái Bình', 'Phường Phạm Ngũ Lão', 'Phường Cầu Ông Lãnh', 'Phường Cô Giang', 'Phường Nguyễn Cư Trinh', 'Phường Cầu Kho'],
-    'Quận 3': ['Phường 01', 'Phường 02', 'Phường 03', 'Phường 04', 'Phường 05', 'Phường 06', 'Phường 07', 'Phường 08', 'Phường 09', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14'],
-    'Quận 5': ['Phường 01', 'Phường 02', 'Phường 03', 'Phường 04', 'Phường 05', 'Phường 06', 'Phường 07', 'Phường 08', 'Phường 09', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15'],
-    'Quận 10': ['Phường 01', 'Phường 02', 'Phường 03', 'Phường 04', 'Phường 05', 'Phường 06', 'Phường 07', 'Phường 08', 'Phường 09', 'Phường 10', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15'],
-    'Quận Bình Thạnh': ['Phường 01', 'Phường 02', 'Phường 03', 'Phường 05', 'Phường 06', 'Phường 07', 'Phường 11', 'Phường 12', 'Phường 13', 'Phường 14', 'Phường 15', 'Phường 17', 'Phường 19', 'Phường 21', 'Phường 22', 'Phường 24', 'Phường 25', 'Phường 26', 'Phường 27', 'Phường 28']
-  }
-};
-
 export default function CheckoutPage({ onNavigate }) {
-  const cartItems = useSelector(selectCartItems);
-  // Chỉ lấy các sản phẩm đã được chọn để thanh toán
-  const selectedItems = cartItems.filter(item => item.selected);
-  const totalPrice = useSelector(selectSelectedTotalAmount);
+  const toast = useToast();
+
+  // Cart state from API
+  const [cartItems, setCartItems] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [isLoadingCart, setIsLoadingCart] = useState(true);
+
+  // Address Modal state
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
+  const [useAddressFromList, setUseAddressFromList] = useState(false);
+
+  // Lấy customerId từ auth
+  const customerId = getCustomerId();
 
   // Form states
   const [customerInfo, setCustomerInfo] = useState({
@@ -47,48 +38,213 @@ export default function CheckoutPage({ onNavigate }) {
     receiverName: '',
     receiverPhone: '',
     deliveryType: 'now', // 'now' or 'later'
-    province: '',
-    district: '',
-    ward: '',
+    city: '',
+    state: '',
     address: '',
     note: ''
   });
 
   const [requireInvoice, setRequireInvoice] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  // Order Success Modal state
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderSuccessInfo, setOrderSuccessInfo] = useState(null);
 
   // Validation errors
   const [errors, setErrors] = useState({});
 
-  // Available locations based on selection
-  const [availableDistricts, setAvailableDistricts] = useState([]);
-  const [availableWards, setAvailableWards] = useState([]);
-
-  // Update districts when province changes
+  // Fetch cart from API when component mounts
   useEffect(() => {
-    if (deliveryInfo.province && vietnamLocations[deliveryInfo.province]) {
-      setAvailableDistricts(Object.keys(vietnamLocations[deliveryInfo.province]));
-      // Reset district and ward
-      setDeliveryInfo(prev => ({ ...prev, district: '', ward: '' }));
-      setAvailableWards([]);
-    } else {
-      setAvailableDistricts([]);
-      setAvailableWards([]);
-    }
-  }, [deliveryInfo.province]);
+    fetchCartItems();
+  }, []);
 
-  // Update wards when district changes
+  // Fetch saved addresses when component mounts
   useEffect(() => {
-    if (deliveryInfo.province && deliveryInfo.district && 
-        vietnamLocations[deliveryInfo.province] && 
-        vietnamLocations[deliveryInfo.province][deliveryInfo.district]) {
-      setAvailableWards(vietnamLocations[deliveryInfo.province][deliveryInfo.district]);
-      // Reset ward
-      setDeliveryInfo(prev => ({ ...prev, ward: '' }));
-    } else {
-      setAvailableWards([]);
+    if (customerId) {
+      fetchSavedAddresses();
     }
-  }, [deliveryInfo.district, deliveryInfo.province]);
+  }, [customerId]);
+
+  const fetchCartItems = async () => {
+    if (!isAuthenticated()) {
+      setIsLoadingCart(false);
+      toast.error('Vui lòng đăng nhập để tiếp tục thanh toán');
+      onNavigate('home');
+      return;
+    }
+
+    setIsLoadingCart(true);
+    try {
+      const response = await getCart();
+      console.log('🛒 Cart response:', response);
+      
+      if (response.success && response.data) {
+        const orderItems = response.data.orderitems || [];
+        
+        // Transform cart items for display
+        const transformedItems = orderItems.map(item => ({
+          id: item.id,
+          productId: item.product_id,
+          name: item.products?.name || 'Sản phẩm',
+          image: item.products?.image_url || '/api/placeholder/60/60',
+          price: Number(item.price) || 0,
+          quantity: item.quantity || 1,
+          unit: item.productunits?.unit_name || 'Hộp',
+          subtotal: Number(item.subtotal) || 0
+        }));
+        
+        setCartItems(transformedItems);
+        
+        // Calculate total price
+        const total = transformedItems.reduce((sum, item) => sum + item.subtotal, 0);
+        setTotalPrice(total);
+      }
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      toast.error('Không thể tải giỏ hàng');
+    } finally {
+      setIsLoadingCart(false);
+    }
+  };
+
+  const fetchSavedAddresses = async () => {
+    if (!customerId) return;
+    
+    setIsLoadingAddresses(true);
+    try {
+      const result = await shippingAddressApi.getCustomerAddresses(customerId);
+      if (result.success && result.data) {
+        setSavedAddresses(result.data);
+        
+        // Tự động chọn địa chỉ mặc định nếu có
+        const defaultAddr = result.data.find(addr => addr.is_default);
+        if (defaultAddr) {
+          setSelectedAddress(defaultAddr);
+          setUseAddressFromList(true);
+          applyAddressToForm(defaultAddr);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+    } finally {
+      setIsLoadingAddresses(false);
+    }
+  };
+
+  const applyAddressToForm = (address) => {
+    if (!address) return;
+    setDeliveryInfo(prev => ({
+      ...prev,
+      receiverName: address.recipient_name || '',
+      receiverPhone: address.recipient_phone || '',
+      city: address.city || '',
+      state: address.state || '',
+      address: address.address_line || ''
+    }));
+  };
+
+  // Address Modal handlers
+  const handleOpenAddressModal = () => {
+    setIsAddressModalOpen(true);
+  };
+
+  const handleCloseAddressModal = () => {
+    setIsAddressModalOpen(false);
+  };
+
+  const handleSelectAddress = (address) => {
+    setSelectedAddress(address);
+    setUseAddressFromList(true);
+    applyAddressToForm(address);
+    setIsAddressModalOpen(false);
+    toast.success('Đã chọn địa chỉ giao hàng');
+  };
+
+  const handleAddNewAddress = async (addressData) => {
+    if (!customerId) {
+      toast.error('Vui lòng đăng nhập để lưu địa chỉ');
+      return;
+    }
+
+    try {
+      const result = await shippingAddressApi.createAddress(customerId, addressData);
+      if (result.success && result.data) {
+        setSavedAddresses(prev => [...prev, result.data]);
+        toast.success('Đã thêm địa chỉ mới');
+        return result.data;
+      } else {
+        throw new Error(result.error || 'Không thể thêm địa chỉ');
+      }
+    } catch (error) {
+      toast.error('Không thể thêm địa chỉ: ' + error.message);
+      throw error;
+    }
+  };
+
+  const handleEditAddress = async (addressId, addressData) => {
+    try {
+      const result = await shippingAddressApi.updateAddress(addressId, addressData);
+      if (result.success && result.data) {
+        setSavedAddresses(prev => prev.map(addr => 
+          addr.id === addressId ? result.data : addr
+        ));
+        
+        // Cập nhật form nếu địa chỉ đang chọn được sửa
+        if (selectedAddress && selectedAddress.id === addressId) {
+          setSelectedAddress(result.data);
+          applyAddressToForm(result.data);
+        }
+        
+        toast.success('Đã cập nhật địa chỉ');
+        return result.data;
+      } else {
+        throw new Error(result.error || 'Không thể cập nhật địa chỉ');
+      }
+    } catch (error) {
+      toast.error('Không thể cập nhật địa chỉ: ' + error.message);
+      throw error;
+    }
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      const result = await shippingAddressApi.deleteAddress(addressId);
+      if (result.success) {
+        setSavedAddresses(prev => prev.filter(addr => addr.id !== addressId));
+        
+        // Reset nếu địa chỉ bị xóa đang được chọn
+        if (selectedAddress && selectedAddress.id === addressId) {
+          setSelectedAddress(null);
+          setUseAddressFromList(false);
+        }
+        
+        toast.success('Đã xóa địa chỉ');
+      } else {
+        throw new Error(result.error || 'Không thể xóa địa chỉ');
+      }
+    } catch (error) {
+      toast.error('Không thể xóa địa chỉ: ' + error.message);
+    }
+  };
+
+  const handleSetDefaultAddress = async (addressId) => {
+    try {
+      const result = await shippingAddressApi.setDefaultAddress(addressId);
+      if (result.success) {
+        setSavedAddresses(prev => prev.map(addr => ({
+          ...addr,
+          is_default: addr.id === addressId
+        })));
+        toast.success('Đã đặt làm địa chỉ mặc định');
+      } else {
+        throw new Error(result.error || 'Không thể đặt địa chỉ mặc định');
+      }
+    } catch (error) {
+      toast.error('Không thể đặt địa chỉ mặc định: ' + error.message);
+    }
+  };
 
   // Validation functions
   const validatePhone = (phone) => {
@@ -107,54 +263,71 @@ export default function CheckoutPage({ onNavigate }) {
   };
 
   const validateForm = () => {
+    console.log('📝 ========== validateForm CALLED ==========');
+    console.log('📝 customerInfo:', customerInfo);
+    console.log('📝 deliveryInfo:', deliveryInfo);
+    console.log('📝 selectedAddress:', selectedAddress);
+    
     const newErrors = {};
 
     // Customer info validation
     if (!customerInfo.name.trim()) {
       newErrors.name = 'Vui lòng nhập họ tên';
+      console.log('❌ Error: name empty');
     } else if (customerInfo.name.trim().length < 2) {
       newErrors.name = 'Họ tên phải có ít nhất 2 ký tự';
+      console.log('❌ Error: name too short');
     }
 
     if (!customerInfo.phone.trim()) {
       newErrors.phone = 'Vui lòng nhập số điện thoại';
+      console.log('❌ Error: phone empty');
     } else if (!validatePhone(customerInfo.phone)) {
       newErrors.phone = 'Số điện thoại không hợp lệ (VD: 0912345678)';
+      console.log('❌ Error: phone invalid');
     }
 
     if (customerInfo.email && !validateEmail(customerInfo.email)) {
       newErrors.email = 'Email không hợp lệ';
+      console.log('❌ Error: email invalid');
     }
 
-    // Delivery info validation
+    // Skip delivery validation if selectedAddress exists
+    if (selectedAddress) {
+      console.log('✅ selectedAddress exists, skipping delivery validation');
+      console.log('📝 Final errors:', newErrors);
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    }
+
+    // Delivery info validation (only if no selected address)
     if (!deliveryInfo.receiverName.trim()) {
       newErrors.receiverName = 'Vui lòng nhập tên người nhận';
+      console.log('❌ Error: receiverName empty');
     }
 
     if (!deliveryInfo.receiverPhone.trim()) {
       newErrors.receiverPhone = 'Vui lòng nhập số điện thoại người nhận';
+      console.log('❌ Error: receiverPhone empty');
     } else if (!validatePhone(deliveryInfo.receiverPhone)) {
       newErrors.receiverPhone = 'Số điện thoại không hợp lệ';
+      console.log('❌ Error: receiverPhone invalid');
     }
 
-    if (!deliveryInfo.province) {
-      newErrors.province = 'Vui lòng chọn Tỉnh/Thành phố';
-    }
-
-    if (!deliveryInfo.district) {
-      newErrors.district = 'Vui lòng chọn Quận/Huyện';
-    }
-
-    if (!deliveryInfo.ward) {
-      newErrors.ward = 'Vui lòng chọn Phường/Xã';
+    if (!deliveryInfo.city) {
+      newErrors.city = 'Vui lòng nhập Tỉnh/Thành phố';
+      console.log('❌ Error: city empty');
     }
 
     if (!deliveryInfo.address.trim()) {
       newErrors.address = 'Vui lòng nhập địa chỉ cụ thể';
+      console.log('❌ Error: address empty');
     } else if (deliveryInfo.address.trim().length < 10) {
       newErrors.address = 'Địa chỉ phải có ít nhất 10 ký tự';
+      console.log('❌ Error: address too short');
     }
 
+    console.log('📝 Final errors:', newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -175,8 +348,16 @@ export default function CheckoutPage({ onNavigate }) {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    console.log('🛒 ========== handleCheckout CALLED ==========');
+    console.log('🛒 paymentMethod:', paymentMethod);
+    console.log('🛒 selectedAddress:', selectedAddress);
+    console.log('🛒 deliveryInfo:', deliveryInfo);
+    console.log('🛒 cartItems:', cartItems);
+    console.log('🛒 onNavigate function:', onNavigate);
+    
     if (!validateForm()) {
+      console.log('❌ Form validation FAILED');
       // Scroll to first error
       const firstErrorField = Object.keys(errors)[0];
       const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
@@ -186,40 +367,138 @@ export default function CheckoutPage({ onNavigate }) {
       }
       return;
     }
+    console.log('✅ Form validation PASSED');
 
-    // All validation passed
-    const orderData = {
-      customerInfo,
-      deliveryInfo,
-      requireInvoice,
-      paymentMethod,
-      items: selectedItems,
-      totalPrice,
-      shippingFee,
-      finalTotal,
-      orderDate: new Date().toISOString()
-    };
+    // Check authentication
+    if (!isAuthenticated()) {
+      console.log('❌ User NOT authenticated');
+      toast.error('Vui lòng đăng nhập để đặt hàng');
+      return;
+    }
+    console.log('✅ User IS authenticated');
 
-    console.log('✅ Order submitted:', orderData);
-    
-    // TODO: Call API to create order
-    alert(`Đặt hàng thành công!\n\nTổng tiền: ${formatPrice(finalTotal)}đ\nPhương thức: ${
-      paymentMethod === 'cod' ? 'Tiền mặt' :
-      paymentMethod === 'qr' ? 'QR Code' :
-      paymentMethod === 'atm' ? 'Thẻ ATM' :
-      paymentMethod === 'card' ? 'Thẻ tín dụng' :
-      paymentMethod === 'zalopay' ? 'ZaloPay' : 'MoMo'
-    }`);
+    setIsProcessingPayment(true);
+    console.log('🔄 isProcessingPayment set to TRUE');
 
-    // Redirect to order success page or home
-    // onNavigate('home');
+    try {
+      // Prepare checkout data for API
+      // Build checkout data according to backend API requirements
+      const checkoutData = {
+        payment_method: paymentMethod,
+        note: deliveryInfo.note || ''
+      };
+
+      // Backend requires shipping_address_id at top level
+      if (selectedAddress) {
+        checkoutData.shipping_address_id = selectedAddress.id;
+      } else {
+        // If no saved address, we need to create one first or pass address details
+        // For now, show error - user should select/add an address
+        toast.error('Vui lòng chọn hoặc thêm địa chỉ giao hàng');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      console.log('📦 Checkout data:', checkoutData);
+
+      // Step 1: Call checkout API to create order and payment
+      const checkoutResponse = await checkout(checkoutData);
+      console.log('✅ Checkout response:', checkoutResponse);
+
+      const paymentId = checkoutResponse.data?.payment?.id || checkoutResponse.payment?.id;
+      const orderId = checkoutResponse.data?.order?.id || checkoutResponse.order?.id;
+
+      if (!paymentId) {
+        throw new Error('Không thể tạo thanh toán');
+      }
+
+      // Step 2: Process payment based on method
+      if (paymentMethod === 'cod') {
+        // COD: Order is already created with checkout API
+        // No need to call process-cod (that's for admin/staff to confirm delivery)
+        console.log('✅ COD order created successfully, orderId:', orderId);
+        
+        // Clear cart items after successful order
+        console.log('🧹 Clearing cart...');
+        setCartItems([]);
+        setTotalPrice(0);
+        
+        // Trigger cart update in Header
+        window.dispatchEvent(new Event('cartUpdated'));
+        console.log('📢 Cart updated event dispatched');
+        
+        // Show success toast
+        console.log('🎉 Showing success toast for orderId:', orderId);
+        toast.success(`Đặt hàng thành công! Mã đơn hàng: #${orderId}`);
+        
+        // Navigate to orders page after short delay
+        console.log('⏱️ Will navigate to orders in 1 second...');
+        setTimeout(() => {
+          console.log('🚀 Navigating to orders page now!');
+          console.log('onNavigate function:', onNavigate);
+          if (onNavigate) {
+            onNavigate('orders');
+          } else {
+            console.error('❌ onNavigate is undefined!');
+          }
+        }, 1000);
+        
+      } else if (paymentMethod === 'momo') {
+        // MoMo: Get payment URL and redirect
+        // MoMo API requires orderId, not payment_id
+        console.log('🟣 Creating MoMo payment for orderId:', orderId);
+        const momoResponse = await createMomoPayment({ orderId: orderId });
+        console.log('MoMo response:', momoResponse);
+        
+        const payUrl = momoResponse.data?.payUrl || momoResponse.payUrl;
+        if (payUrl) {
+          toast.info('Đang chuyển đến trang thanh toán MoMo...');
+          window.location.href = payUrl;
+        } else {
+          throw new Error('Không thể tạo link thanh toán MoMo');
+        }
+      } else if (paymentMethod === 'vnpay') {
+        // VNPay: Get payment URL and redirect
+        // VNPay API requires orderId, not payment_id
+        console.log('🔵 Creating VNPay payment for orderId:', orderId);
+        const vnpayResponse = await createVnpayPayment({ orderId: orderId });
+        console.log('VNPay response:', vnpayResponse);
+        
+        const paymentUrl = vnpayResponse.data?.paymentUrl || vnpayResponse.paymentUrl;
+        if (paymentUrl) {
+          toast.info('Đang chuyển đến trang thanh toán VNPay...');
+          window.location.href = paymentUrl;
+        } else {
+          throw new Error('Không thể tạo link thanh toán VNPay');
+        }
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại!');
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const shippingFee = totalPrice >= 300000 ? 0 : 30000;
   const finalTotal = totalPrice + shippingFee;
 
-  // Redirect to cart if no items selected
-  if (!selectedItems || selectedItems.length === 0) {
+  // Show loading state
+  if (isLoadingCart) {
+    return (
+      <div className="checkout-page">
+        <div className="checkout-container">
+          <div style={{ padding: '60px', textAlign: 'center' }}>
+            <div className="checkout-loading-spinner"></div>
+            <p style={{ marginTop: '16px', color: '#6b7280' }}>Đang tải giỏ hàng...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to cart if no items
+  if (!cartItems || cartItems.length === 0) {
     return (
       <div className="checkout-page">
         <div className="checkout-container">
@@ -227,10 +506,10 @@ export default function CheckoutPage({ onNavigate }) {
             ← Quay lại giỏ hàng
           </button>
           <div style={{ padding: '40px', textAlign: 'center' }}>
-            <h2>Không có sản phẩm nào được chọn</h2>
-            <p>Vui lòng quay lại giỏ hàng và chọn sản phẩm để thanh toán.</p>
+            <h2>Giỏ hàng trống</h2>
+            <p>Vui lòng thêm sản phẩm vào giỏ hàng để thanh toán.</p>
             <button 
-              onClick={() => onNavigate('cart')}
+              onClick={() => onNavigate('home')}
               style={{ 
                 marginTop: '20px', 
                 padding: '12px 24px', 
@@ -243,7 +522,7 @@ export default function CheckoutPage({ onNavigate }) {
                 fontWeight: '600'
               }}
             >
-              Quay lại giỏ hàng
+              Tiếp tục mua sắm
             </button>
           </div>
         </div>
@@ -273,7 +552,7 @@ export default function CheckoutPage({ onNavigate }) {
               )}
 
               <div className="checkout-products">
-                {selectedItems.map((item) => (
+                {cartItems.map((item) => (
                   <div key={item.id} className="checkout-product-item">
                     <img 
                       src={item.image || '/api/placeholder/60/60'} 
@@ -342,32 +621,109 @@ export default function CheckoutPage({ onNavigate }) {
               <div className="checkout-section-header">
                 <span className="checkout-section-icon">📍</span>
                 <h3 className="checkout-section-title">Địa chỉ nhận hàng</h3>
+                {customerId && (
+                  <button 
+                    type="button"
+                    className="checkout-change-address-btn"
+                    onClick={handleOpenAddressModal}
+                  >
+                    {savedAddresses.length > 0 ? 'Thay đổi' : '+ Thêm địa chỉ'}
+                  </button>
+                )}
               </div>
 
-              <div className="checkout-form-grid">
-                <div className="checkout-form-field">
-                  <input
-                    type="text"
-                    name="receiverName"
-                    placeholder="Họ và tên người nhận *"
-                    value={deliveryInfo.receiverName}
-                    onChange={(e) => handleDeliveryInfoChange('receiverName', e.target.value)}
+              {/* Hiển thị địa chỉ đã chọn */}
+              {useAddressFromList && selectedAddress && (
+                <div className="checkout-selected-address">
+                  <div className="checkout-selected-address-info">
+                    <div className="checkout-selected-address-name">
+                      <strong>{selectedAddress.recipient_name}</strong>
+                      <span className="checkout-selected-address-divider">|</span>
+                      <span>{selectedAddress.recipient_phone}</span>
+                      {selectedAddress.is_default && (
+                        <span className="checkout-default-badge">Mặc định</span>
+                      )}
+                    </div>
+                    <p className="checkout-selected-address-detail">
+                      {[selectedAddress.address_line, selectedAddress.state, selectedAddress.city].filter(Boolean).join(', ')}
+                    </p>
+                  </div>
+                  <button 
+                    type="button"
+                    className="checkout-edit-address-btn"
+                    onClick={handleOpenAddressModal}
+                  >
+                    Thay đổi
+                  </button>
+                </div>
+              )}
+
+              {/* Form nhập địa chỉ mới - hiển thị khi chưa có địa chỉ đã lưu hoặc chưa đăng nhập */}
+              {(!useAddressFromList || !selectedAddress) && (
+                <>
+                  <div className="checkout-form-grid">
+                    <div className="checkout-form-field">
+                      <input
+                        type="text"
+                        name="receiverName"
+                        placeholder="Họ và tên người nhận *"
+                        value={deliveryInfo.receiverName}
+                        onChange={(e) => handleDeliveryInfoChange('receiverName', e.target.value)}
                     className={`checkout-input ${errors.receiverName ? 'error' : ''}`}
-                  />
-                  {errors.receiverName && <span className="checkout-error-message">{errors.receiverName}</span>}
-                </div>
-                <div className="checkout-form-field">
-                  <input
-                    type="tel"
-                    name="receiverPhone"
-                    placeholder="Số điện thoại *"
-                    value={deliveryInfo.receiverPhone}
-                    onChange={(e) => handleDeliveryInfoChange('receiverPhone', e.target.value)}
-                    className={`checkout-input ${errors.receiverPhone ? 'error' : ''}`}
-                  />
-                  {errors.receiverPhone && <span className="checkout-error-message">{errors.receiverPhone}</span>}
-                </div>
-              </div>
+                      />
+                      {errors.receiverName && <span className="checkout-error-message">{errors.receiverName}</span>}
+                    </div>
+                    <div className="checkout-form-field">
+                      <input
+                        type="tel"
+                        name="receiverPhone"
+                        placeholder="Số điện thoại *"
+                        value={deliveryInfo.receiverPhone}
+                        onChange={(e) => handleDeliveryInfoChange('receiverPhone', e.target.value)}
+                        className={`checkout-input ${errors.receiverPhone ? 'error' : ''}`}
+                      />
+                      {errors.receiverPhone && <span className="checkout-error-message">{errors.receiverPhone}</span>}
+                    </div>
+                  </div>
+
+                  <div className="checkout-form-grid">
+                    <div className="checkout-form-field">
+                      <input
+                        type="text"
+                        name="city"
+                        placeholder="Tỉnh/Thành phố *"
+                        value={deliveryInfo.city}
+                        onChange={(e) => handleDeliveryInfoChange('city', e.target.value)}
+                        className={`checkout-input ${errors.city ? 'error' : ''}`}
+                      />
+                      {errors.city && <span className="checkout-error-message">{errors.city}</span>}
+                    </div>
+
+                    <div className="checkout-form-field">
+                      <input
+                        type="text"
+                        name="state"
+                        placeholder="Quận/Huyện/Phường/Xã"
+                        value={deliveryInfo.state}
+                        onChange={(e) => handleDeliveryInfoChange('state', e.target.value)}
+                        className="checkout-input"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="checkout-form-field">
+                    <input
+                      type="text"
+                      name="address"
+                      placeholder="Địa chỉ cụ thể (Số nhà, tên đường...) *"
+                      value={deliveryInfo.address}
+                      onChange={(e) => handleDeliveryInfoChange('address', e.target.value)}
+                      className={`checkout-input checkout-input-full ${errors.address ? 'error' : ''}`}
+                    />
+                    {errors.address && <span className="checkout-error-message">{errors.address}</span>}
+                  </div>
+                </>
+              )}
 
               <div className="checkout-delivery-type">
                 <label className="checkout-radio-label">
@@ -390,67 +746,6 @@ export default function CheckoutPage({ onNavigate }) {
                   />
                   <span>Giao vào giờ hành chính</span>
                 </label>
-              </div>
-
-              <div className="checkout-form-grid checkout-form-grid-3">
-                <div className="checkout-form-field">
-                  <select
-                    name="province"
-                    value={deliveryInfo.province}
-                    onChange={(e) => handleDeliveryInfoChange('province', e.target.value)}
-                    className={`checkout-select ${errors.province ? 'error' : ''}`}
-                  >
-                    <option value="">Chọn Tỉnh/Thành phố *</option>
-                    {Object.keys(vietnamLocations).map(province => (
-                      <option key={province} value={province}>{province}</option>
-                    ))}
-                  </select>
-                  {errors.province && <span className="checkout-error-message">{errors.province}</span>}
-                </div>
-
-                <div className="checkout-form-field">
-                  <select
-                    name="district"
-                    value={deliveryInfo.district}
-                    onChange={(e) => handleDeliveryInfoChange('district', e.target.value)}
-                    className={`checkout-select ${errors.district ? 'error' : ''}`}
-                    disabled={!deliveryInfo.province}
-                  >
-                    <option value="">Chọn Quận/Huyện *</option>
-                    {availableDistricts.map(district => (
-                      <option key={district} value={district}>{district}</option>
-                    ))}
-                  </select>
-                  {errors.district && <span className="checkout-error-message">{errors.district}</span>}
-                </div>
-
-                <div className="checkout-form-field">
-                  <select
-                    name="ward"
-                    value={deliveryInfo.ward}
-                    onChange={(e) => handleDeliveryInfoChange('ward', e.target.value)}
-                    className={`checkout-select ${errors.ward ? 'error' : ''}`}
-                    disabled={!deliveryInfo.district}
-                  >
-                    <option value="">Chọn Phường/Xã *</option>
-                    {availableWards.map(ward => (
-                      <option key={ward} value={ward}>{ward}</option>
-                    ))}
-                  </select>
-                  {errors.ward && <span className="checkout-error-message">{errors.ward}</span>}
-                </div>
-              </div>
-
-              <div className="checkout-form-field">
-                <input
-                  type="text"
-                  name="address"
-                  placeholder="Địa chỉ cụ thể (Số nhà, tên đường...) *"
-                  value={deliveryInfo.address}
-                  onChange={(e) => handleDeliveryInfoChange('address', e.target.value)}
-                  className={`checkout-input checkout-input-full ${errors.address ? 'error' : ''}`}
-                />
-                {errors.address && <span className="checkout-error-message">{errors.address}</span>}
               </div>
 
               <textarea
@@ -488,7 +783,10 @@ export default function CheckoutPage({ onNavigate }) {
                     checked={paymentMethod === 'cod'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   />
-                  <span className="checkout-payment-icon">💵</span>
+                  <span className="checkout-payment-icon">
+                    <img src="/icons/cod.png" alt="COD" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} />
+                    <span style={{ display: 'none' }}>💵</span>
+                  </span>
                   <span className="checkout-payment-text">Thanh toán tiền mặt khi nhận hàng</span>
                 </label>
 
@@ -496,48 +794,15 @@ export default function CheckoutPage({ onNavigate }) {
                   <input
                     type="radio"
                     name="payment"
-                    value="qr"
-                    checked={paymentMethod === 'qr'}
+                    value="vnpay"
+                    checked={paymentMethod === 'vnpay'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   />
-                  <span className="checkout-payment-icon">📱</span>
-                  <span className="checkout-payment-text">Thanh toán bằng chuyển khoản (QR Code)</span>
-                </label>
-
-                <label className="checkout-payment-method">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="atm"
-                    checked={paymentMethod === 'atm'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  />
-                  <span className="checkout-payment-icon">🏦</span>
-                  <span className="checkout-payment-text">Thanh toán bằng thẻ ATM nội địa và tài khoản ngân hàng</span>
-                </label>
-
-                <label className="checkout-payment-method">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="card"
-                    checked={paymentMethod === 'card'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  />
-                  <span className="checkout-payment-icon">💳</span>
-                  <span className="checkout-payment-text">Thanh toán bằng thẻ quốc tế (Visa, Master...), Apple Pay, Google Pay và ví VNPay</span>
-                </label>
-
-                <label className="checkout-payment-method">
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="zalopay"
-                    checked={paymentMethod === 'zalopay'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  />
-                  <span className="checkout-payment-icon">💙</span>
-                  <span className="checkout-payment-text">Thanh toán bằng ví ZaloPay</span>
+                  <span className="checkout-payment-icon">
+                    <img src="/icons/vnpay.png" alt="VNPay" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} />
+                    <span style={{ display: 'none' }}>💳</span>
+                  </span>
+                  <span className="checkout-payment-text">Thanh toán qua VNPay</span>
                 </label>
 
                 <label className="checkout-payment-method">
@@ -548,7 +813,10 @@ export default function CheckoutPage({ onNavigate }) {
                     checked={paymentMethod === 'momo'}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                   />
-                  <span className="checkout-payment-icon">🔴</span>
+                  <span className="checkout-payment-icon">
+                    <img src="/icons/momo.png" alt="MoMo" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} />
+                    <span style={{ display: 'none' }}>🔴</span>
+                  </span>
                   <span className="checkout-payment-text">Thanh toán bằng ví MoMo</span>
                 </label>
               </div>
@@ -565,7 +833,7 @@ export default function CheckoutPage({ onNavigate }) {
 
               <div className="checkout-summary-section">
                 <div className="checkout-summary-row">
-                  <span>Tổng tiền ({selectedItems.length} sản phẩm)</span>
+                  <span>Tổng tiền ({cartItems.length} sản phẩm)</span>
                   <span className="checkout-summary-value">
                     {formatPrice(totalPrice)}đ
                   </span>
@@ -594,10 +862,23 @@ export default function CheckoutPage({ onNavigate }) {
               </div>
 
               <button 
-                className="checkout-submit-btn"
-                onClick={handleCheckout}
+                className={`checkout-submit-btn ${isProcessingPayment ? 'loading' : ''}`}
+                onClick={(e) => {
+                  console.log('🔘 BUTTON CLICKED!');
+                  console.log('🔘 Event:', e);
+                  console.log('🔘 isProcessingPayment:', isProcessingPayment);
+                  handleCheckout();
+                }}
+                disabled={isProcessingPayment}
               >
-                Hoàn tất
+                {isProcessingPayment ? (
+                  <>
+                    <span className="checkout-btn-spinner"></span>
+                    Đang xử lý...
+                  </>
+                ) : (
+                  'Hoàn tất đặt hàng'
+                )}
               </button>
 
               <p className="checkout-terms">
@@ -627,6 +908,35 @@ export default function CheckoutPage({ onNavigate }) {
           </div>
         </div>
       </div>
+
+      {/* Address Modal */}
+      <AddressModal
+        isOpen={isAddressModalOpen}
+        onClose={handleCloseAddressModal}
+        addresses={savedAddresses}
+        selectedAddressId={selectedAddress?.id}
+        onSelect={handleSelectAddress}
+        onAddNew={handleAddNewAddress}
+        onEdit={handleEditAddress}
+        onDelete={handleDeleteAddress}
+        onSetDefault={handleSetDefaultAddress}
+        isLoading={isLoadingAddresses}
+      />
+
+      {/* Order Success Modal */}
+      <OrderSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        orderInfo={orderSuccessInfo}
+        onNavigateHome={() => {
+          setShowSuccessModal(false);
+          onNavigate('home');
+        }}
+        onNavigateOrders={() => {
+          setShowSuccessModal(false);
+          onNavigate('orders');
+        }}
+      />
     </div>
   );
 }

@@ -1,12 +1,14 @@
 import React from 'react';
 import { useListingProducts } from '../hooks/useListingProducts';
 import { useAddToCart } from '../hooks/useAddToCart';
+import { useToast } from './Toast';
 import ProductListingPagination from './ProductListingPagination';
 import './ProductListingPagination.css';
 
 export default function ProductListing({ onNavigate, onProductClick }) {
   const { products, loading, error, pagination } = useListingProducts(6);
   const { handleAddToCart } = useAddToCart();
+  const toast = useToast();
 
   const formatPrice = (price) => {
     if (!price) return '0';
@@ -27,9 +29,9 @@ export default function ProductListing({ onNavigate, onProductClick }) {
     const result = await handleAddToCart(product, 'listing', 1);
     
     if (result.success) {
-      alert(`✅ ${result.message}`);
+      toast.success(result.message);
     } else {
-      alert(`❌ ${result.message}`);
+      toast.error(result.message);
     }
   };
 

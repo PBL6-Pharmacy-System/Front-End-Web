@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAddToCart } from '../hooks/useAddToCart';
+import { useToast } from './Toast';
 import './ProductCard.css';
 
 const ProductCard = ({ 
@@ -14,6 +15,7 @@ const ProductCard = ({
   isOutOfStock = false
 }) => {
   const { handleAddToCart: addToCart } = useAddToCart();
+  const toast = useToast();
   const handleClick = () => {
     if (isLoading || isOutOfStock) return;
     console.log('🎯 ProductCard clicked:', product.id, 'variant:', variant);
@@ -32,9 +34,9 @@ const ProductCard = ({
     
     if (result.success) {
       // Có thể thêm toast notification ở đây thay vì alert
-      alert(`✅ ${result.message}`);
+      toast.success(result.message);
     } else {
-      alert(`❌ ${result.message}`);
+      toast.error(result.message);
     }
   };
 
