@@ -40,7 +40,7 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
     // Ngăn event bubbling để không trigger handleProductClick
     event.stopPropagation();
     
-    console.log(`🛒 [Medical] Adding to cart:`, product.name);
+    console.log(`[Medical] Adding to cart:`, product.name);
     
     // Kiểm tra stock trước
     if (!product.inStock) {
@@ -63,13 +63,8 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
       <div className="medical-tabs-container">
         <div className="medical-tabs-header">
           <div className="medical-tabs-header-icon">
-            <span className="medical-tabs-virus-icon">🦠</span>
             <h2 className="medical-tabs-title">Sản phẩm y tế</h2>
           </div>
-        </div>
-        <div className="medical-tabs-loading">
-          <div className="medical-tabs-spinner"></div>
-          <p>Đang tải dữ liệu...</p>
         </div>
       </div>
     );
@@ -81,7 +76,6 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
       <div className="medical-tabs-container">
         <div className="medical-tabs-header">
           <div className="medical-tabs-header-icon">
-            <span className="medical-tabs-virus-icon">🦠</span>
             <h2 className="medical-tabs-title">Sản phẩm y tế</h2>
           </div>
         </div>
@@ -106,7 +100,6 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
     <div className="medical-tabs-container">
       <div className="medical-tabs-header">
         <div className="medical-tabs-header-icon">
-          <span className="medical-tabs-virus-icon">🦠</span>
           <h2 className="medical-tabs-title">Sản phẩm y tế</h2>
         </div>
         
@@ -125,7 +118,6 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
 
       <div className="medical-tabs-content-section">
         <div className="medical-tabs-info-panel">
-          <div className="medical-tabs-virus-decoration">🦠</div>
           <h3 className="medical-tabs-info-title">
             Sản phẩm y tế <span className="medical-tabs-highlight">chất lượng cao</span> từ các thương hiệu uy tín.
           </h3>
@@ -133,9 +125,8 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
             Chúng tôi cung cấp đầy đủ các sản phẩm y tế, từ vitamin, thực phẩm chức năng đến thiết bị y tế chuyên dụng.
           </p>
           <div className="medical-tabs-mascot-section">
-            <div className="medical-tabs-mascot">👨‍⚕️</div>
             <button className="medical-tabs-solution-btn">
-              🔍 Khám phá ngay
+              Khám phá ngay
             </button>
           </div>
         </div>
@@ -194,7 +185,7 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
                     className={`medical-tabs-buy-button ${product.inStock ? 'available' : 'out-of-stock'}`}
                     onClick={(e) => handleBuyProduct(product, e)}
                   >
-                    {product.inStock ? '🛒 Chọn mua' : '❌ Hết hàng'}
+                    {product.inStock ? 'Chọn mua' : 'Hết hàng'}
                   </button>
                 </div>
               </div>

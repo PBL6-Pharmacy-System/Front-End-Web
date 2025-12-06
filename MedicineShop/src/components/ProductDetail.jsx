@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useToast } from './Toast';
+import { useAddToCart } from '../hooks/useAddToCart';
 import './ProductDetail.css';
 
 export default function ProductDetail({ product, onNavigate }) {
   const toast = useToast();
+  const { handleAddToCart: addToCart } = useAddToCart();
   console.log('🎨 ProductDetail received product:', product);
   console.log('🎨 Product type:', typeof product);
   console.log('🎨 Product keys:', product ? Object.keys(product) : 'null');
@@ -167,9 +169,15 @@ export default function ProductDetail({ product, onNavigate }) {
     setQuantity(Math.max(1, quantity + change));
   };
 
-  const handleAddToCart = () => {
-    console.log(`Thêm ${quantity} sản phẩm ${getProductName()} vào giỏ hàng`);
-    // Có thể thêm logic thêm vào giỏ hàng ở đây
+  const handleAddToCart = async () => {
+    const result = await addToCart(actualProduct, 'product-detail', quantity);
+    
+    if (result.success) {
+      toast.success(result.message);
+      setQuantity(1);
+    } else {
+      toast.error(result.message);
+    }
   };
 
   const currentPrice = getCurrentPrice();
@@ -237,9 +245,6 @@ export default function ProductDetail({ product, onNavigate }) {
             {/* Brand Badge */}
             {actualProduct.brand && (
               <div className="brand-badge">
-                <div className="brand-logo">
-                  <span className="brand-icon">🏷️</span>
-                </div>
                 <div className="brand-info">
                   <span className="brand-label">Thương hiệu:</span>
                   <span className="brand-name">{actualProduct.brand}</span>
@@ -286,14 +291,6 @@ export default function ProductDetail({ product, onNavigate }) {
               <div className="info-row">
                 <span className="info-label">Số đăng ký</span>
                 <span className="info-value">{actualProduct.registNum || 'N/A'}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">
-                  <a href="#" className="certificate-link">
-                    Xem giấy công bố sản phẩm 
-                    <span className="external-icon">🔗</span>
-                  </a>
-                </span>
               </div>
               <div className="info-row">
                 <span className="info-label">Dạng bào chế</span>
@@ -355,42 +352,29 @@ export default function ProductDetail({ product, onNavigate }) {
                   onClick={handleAddToCart}
                   disabled={getStock() === 0}
                 >
-                  Chọn mua
-                </button>
-                <button 
-                  className="btn-find-store"
-                  onClick={() => toast.info('Tìm nhà thuốc')}
-                >
-                  Tìm nhà thuốc
+                  Thêm vào giỏ hàng
                 </button>
               </div>
-            </div>
-
-            {/* Product Tags */}
-            <div className="product-activity">
-              <span className="activity-badge">
-                🔥 Sản phẩm đang được chú ý, có <strong>20</strong> người thêm vào giỏ hàng & <strong>15</strong> người đang xem
-              </span>
             </div>
 
             {/* Service Features */}
             <div className="service-features">
               <div className="feature-item">
-                <span className="feature-icon">↩️</span>
+                <span className="feature-icon"></span>
                 <div className="feature-text">
                   <strong>Đổi trả trong 30 ngày</strong>
                   <span>kể từ ngày mua hàng</span>
                 </div>
               </div>
               <div className="feature-item">
-                <span className="feature-icon">📦</span>
+                <span className="feature-icon"></span>
                 <div className="feature-text">
                   <strong>Miễn phí 100%</strong>
                   <span>đổi thuốc</span>
                 </div>
               </div>
               <div className="feature-item">
-                <span className="feature-icon">🚚</span>
+                <span className="feature-icon"></span>
                 <div className="feature-text">
                   <strong>Miễn phí vận chuyển</strong>
                   <span>theo chính sách giao hàng</span>
@@ -407,38 +391,38 @@ export default function ProductDetail({ product, onNavigate }) {
               className={`product-tab-btn ${activeTab === 'description' ? 'active' : ''}`}
               onClick={() => setActiveTab('description')}
             >
-              📋 Mô tả sản phẩm
+              Mô tả sản phẩm
             </button>
             <button 
               className={`product-tab-btn ${activeTab === 'specifications' ? 'active' : ''}`}
               onClick={() => setActiveTab('specifications')}
             >
-              📊 Thông số kỹ thuật
+              Thông số kỹ thuật
             </button>
             <button 
               className={`product-tab-btn ${activeTab === 'usage' ? 'active' : ''}`}
               onClick={() => setActiveTab('usage')}
             >
-              💊 Hướng dẫn sử dụng
+              Hướng dẫn sử dụng
             </button>
             <button 
               className={`product-tab-btn ${activeTab === 'faq' ? 'active' : ''}`}
               onClick={() => setActiveTab('faq')}
             >
-              ❓ Câu hỏi thường gặp
+              Câu hỏi thường gặp
             </button>
             <button 
               className={`product-tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
               onClick={() => setActiveTab('reviews')}
             >
-              ⭐ Đánh giá
+              Đánh giá
             </button>
           </div>
 
           <div className="product-tabs-content">
             {activeTab === 'description' && (
               <div className="product-tab-panel">
-                <h3 className="tab-title">📋 Mô tả chi tiết sản phẩm</h3>
+                <h3 className="tab-title">Mô tả chi tiết sản phẩm</h3>
                 <div className="tab-content-wrapper">
                   <div 
                     className="description-content"
@@ -450,7 +434,7 @@ export default function ProductDetail({ product, onNavigate }) {
 
             {activeTab === 'specifications' && (
               <div className="product-tab-panel">
-                <h3 className="tab-title">📊 Thông số kỹ thuật</h3>
+                <h3 className="tab-title">Thông số kỹ thuật</h3>
                 <div className="tab-content-wrapper">
                   <table className="product-specs-table">
                     <tbody>
@@ -498,11 +482,11 @@ export default function ProductDetail({ product, onNavigate }) {
 
             {activeTab === 'usage' && (
               <div className="product-tab-panel">
-                <h3 className="tab-title">💊 Hướng dẫn sử dụng</h3>
+                <h3 className="tab-title">Hướng dẫn sử dụng</h3>
                 <div className="tab-content-wrapper">
                   {actualProduct.usage && (
                     <div className="usage-section">
-                      <h4>🎯 Công dụng</h4>
+                      <h4>Công dụng</h4>
                       <div 
                         className="usage-content"
                         dangerouslySetInnerHTML={{ __html: actualProduct.usage }}
@@ -511,7 +495,7 @@ export default function ProductDetail({ product, onNavigate }) {
                   )}
                   {actualProduct.dosage && (
                     <div className="dosage-section">
-                      <h4>📝 Liều lượng và cách dùng</h4>
+                      <h4>Liều lượng và cách dùng</h4>
                       <div 
                         className="dosage-content"
                         dangerouslySetInnerHTML={{ __html: actualProduct.dosage }}
@@ -520,7 +504,7 @@ export default function ProductDetail({ product, onNavigate }) {
                   )}
                   {actualProduct.adverseEffect && (
                     <div className="adverse-section">
-                      <h4>⚠️ Tác dụng phụ</h4>
+                      <h4>Tác dụng phụ</h4>
                       <div 
                         className="adverse-content"
                         dangerouslySetInnerHTML={{ __html: actualProduct.adverseEffect }}
@@ -529,14 +513,14 @@ export default function ProductDetail({ product, onNavigate }) {
                   )}
                   {actualProduct.legalDeclaration && (
                     <div className="legal-section">
-                      <h4>📄 Giấy phép</h4>
+                      <h4>Giấy phép</h4>
                       <a 
                         href={actualProduct.legalDeclaration} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="legal-link"
                       >
-                        📥 Xem giấy công bố sản phẩm
+                        Xem giấy công bố sản phẩm
                       </a>
                     </div>
                   )}
@@ -549,18 +533,16 @@ export default function ProductDetail({ product, onNavigate }) {
 
             {activeTab === 'faq' && (
               <div className="product-tab-panel">
-                <h3 className="tab-title">❓ Câu hỏi thường gặp</h3>
+                <h3 className="tab-title">Câu hỏi thường gặp</h3>
                 <div className="tab-content-wrapper">
                   {Array.isArray(actualProduct.faq) && actualProduct.faq.length > 0 ? (
                     <div className="faq-list">
                       {actualProduct.faq.map((item, index) => (
                         <div key={index} className="faq-item">
                           <div className="faq-question">
-                            <span className="faq-icon">❓</span>
                             <strong>{item.question}</strong>
                           </div>
                           <div className="faq-answer">
-                            <span className="faq-icon-answer">💡</span>
                             <div dangerouslySetInnerHTML={{ __html: item.answer }} />
                           </div>
                         </div>
@@ -571,7 +553,7 @@ export default function ProductDetail({ product, onNavigate }) {
                       <p className="no-data">Chưa có câu hỏi thường gặp cho sản phẩm này.</p>
                       <div className="contact-support">
                         <p>Bạn có thắc mắc về sản phẩm?</p>
-                        <button className="btn-contact">📞 Liên hệ hỗ trợ</button>
+                        <button className="btn-contact">Liên hệ hỗ trợ</button>
                       </div>
                     </div>
                   )}
@@ -623,7 +605,7 @@ export default function ProductDetail({ product, onNavigate }) {
                     <div className="no-reviews">
                       <p className="no-data">Chưa có đánh giá nào cho sản phẩm này.</p>
                       <p className="be-first">Hãy là người đầu tiên đánh giá sản phẩm!</p>
-                      <button className="btn-write-review">✍️ Viết đánh giá</button>
+                      <button className="btn-write-review">Viết đánh giá</button>
                     </div>
                   </div>
                 </div>

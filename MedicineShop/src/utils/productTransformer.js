@@ -1,20 +1,27 @@
 /**
  * Transform product data from backend API to frontend format
- * Ensures all products have consistent field names including base_unit_id
+ * Ensures all products have consistent field names including productUnitId for cart
  */
 export const transformProductFromAPI = (product) => {
   if (!product) return null;
 
-  // Extract the correct product unit ID
-  // Priority: productunits[0].id > base_unit_id > other fallbacks
-  let productUnitId = product.base_unit_id || product.baseUnitId || product.product_unit_id || product.productUnitId;
+  // Extract the correct product unit ID from productunits table
+  // Priority: productunits[0].id (this is the ID needed for add to cart API)
+  let productUnitId = null;
   
-  // If product has productunits array, use the first unit's ID
+  // If product has productunits array, use the first unit's ID (this is the correct ID)
   if (Array.isArray(product.productunits) && product.productunits.length > 0) {
     productUnitId = product.productunits[0].id;
     console.log(`🔧 Using productunits[0].id for product ${product.id}: ${productUnitId}`);
-  } else if (product.base_unit_id) {
-    console.log(`🔧 Using base_unit_id for product ${product.id}: ${productUnitId}`);
+  }
+  // Fallback to other fields if productunits not available
+  else {
+    productUnitId = product.productUnitId || product.product_unit_id;
+    if (productUnitId) {
+      console.log(`🔧 Using fallback productUnitId for product ${product.id}: ${productUnitId}`);
+    } else {
+      console.warn(`⚠️ No productUnitId found for product ${product.id}`);
+    }
   }
 
   // Handle stock quantity for display

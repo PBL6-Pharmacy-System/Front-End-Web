@@ -26,6 +26,34 @@ export default function ProductDetailPage({ onNavigate, productId, productSource
         let response = null;
 
         switch(productSource) {
+          case 'chatbot':
+            console.log('🤖 Fetching product from chatbot - using backend API');
+            try {
+              const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+              const res = await fetch(`${baseUrl}/products/${productId}`, { 
+                method: 'GET', 
+                headers: { 'Content-Type': 'application/json' } 
+              });
+              if (res.ok) {
+                const payload = await res.json();
+                if (payload && payload.success && payload.data) {
+                  response = { success: true, data: payload.data };
+                } else if (payload && payload.data) {
+                  response = { success: true, data: payload.data };
+                } else if (payload) {
+                  response = { success: true, data: payload };
+                } else {
+                  response = { success: false, error: 'Không tìm thấy sản phẩm' };
+                }
+              } else {
+                response = { success: false, error: `HTTP ${res.status}` };
+              }
+            } catch (err) {
+              console.error('❌ Fetch product API failed:', err);
+              response = { success: false, error: err.message };
+            }
+            break;
+            
           case 'flash-sale':
             console.log('🔥 Fetching Flash Sale product');
             // Flash sale products cũng dùng API /api/products/{id}

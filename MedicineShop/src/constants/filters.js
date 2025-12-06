@@ -376,7 +376,7 @@ export const filterHelpers = {
         oldPrice: oldPrice,
         unit: 'Hộp',
         sold: Math.floor(Math.random() * 200) + 10,
-        image: currentCategory?.data?.categories?.[0]?.icon || '💊',
+        image: currentCategory?.data?.categories?.[0]?
         discount: discount,
         brand: sampleBrands[Math.floor(Math.random() * sampleBrands.length)],
         origin: sampleOrigins[Math.floor(Math.random() * sampleOrigins.length)],

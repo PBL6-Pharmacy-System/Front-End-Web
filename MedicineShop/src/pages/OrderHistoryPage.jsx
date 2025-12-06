@@ -130,15 +130,6 @@ export default function OrderHistoryPage({ onNavigate }) {
   return (
     <div className="order-history-page">
       <div className="order-history-container">
-        {/* Header */}
-        <div className="order-history-header">
-          <button className="back-btn" onClick={handleBackToHome}>
-            <span className="back-icon">←</span>
-            Quay lại
-          </button>
-          <h1>Lịch sử đơn hàng</h1>
-        </div>
-
         {/* Status Tabs */}
         <div className="order-status-tabs">
           {statusTabs.map(tab => (
@@ -156,8 +147,6 @@ export default function OrderHistoryPage({ onNavigate }) {
         <div className="orders-list">
           {isLoading ? (
             <div className="orders-loading">
-              <div className="loading-spinner"></div>
-              <p>Đang tải đơn hàng...</p>
             </div>
           ) : orders.length === 0 ? (
             <div className="orders-empty">

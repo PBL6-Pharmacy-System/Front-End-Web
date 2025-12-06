@@ -391,13 +391,15 @@ export default function CheckoutPage({ onNavigate }) {
       // Backend requires shipping_address_id at top level
       if (selectedAddress) {
         checkoutData.shipping_address_id = selectedAddress.id;
-      } else {
-        // If no saved address, we need to create one first or pass address details
-        // For now, show error - user should select/add an address
-        toast.error('Vui lòng chọn hoặc thêm địa chỉ giao hàng');
-        setIsProcessingPayment(false);
-        return;
       }
+      // TEMPORARILY COMMENTED: Allow checkout without address for testing
+      // else {
+      //   // If no saved address, we need to create one first or pass address details
+      //   // For now, show error - user should select/add an address
+      //   toast.error('Vui lòng chọn hoặc thêm địa chỉ giao hàng');
+      //   setIsProcessingPayment(false);
+      //   return;
+      // }
 
       console.log('📦 Checkout data:', checkoutData);
 

@@ -229,6 +229,13 @@ export const isAuthenticated = () => {
 };
 
 /**
+ * Get access token from localStorage
+ */
+export const getAccessToken = () => {
+  return localStorage.getItem('authToken');
+};
+
+/**
  * Get customer ID from localStorage
  */
 export const getCustomerId = () => {

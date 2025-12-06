@@ -172,13 +172,6 @@ const ProductCard = ({
         )}
       </div>
 
-      {/* Countdown for Flash Sale */}
-      {showCountdown && (
-        <div className="countdown-timer">
-          ⏱️ Còn lại: 2h 30m 15s
-        </div>
-      )}
-
       {/* Actions */}
       <div className="product-actions">
         <button 
@@ -188,12 +181,9 @@ const ProductCard = ({
         >
           {isLoading ? (
             <>
-              <span>⏳</span>
-              <span>Đang tải...</span>
             </>
           ) : (
             <>
-              <span>👁</span>
               <span>Xem chi tiết</span>
             </>
           )}
@@ -207,12 +197,10 @@ const ProductCard = ({
           >
             {isOutOfStock ? (
               <>
-                <span>❌</span>
                 <span>Hết hàng</span>
               </>
             ) : (
               <>
-                <span>🛒</span>
                 <span>Thêm vào giỏ</span>
               </>
             )}

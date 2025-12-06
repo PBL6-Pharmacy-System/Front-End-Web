@@ -136,14 +136,33 @@
   align-self: center;
 }
 
-.chat-product-view-btn:hover {
+.chat-product-view-btn:hover:not(:disabled) {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.chat-product-view-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .chat-product-view-btn svg {
   width: 14px;
   height: 14px;
+}
+
+/* Loading Spinner Animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Products Grid */

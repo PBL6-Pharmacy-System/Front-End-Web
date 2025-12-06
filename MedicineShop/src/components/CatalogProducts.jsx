@@ -3,7 +3,6 @@ import ProductCard from './ProductCard';
 import { useCatalogProducts } from '../hooks/useCatalogProducts';
 import { useAddToCart } from '../hooks/useAddToCart';
 import { useToast } from './Toast';
-import LoadingSpinner from './LoadingSpinner';
 import { 
   FILTER_CONFIG, 
   INITIAL_FILTER_STATE, 
@@ -237,19 +236,10 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
     );
   };
 
-  if (loading) {
-    return (
-      <div className="catalog-loading">
-        <LoadingSpinner />
-        <p>Đang tải sản phẩm...</p>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="catalog-error">
-        <p>❌ Lỗi: {error}</p>
+        <p>Lỗi: {error}</p>
         <button onClick={() => window.location.reload()}>Thử lại</button>
       </div>
     );
@@ -264,7 +254,7 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
         {/* Filter Header */}
         <div className="filter-section filter-header">
           <h3 className="filter-title">
-            <span>🎯</span> Bộ lọc nâng cao
+             Bộ lọc nâng cao
             {activeFilterCount > 0 && (
               <span className="filter-badge">{activeFilterCount}</span>
             )}
@@ -429,22 +419,18 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
                       {product.stock !== undefined && product.stock !== null ? (
                         <div className={`available-stock ${product.stock === 0 ? 'out-of-stock' : product.stock < 10 ? 'low-stock' : ''}`}>
                           {product.stock === 0 ? (
-                            <span className="stock-status">❌ Hết hàng</span>
+                            <span className="stock-status">Hết hàng</span>
                           ) : product.stock < 10 ? (
                             <>
-                              ⚠️ Còn lại: <span className="stock-number warning">{product.stock}</span> sản phẩm
+                              Còn lại: <span className="stock-number warning">{product.stock}</span> sản phẩm
                             </>
                           ) : (
                             <>
-                              ✅ Còn lại: <span className="stock-number">{product.stock}</span> sản phẩm
+                              Còn lại: <span className="stock-number">{product.stock}</span> sản phẩm
                             </>
                           )}
                         </div>
-                      ) : (
-                        <div className="available-stock">
-                          <span className="stock-status">📦 Liên hệ để biết tồn kho</span>
-                        </div>
-                      )}
+                      ) : null}
                     </div>
                     
                     {/* 2 buttons */}
@@ -453,13 +439,13 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
                         className="view-detail-btn"
                         onClick={() => handleProductClick(product)}
                       >
-                        👁 Xem chi tiết
+                        Xem chi tiết
                       </button>
                       <button 
                         className="add-to-cart-btn"
                         onClick={(e) => handleBuyProduct(product, e)}
                       >
-                        🛒 Thêm vào giỏ
+                        Thêm vào giỏ
                       </button>
                     </div>
                   </div>
@@ -468,7 +454,7 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
             })
           ) : (
             <div className="no-products">
-              <p>😔 Không tìm thấy sản phẩm nào</p>
+              <p>Không tìm thấy sản phẩm nào</p>
               {activeFilterCount > 0 && (
                 <button 
                   className="btn-reset-filters"
@@ -488,7 +474,6 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
               className="load-more-btn"
               onClick={handleLoadMore}
             >
-              <span className="load-more-icon">⬇️</span>
               <span className="load-more-text">
                 Xem thêm {Math.min(8, filteredAndSortedProducts.length - displayCount)} sản phẩm
               </span>

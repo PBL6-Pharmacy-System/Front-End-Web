@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from './components/Header';
 import Footer from "./components/Footer";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
-import OrderHistoryPage from "./pages/OrderHistoryPage";
+import UserProfilePage from "./pages/UserProfilePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CatalogPage from "./pages/CatalogPage";
 import BannerSlider from './components/BannerSlider';
@@ -18,11 +18,37 @@ export default function App() {
   const [productSource, setProductSource] = useState('listing');
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  // Lắng nghe event từ ChatProductCard
+  useEffect(() => {
+    console.log('🎧 Event listener registered');
+    
+    const handleNavigateToProduct = (event) => {
+      console.log('🛍️ Navigate to product from chatbot:', event.detail);
+      const { productId, productSource: source } = event.detail;
+      console.log('🔄 Setting states directly in event handler');
+      
+      // Set states trực tiếp thay vì gọi qua function
+      setSelectedProductId(productId);
+      setProductSource(source || 'chatbot');
+      setCurrentPage('productDetail');
+      
+      console.log('✅ States updated:', { productId, source, page: 'productDetail' });
+    };
+
+    window.addEventListener('navigateToProduct', handleNavigateToProduct);
+
+    return () => {
+      window.removeEventListener('navigateToProduct', handleNavigateToProduct);
+    };
+  }, []); // Empty deps - sử dụng setState trực tiếp
+
   const handleProductClick = (productId, source = 'listing') => {
     console.log('🎯 Product clicked with ID:', productId, 'Source:', source);
+    console.log('📍 Current page before:', currentPage);
     setSelectedProductId(productId);
     setProductSource(source);
-    setCurrentPage('productDetail'); // Chuyển đến ProductDetailPage
+    setCurrentPage('productDetail');
+    console.log('📍 Set current page to: productDetail');
   };
 
   const handleNavigate = (page, params = {}) => {
@@ -46,13 +72,16 @@ export default function App() {
   };
 
   const renderPage = () => {
+    console.log('🎬 Rendering page:', currentPage, 'productId:', selectedProductId);
+    
     switch (currentPage) {
       case 'cart':
         return <CartPage onNavigate={handleNavigate} />;
       case 'checkout':
         return <CheckoutPage onNavigate={handleNavigate} />;
       case 'orders':
-        return <OrderHistoryPage onNavigate={handleNavigate} />;
+      case 'account':
+        return <UserProfilePage onNavigate={handleNavigate} />;
       case 'catalog':
         return (
           <CatalogPage 

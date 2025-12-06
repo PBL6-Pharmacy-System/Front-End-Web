@@ -76,6 +76,8 @@ export default function Header({ onNavigate, onCategoryClick }) {
       }
     } catch (error) {
       console.error('Error fetching cart count:', error);
+      // Nếu lỗi 403, có thể do backend chưa tạo cart cho user này
+      // Đặt count về 0 và không hiển thị lỗi cho user
       setBackendCartCount(0);
     }
   };
@@ -195,22 +197,6 @@ export default function Header({ onNavigate, onCategoryClick }) {
 
   return (
     <header className="header-main">
-      {/* Top Bar */}
-      <div className="header-top-bar">
-        <div className="header-container">
-          <div className="header-top-bar-left">
-            <span className="header-search-info">
-              🔍 Trung tâm tiêm chủng Long Châu 
-              <a href="#" className="header-highlight-link">Tìm hiểu ngay</a>
-            </span>
-          </div>
-          <div className="header-top-bar-right">
-            <span className="header-app-download">📱 Tải ứng dụng</span>
-            <span className="header-hotline">📞 Tư vấn ngay: 1800 6928</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Header */}
       <div className="header-main-header">
         <div className="header-container">
@@ -267,35 +253,25 @@ export default function Header({ onNavigate, onCategoryClick }) {
                             onNavigate('orders');
                           }}
                         >
-                          <span className="menu-item-icon">📦</span>
+                          <span className="menu-item-icon"></span>
                           <span>Lịch sử đơn hàng</span>
                         </button>
                         <button 
                           className="header-user-menu-item"
                           onClick={() => {
                             setShowUserMenu(false);
-                            // onNavigate('profile');
+                            onNavigate('account');
                           }}
                         >
-                          <span className="menu-item-icon">⚙️</span>
+                          <span className="menu-item-icon"></span>
                           <span>Thông tin tài khoản</span>
-                        </button>
-                        <button 
-                          className="header-user-menu-item"
-                          onClick={() => {
-                            setShowUserMenu(false);
-                            // onNavigate('addresses');
-                          }}
-                        >
-                          <span className="menu-item-icon">📍</span>
-                          <span>Sổ địa chỉ</span>
                         </button>
                         <div className="header-user-menu-divider"></div>
                         <button 
                           className="header-user-menu-item logout"
                           onClick={handleLogout}
                         >
-                          <span className="menu-item-icon">🚪</span>
+                          <span className="menu-item-icon"></span>
                           <span>Đăng xuất</span>
                         </button>
                       </div>
@@ -314,7 +290,7 @@ export default function Header({ onNavigate, onCategoryClick }) {
             )}
 
             <button className="header-btn header-cart-btn" onClick={handleCartClick}>
-              <span className="header-btn-icon">🛒</span>
+              <span className="header-btn-icon"></span>
               <span>Giỏ hàng</span>
               {isLoggedIn && backendCartCount > 0 && (
                 <span className="cart-badge">{backendCartCount}</span>

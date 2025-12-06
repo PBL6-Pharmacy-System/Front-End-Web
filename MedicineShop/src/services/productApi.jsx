@@ -95,12 +95,12 @@ export class MockApiService {
       const numericId = parseInt(id);
       const stringId = String(id);
       
-      // Tìm theo thứ tự: flashSale -> listing -> catalog (vitamin, hormonal, functional) -> medical
+      // Tìm theo thứ tự: listing -> catalog (vitamin, hormonal, functional) -> medical
       const searchSources = [
-        { name: 'Flash Sale', data: flashSaleData },
-        { name: 'Listing', data: listingProductsData },
-        { name: 'Catalog Products', data: getAllCatalogProductsData() } // THÊM catalog products
-      ];
+        // { name: 'Flash Sale', data: flashSaleData }, // Commented - flashSaleData not defined
+        { name: 'Listing', data: listingProductsData || [] },
+        { name: 'Catalog Products', data: getAllCatalogProductsData() }
+      ].filter(source => source.data && source.data.length > 0); // Lọc bỏ sources rỗng
       
       for (const source of searchSources) {
         console.log(`🔍 Searching in ${source.name}, products count:`, source.data.length);
