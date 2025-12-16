@@ -48,50 +48,7 @@ export default function VouchersPage({ onNavigate }) {
       } else {
         // Mock data for demo
         setVouchers([
-          {
-            id: 1,
-            code: 'NEWUSER50',
-            title: 'Giảm 50K cho đơn hàng đầu tiên',
-            description: 'Áp dụng cho đơn hàng từ 500.000đ',
-            discount_type: 'fixed',
-            discount_value: 50000,
-            min_order_value: 500000,
-            max_discount: 50000,
-            start_date: '2024-01-01',
-            end_date: '2024-12-31',
-            status: 'available',
-            used_count: 0,
-            usage_limit: 1
-          },
-          {
-            id: 2,
-            code: 'FREESHIP',
-            title: 'Miễn phí vận chuyển',
-            description: 'Áp dụng cho đơn hàng từ 200.000đ',
-            discount_type: 'shipping',
-            discount_value: 100,
-            min_order_value: 200000,
-            start_date: '2024-01-01',
-            end_date: '2024-12-31',
-            status: 'available',
-            used_count: 0,
-            usage_limit: 5
-          },
-          {
-            id: 3,
-            code: 'SAVE20',
-            title: 'Giảm 20% tối đa 100K',
-            description: 'Áp dụng cho tất cả sản phẩm',
-            discount_type: 'percentage',
-            discount_value: 20,
-            min_order_value: 300000,
-            max_discount: 100000,
-            start_date: '2024-01-01',
-            end_date: '2024-06-30',
-            status: 'expired',
-            used_count: 1,
-            usage_limit: 1
-          }
+            
         ]);
       }
     } catch (error) {

@@ -110,10 +110,10 @@ export default function App() {
               onNavigate={setCurrentPage}
               onProductClick={handleProductClick}
             />
-            <MedicalProductsTabs 
+            {/* <MedicalProductsTabs 
               onNavigate={setCurrentPage}
               onProductClick={handleProductClick}
-            />
+            /> */}
           </div>
         );
     }

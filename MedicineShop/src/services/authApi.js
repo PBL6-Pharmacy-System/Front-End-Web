@@ -11,29 +11,45 @@ const BASE_URL = API_CONFIG.BASE_URL;
  */
 export const requestOTP = async (email = null, phone = null) => {
   try {
+    console.log('📧 Requesting OTP for:', { email, phone });
+    
+    // Validate input
+    if (!email && !phone) {
+      throw new Error('Vui lòng cung cấp email hoặc số điện thoại');
+    }
+    
+    const payload = {};
+    if (email) {
+      payload.email = email.trim().toLowerCase();
+    }
+    if (phone) {
+      payload.phone = phone.trim();
+    }
+    
+    console.log('📤 Sending OTP request:', payload);
+    
     const response = await fetch(`${BASE_URL}/auth/otp/request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        ...(email && { email }),
-        ...(phone && { phone })
-      }),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
+    console.log('📥 OTP request response:', { status: response.status, data });
 
     if (!response.ok) {
-      throw new Error(data.error || 'Không thể gửi OTP');
+      throw new Error(data.error || data.message || 'Không thể gửi OTP');
     }
 
+    console.log('✅ OTP sent successfully');
     return {
       success: true,
       data: data
     };
   } catch (error) {
-    console.error('Request OTP error:', error);
+    console.error('❌ Request OTP error:', error);
     return {
       success: false,
       error: error.message || 'Có lỗi xảy ra khi gửi OTP'
@@ -49,19 +65,62 @@ export const requestOTP = async (email = null, phone = null) => {
  */
 export const loginWithEmailOTP = async (email, otp) => {
   try {
+    console.log('🔐 Attempting login with:', { email, otp: otp.substring(0, 2) + '****' }); // Debug log (hide full OTP)
+    
+    // Ensure OTP is a string and trim whitespace
+    const otpString = String(otp).trim();
+    
+    if (!email || !otpString) {
+      throw new Error('Email và OTP không được để trống');
+    }
+    
+    if (otpString.length !== 6) {
+      throw new Error('Mã OTP phải gồm 6 chữ số');
+    }
+    
     const response = await fetch(`${BASE_URL}/auth/customer/login-otp`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, otp }),
+      body: JSON.stringify({ 
+        email: email.trim().toLowerCase(), 
+        otp: otpString 
+      }),
     });
 
-    const data = await response.json();
-    console.log('Login response:', data); // Debug log
+    console.log('📡 Response status:', response.status, response.statusText); // Debug log
+    
+    let data;
+    try {
+      data = await response.json();
+      console.log('📦 Login response data:', data); // Debug log
+    } catch (jsonError) {
+      console.error('❌ Failed to parse JSON response:', jsonError);
+      throw new Error('Server trả về dữ liệu không hợp lệ');
+    }
 
     if (!response.ok) {
-      throw new Error(data.error || 'Đăng nhập thất bại');
+      // Extract detailed error message from various possible formats
+      const errorMsg = data.error || data.message || data.msg || data.details || 
+                       data.error_description || (typeof data === 'string' ? data : null);
+      
+      console.error('❌ Login failed:', { 
+        status: response.status, 
+        statusText: response.statusText,
+        data 
+      });
+      
+      // Provide user-friendly error messages
+      if (response.status === 500) {
+        throw new Error(errorMsg || 'Lỗi server. Vui lòng thử lại sau.');
+      } else if (response.status === 401 || response.status === 403) {
+        throw new Error(errorMsg || 'Mã OTP không đúng hoặc đã hết hạn');
+      } else if (response.status === 404) {
+        throw new Error('Email chưa được đăng ký');
+      } else {
+        throw new Error(errorMsg || `Đăng nhập thất bại (HTTP ${response.status})`);
+      }
     }
 
     // Save token and user to localStorage
@@ -69,43 +128,65 @@ export const loginWithEmailOTP = async (email, otp) => {
     const token = data.token || data.data?.token || data.access_token || data.accessToken;
     const userData = data.user || data.data?.user || data.customer || data.data?.customer;
 
+    console.log('🔑 Token found:', !!token);
+    console.log('👤 User data found:', !!userData);
+
     if (token) {
       localStorage.setItem('authToken', token);
-      console.log('Token saved:', token); // Debug log
+      console.log('✅ Token saved successfully');
     }
 
     if (userData) {
       // Extract customer_id for easy access
-      const customerId = userData.customers?.id || userData.customer_id;
+      const customerId = userData.customers?.id || userData.customer_id || userData.id;
       const userToSave = {
         ...userData,
         customer_id: customerId // Add customer_id at top level for easy access
       };
       localStorage.setItem('user', JSON.stringify(userToSave));
-      console.log('User saved:', userToSave); // Debug log
+      console.log('✅ User data saved:', { customer_id: customerId, email: userToSave.email });
       
       // Save customer_id separately for quick access
       if (customerId) {
         localStorage.setItem('customer_id', customerId.toString());
-        console.log('Customer ID saved:', customerId);
+        console.log('✅ Customer ID saved:', customerId);
       }
     }
 
     // If no token but login was successful, still save something to mark as logged in
     if (!token && response.ok) {
+      console.log('⚠️ No token received, saving fallback auth');
       localStorage.setItem('authToken', 'logged_in');
       localStorage.setItem('user', JSON.stringify({ email }));
     }
 
+    console.log('✅ Login successful!');
     return {
       success: true,
       data: data
     };
   } catch (error) {
-    console.error('Login with email OTP error:', error);
+    console.error('💥 Login with email OTP error:', error);
+    console.error('💥 Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
+    
+    // Extract more detailed error message
+    let errorMessage = 'Đăng nhập thất bại';
+    
+    if (error.message) {
+      errorMessage = error.message;
+    } else if (error.response?.data?.error) {
+      errorMessage = error.response.data.error;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    }
+    
     return {
       success: false,
-      error: error.message || 'Đăng nhập thất bại'
+      error: errorMessage
     };
   }
 };

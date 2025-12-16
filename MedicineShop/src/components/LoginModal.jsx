@@ -206,14 +206,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
       
       if (loginMethod === 'email') {
         // Login with email OTP
+        console.log('📧 Logging in with email:', email);
         result = await loginWithEmailOTP(email, otpString);
+        console.log('📧 Login result:', result);
       } else {
         // Login with phone OTP
         result = await verifyPhoneOTP(phone, otpString);
       }
       
       if (result.success) {
-        console.log('Login successful:', result.data);
+        console.log('✅ Login successful:', result.data);
         // Show success dialog
         setShowSuccessDialog(true);
         // Call onLoginSuccess callback if provided
@@ -231,11 +233,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           }, 300);
         }, 2200);
       } else {
-        setError(result.error || 'Mã OTP không đúng. Vui lòng thử lại.');
+        console.error('❌ Login failed:', result.error);
+        // Provide more specific error messages
+        let errorMsg = result.error || 'Mã OTP không đúng hoặc đã hết hạn. Vui lòng thử lại.';
+        
+        // Check for specific error types
+        if (errorMsg.includes('500') || errorMsg.includes('server')) {
+          errorMsg = 'Lỗi hệ thống. Vui lòng thử lại sau hoặc liên hệ hỗ trợ.';
+        } else if (errorMsg.includes('expired') || errorMsg.includes('hết hạn')) {
+          errorMsg = 'Mã OTP đã hết hạn. Vui lòng gửi lại OTP mới.';
+        } else if (errorMsg.includes('invalid') || errorMsg.includes('không đúng')) {
+          errorMsg = 'Mã OTP không chính xác. Vui lòng kiểm tra lại.';
+        }
+        
+        setError(errorMsg);
       }
     } catch (err) {
       console.error('Verify OTP error:', err);
-      setError('Có lỗi xảy ra. Vui lòng thử lại.');
+      setError(err.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
