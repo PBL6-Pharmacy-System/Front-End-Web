@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAccessToken, getCustomerId } from '../services/authApi';
 import { updateCustomerInfo } from '../services/customerApi';
 import { useToast } from '../components/Toast';
+import { API_CONFIG } from '../config/api';
 import './AccountPage.css';
 
 export default function AccountPage({ onNavigate }) {
@@ -25,7 +26,7 @@ export default function AccountPage({ onNavigate }) {
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/auth/me`,
+        `${API_CONFIG.BASE_URL}/auth/me`,
         {
           method: 'GET',
           headers: {

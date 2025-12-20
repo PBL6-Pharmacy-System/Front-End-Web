@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test OTP Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test OTP Login API</h1>
+    
+    <div class="form-group">
+        <label>Step 1: Request OTP</label>
+        <input type="email" id="email" placeholder="Email" value="nguyenthanhjkluio@gmail.com">
+        <button onclick="requestOTP()">Send OTP</button>
+    </div>
+    
+    <div class="form-group">
+        <label>Step 2: Login with OTP</label>
+        <input type="text" id="otp" placeholder="OTP Code (6 digits)" maxlength="6">
+        <button onclick="loginWithOTP()">Login</button>
+        <button onclick="loginWithOTPAlt()" style="background: #28a745;">Login (Alt Format)</button>
+    </div>
+    
+    <div class="form-group">
+        <label>Debug Info:</label>
+        <button onclick="checkOTPStatus()">Check OTP Status</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <script>
+        const BASE_URL = 'http://localhost:3000/api';
+        
+        async function requestOTP() {
+            const email = document.getElementById('email').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                console.log('📧 Requesting OTP for:', email);
+                
+                const response = await fetch(`${BASE_URL}/auth/otp/request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email.trim().toLowerCase() })
+                });
+                
+                const data = await response.json();
+                
+                console.log('Response:', { status: response.status, data });
+                
+                if (response.ok) {
+                    resultDiv.className = 'success';
+                    resultDiv.textContent = '✅ OTP sent successfully!\n\n' + JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.textContent = '❌ Failed to send OTP\n\n' + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+        
+        async function loginWithOTP() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!otp || otp.length !== 6) {
+                alert('Please enter a 6-digit OTP');
+                return;
+            }
+            
+            try {
+                console.log('🔐 Logging in with:', { email, otp: otp.substring(0, 2) + '****' });
+                
+                const response = await fetch(`${BASE_URL}/auth/customer/login-otp`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        email: email.trim().toLowerCase(), 
+                        otp: otp.trim() 
+                    })
+                });
+                
+                console.log('Response status:', response.status, response.statusText);
+                
+                const data = await response.json();
+                
+                console.log('Response data:', data);
+                console.log('Full error details:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    error: data.error,
+                    message: data.message,
+                    details: data.details,
+                    stack: data.stack
+                });
+                
+                if (response.ok) {
+                    resultDiv.className = 'success';
+                    resultDiv.textContent = '✅ Login successful!\n\n' + JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.textContent = `❌ Login failed (HTTP ${response.status})\n\nError: ${data.error || data.message}\n\nFull response:\n` + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.className = 'error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

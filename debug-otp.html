@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug OTP Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        .section h3 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px 5px 5px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+        button:hover { opacity: 0.9; }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #console {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .log-error { color: #f48771; }
+        .log-success { color: #4ec9b0; }
+        .log-info { color: #9cdcfe; }
+        .log-warn { color: #dcdcaa; }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-success { background: #d4edda; color: #155724; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        .status-pending { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Debug OTP Login API</h1>
+        
+        <div class="section">
+            <h3>📧 Email & OTP</h3>
+            <input type="email" id="email" placeholder="Email" value="nguyenthanhjkluio@gmail.com">
+            <input type="text" id="otp" placeholder="OTP Code (6 digits)" maxlength="6">
+        </div>
+        
+        <div class="section">
+            <h3>🔄 Actions</h3>
+            <button class="btn-primary" onclick="requestOTP()">1. Request OTP</button>
+            <button class="btn-success" onclick="loginStandard()">2. Login (Standard)</button>
+            <button class="btn-info" onclick="loginAllFormats()">2. Login (Try All Formats)</button>
+            <button class="btn-warning" onclick="verifyOTP()">3. Verify OTP</button>
+            <button class="btn-info" onclick="clearConsole()">Clear Console</button>
+        </div>
+        
+        <div class="section">
+            <h3>📊 Console Output</h3>
+            <div id="console"></div>
+        </div>
+    </div>
+    
+    <script>
+        const BASE_URL = 'http://localhost:3000/api';
+        const consoleEl = document.getElementById('console');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = `log-${type}`;
+            const icon = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warn': '⚠️'
+            }[type] || 'ℹ️';
+            
+            consoleEl.innerHTML += `<div class="${className}">[${timestamp}] ${icon} ${message}</div>`;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+        
+        function clearConsole() {
+            consoleEl.innerHTML = '';
+            log('Console cleared', 'info');
+        }
+        
+        async function requestOTP() {
+            const email = document.getElementById('email').value;
+            
+            log(`Requesting OTP for: ${email}`, 'info');
+            
+            try {
+                const payload = { email: email.trim().toLowerCase() };
+                log(`Payload: ${JSON.stringify(payload)}`, 'info');
+                
+                const response = await fetch(`${BASE_URL}/auth/otp/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                log(`Response: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    log('OTP sent successfully! Check your email.', 'success');
+                } else {
+                    log(`Failed: ${data.error || data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`Exception: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        async function loginStandard() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            
+            if (!otp || otp.length !== 6) {
+                log('Please enter a 6-digit OTP', 'error');
+                return;
+            }
+            
+            log('Attempting standard login...', 'info');
+            
+            try {
+                const payload = { 
+                    email: email.trim().toLowerCase(), 
+                    otp: otp.trim() 
+                };
+                log(`Payload: ${JSON.stringify(payload)}`, 'info');
+                
+                const response = await fetch(`${BASE_URL}/auth/customer/login-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                log(`Response: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    log('LOGIN SUCCESS! 🎉', 'success');
+                    if (data.token) log(`Token: ${data.token.substring(0, 20)}...`, 'success');
+                } else {
+                    log(`Login failed: ${data.error || data.message || 'Unknown error'}`, 'error');
+                    if (data.details) log(`Details: ${data.details}`, 'error');
+                    if (data.stack) log(`Stack: ${data.stack}`, 'error');
+                }
+            } catch (error) {
+                log(`Exception: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        async function loginAllFormats() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            
+            if (!otp || otp.length !== 6) {
+                log('Please enter a 6-digit OTP', 'error');
+                return;
+            }
+            
+            log('Trying all possible payload formats...', 'info');
+            
+            const formats = [
+                { email: email.trim().toLowerCase(), otp: otp.trim() },
+                { email: email.trim().toLowerCase(), code: otp.trim() },
+                { email: email.trim().toLowerCase(), otp_code: otp.trim() },
+                { username: email.trim().toLowerCase(), otp: otp.trim() },
+                { identifier: email.trim().toLowerCase(), otp: otp.trim() },
+                { email: email.trim(), otp: otp.trim() }, // without toLowerCase
+            ];
+            
+            for (let i = 0; i < formats.length; i++) {
+                log(`\nFormat ${i + 1}: ${JSON.stringify(formats[i])}`, 'info');
+                
+                try {
+                    const response = await fetch(`${BASE_URL}/auth/customer/login-otp`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formats[i])
+                    });
+                    
+                    const data = await response.json();
+                    log(`  Status: ${response.status}`, response.ok ? 'success' : 'warn');
+                    log(`  Response: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'warn');
+                    
+                    if (response.ok) {
+                        log(`✅ SUCCESS with format ${i + 1}!`, 'success');
+                        return;
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                } catch (error) {
+                    log(`  Exception: ${error.message}`, 'error');
+                }
+            }
+            
+            log('\n❌ All formats failed!', 'error');
+        }
+        
+        async function verifyOTP() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            
+            log('Checking OTP verification endpoint...', 'info');
+            
+            try {
+                const payload = { 
+                    email: email.trim().toLowerCase(), 
+                    otp: otp || '000000' 
+                };
+                log(`Payload: ${JSON.stringify(payload)}`, 'info');
+                
+                const response = await fetch(`${BASE_URL}/auth/otp/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                log(`Status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+                log(`Response: ${JSON.stringify(data, null, 2)}`, response.ok ? 'success' : 'error');
+            } catch (error) {
+                log(`Exception: ${error.message}`, 'error');
+                console.error(error);
+            }
+        }
+        
+        log('Debug tool loaded. Ready to test!', 'success');
+    </script>
+</body>
+</html>
