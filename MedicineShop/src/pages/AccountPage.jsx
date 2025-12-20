@@ -281,15 +281,15 @@ export default function AccountPage({ onNavigate }) {
           <div className="additional-grid">
             <div className="additional-item">
               <label>Ngày tạo tài khoản</label>
-              <value>
+              <div className="field-value">
                 {userInfo.createdAt ? new Date(userInfo.createdAt).toLocaleDateString('vi-VN') : 'Không có'}
-              </value>
+              </div>
             </div>
             <div className="additional-item">
               <label>Trạng thái</label>
-              <value>
+              <div className="field-value">
                 <span className="status-active">Hoạt động</span>
-              </value>
+              </div>
             </div>
           </div>
         </div>

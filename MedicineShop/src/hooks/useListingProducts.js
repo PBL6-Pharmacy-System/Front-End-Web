@@ -27,8 +27,7 @@ export const useListingProducts = (itemsPerPage = 6) => {
         }
 
         const payload = await res.json();
-        console.log('📦 Best-sellers API response:', payload);
-        
+      
         // Support multiple response shapes
         let items = [];
         if (payload) {
@@ -42,8 +41,6 @@ export const useListingProducts = (itemsPerPage = 6) => {
             items = payload.products;
           }
         }
-
-        console.log('✅ Loaded', items.length, 'products from API');
         
         // Transform products to ensure all have base_unit_id
         const transformedProducts = transformProductsFromAPI(items);

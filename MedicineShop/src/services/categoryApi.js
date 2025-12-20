@@ -88,8 +88,6 @@ export const fetchProductsByCategoryId = async (categoryId, params = {}) => {
 
     // Transform products using the array transformer
     const transformedProducts = transformProductsFromAPI(products);
-
-    console.log('✅ Transformed products:', transformedProducts.length, 'items');
     if (transformedProducts.length > 0) {
       console.log('📦 Sample product:', transformedProducts[0]);
     }

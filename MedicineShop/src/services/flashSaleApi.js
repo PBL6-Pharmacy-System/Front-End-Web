@@ -247,7 +247,6 @@ const defaultHeaders = { 'Content-Type': 'application/json' };
 
 export const getFlashSaleProducts = async () => {
   try {
-    console.log('🔥 Fetching flash sale products from flash sale API');
 
     const wait = (ms) => new Promise(res => setTimeout(res, ms));
 

@@ -56,7 +56,6 @@ export const useAddToCart = () => {
           // Priority 1: productunits array from API (most reliable)
           if (Array.isArray(product.productunits) && product.productunits.length > 0 && product.productunits[0].id) {
             productUnitId = product.productunits[0].id;
-            console.log('🔧 Using productunits[0].id:', productUnitId);
           }
           // Priority 2: productUnitId field (if not null/undefined)
           else if (product.productUnitId && product.productUnitId !== null) {

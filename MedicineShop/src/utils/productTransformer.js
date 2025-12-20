@@ -12,7 +12,6 @@ export const transformProductFromAPI = (product) => {
   // If product has productunits array, use the first unit's ID (this is the correct ID)
   if (Array.isArray(product.productunits) && product.productunits.length > 0) {
     productUnitId = product.productunits[0].id;
-    console.log(`🔧 Using productunits[0].id for product ${product.id}: ${productUnitId}`);
   }
   // Fallback to other fields if productunits not available
   else {

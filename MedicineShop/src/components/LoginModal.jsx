@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import './LoginModal.css';
-import { requestOTP, loginWithEmailOTP, verifyPhoneOTP } from '../services/authApi';
+import { requestOTP, loginWithEmailOTP} from '../services/authApi';
 import SuccessDialog from './SuccessDialog';
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'phone'
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [step, setStep] = useState('input'); // 'input' or 'otp'
@@ -73,11 +72,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  // Validate phone number
-  const validatePhone = (phone) => {
-    // Vietnamese phone number format: 10 digits starting with 0
-    return /^0\d{9}$/.test(phone.replace(/\s/g, ''));
-  };
+  // // Validate phone number
+  // const validatePhone = (phone) => {
+  //   // Vietnamese phone number format: 10 digits starting with 0
+  //   return /^0\d{9}$/.test(phone.replace(/\s/g, ''));
+  // };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -85,13 +84,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     if (error) setError('');
   };
 
-  const handlePhoneChange = (e) => {
-    const value = e.target.value;
-    // Allow only numbers
-    const numericValue = value.replace(/\D/g, '');
-    setPhone(numericValue);
-    if (error) setError('');
-  };
+  // const handlePhoneChange = (e) => {
+  //   const value = e.target.value;
+  //   // Allow only numbers
+  //   const numericValue = value.replace(/\D/g, '');
+  //   setPhone(numericValue);
+  //   if (error) setError('');
+  // };
 
   const handleOtpChange = (index, value) => {
     // Allow only numbers
@@ -139,17 +138,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     handleSendOtp('email');
   };
 
-  const handleContinuePhone = () => {
-    if (!phone.trim()) {
-      setError('Vui lòng nhập số điện thoại');
-      return;
-    }
-    if (!validatePhone(phone)) {
-      setError('Số điện thoại không hợp lệ. Vui lòng nhập đúng định dạng (VD: 0912345678)');
-      return;
-    }
-    handleSendOtp('phone');
-  };
+  // const handleContinuePhone = () => {
+  //   if (!phone.trim()) {
+  //     setError('Vui lòng nhập số điện thoại');
+  //     return;
+  //   }
+  //   if (!validatePhone(phone)) {
+  //     setError('Số điện thoại không hợp lệ. Vui lòng nhập đúng định dạng (VD: 0912345678)');
+  //     return;
+  //   }
+  //   handleSendOtp('phone');
+  // };
 
   const handleSendOtp = async (method) => {
     setIsLoading(true);
@@ -209,9 +208,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         console.log('📧 Logging in with email:', email);
         result = await loginWithEmailOTP(email, otpString);
         console.log('📧 Login result:', result);
-      } else {
-        // Login with phone OTP
-        result = await verifyPhoneOTP(phone, otpString);
       }
       
       if (result.success) {
@@ -323,13 +319,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                   <span className="login-method-icon">📧</span>
                   <span className="login-method-text">Email</span>
                 </button>
-                <button
-                  className={`login-method-tab ${loginMethod === 'phone' ? 'active' : ''}`}
-                  onClick={() => setLoginMethod('phone')}
-                >
-                  <span className="login-method-icon">📱</span>
-                  <span className="login-method-text">Số điện thoại</span>
-                </button>
               </div>
 
               {/* Icon */}
@@ -369,38 +358,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                   </button>
                 </>
               )}
-
-              {/* Phone Method */}
-              {loginMethod === 'phone' && (
-                <>
-                  <p className="login-method-description">
-                    Mã OTP sẽ được gửi đến số điện thoại của bạn
-                  </p>
-                  
-                  <div className="login-input-group">
-                    <div className="login-input-wrapper">
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={handlePhoneChange}
-                        placeholder="Nhập số điện thoại (0912345678)"
-                        className={`login-phone-input ${error ? 'error' : ''}`}
-                        maxLength="10"
-                      />
-                    </div>
-                    {error && <div className="login-error-message">{error}</div>}
-                  </div>
-                  
-                  <button
-                    onClick={handleContinuePhone}
-                    className="login-continue-btn"
-                    disabled={!phone.trim() || isLoading}
-                  >
-                    {isLoading ? 'Đang xử lý...' : 'Tiếp tục'}
-                  </button>
-                </>
-              )}
-              
+                
               {/* Terms */}
               <p className="login-terms">
                 Bằng việc tiếp tục, bạn đã đồng ý với{' '}

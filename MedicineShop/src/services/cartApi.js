@@ -1,4 +1,4 @@
-import { getCustomerId, isAuthenticated } from './authApi';
+import { getCustomerIdAsync, isAuthenticated, syncCustomerIdFromToken } from './authApi';
 import { API_CONFIG } from '../config/api';
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
@@ -12,15 +12,20 @@ export const getCart = async () => {
     throw new Error('User not authenticated');
   }
 
-  const customerId = getCustomerId();
+  // Sync customer_id from token first
+  syncCustomerIdFromToken();
+
+  const customerId = await getCustomerIdAsync();
   if (!customerId) {
     throw new Error('Customer ID not found');
   }
 
   const token = localStorage.getItem('authToken');
+  const url = `${API_BASE_URL}/cart/${customerId}`;
+  console.log('🛒 Fetching cart from:', url);
 
   try {
-    const response = await fetch(`${API_BASE_URL}/cart/${customerId}`, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -28,7 +33,23 @@ export const getCart = async () => {
       },
     });
 
+    console.log('📡 Cart response status:', response.status);
+
+    // Handle 404 - cart doesn't exist yet (return empty cart)
+    if (response.status === 404) {
+      console.log('ℹ️ Cart not found, returning empty cart');
+      return {
+        success: true,
+        data: {
+          items: [],
+          totalAmount: 0,
+          totalQuantity: 0
+        }
+      };
+    }
+
     const data = await response.json();
+    console.log('📦 Cart data:', data);
 
     if (!response.ok) {
       throw new Error(data.message || 'Failed to fetch cart');
@@ -36,8 +57,16 @@ export const getCart = async () => {
 
     return data;
   } catch (error) {
-    console.error('Error fetching cart:', error);
-    throw error;
+    console.error('❌ Error fetching cart:', error);
+    // Return empty cart instead of throwing error
+    return {
+      success: true,
+      data: {
+        items: [],
+        totalAmount: 0,
+        totalQuantity: 0
+      }
+    };
   }
 };
 
@@ -53,7 +82,10 @@ export const addToCart = async (productId, quantity = 1, productUnitId = 1) => {
     throw new Error('User not authenticated');
   }
 
-  const customerId = getCustomerId();
+  // Sync customer_id from token first
+  syncCustomerIdFromToken();
+
+  const customerId = await getCustomerIdAsync();
   if (!customerId) {
     throw new Error('Customer ID not found');
   }
@@ -110,7 +142,7 @@ export const updateCartItem = async (cartItemId, quantity) => {
     throw new Error('User not authenticated');
   }
 
-  const customerId = getCustomerId();
+  const customerId = await getCustomerIdAsync();
   if (!customerId) {
     throw new Error('Customer ID not found');
   }
@@ -150,7 +182,7 @@ export const removeFromCart = async (itemId) => {
     throw new Error('User not authenticated');
   }
 
-  const customerId = getCustomerId();
+  const customerId = await getCustomerIdAsync();
   if (!customerId) {
     throw new Error('Customer ID not found');
   }
@@ -188,7 +220,7 @@ export const clearCart = async () => {
     throw new Error('User not authenticated');
   }
 
-  const customerId = getCustomerId();
+  const customerId = await getCustomerIdAsync();
   if (!customerId) {
     throw new Error('Customer ID not found');
   }

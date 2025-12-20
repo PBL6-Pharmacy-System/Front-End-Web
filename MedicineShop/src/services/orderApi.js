@@ -1,3 +1,5 @@
+import { syncCustomerIdFromToken } from './authApi';
+
 const API_BASE_URL = 'http://localhost:3000/api';
 
 // Helper function to get auth token
@@ -88,6 +90,9 @@ export const getMyOrders = async (params = {}) => {
   try {
     console.log('📋 getMyOrders called with params:', params);
     
+    // First, sync customer_id from token
+    syncCustomerIdFromToken();
+    
     const customerId = getCustomerId();
     console.log('👤 Customer ID for orders:', customerId);
     
@@ -108,6 +113,17 @@ export const getMyOrders = async (params = {}) => {
     const token = getAuthToken();
     console.log('🔑 Auth token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
     
+    // Debug: decode token to see what's inside
+    if (token && token !== 'logged_in') {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('🔐 Token payload:', payload);
+        console.log('🆔 Token customer_id:', payload.customer_id, 'vs requesting customerId:', customerId);
+      } catch (e) {
+        console.error('❌ Cannot decode token:', e);
+      }
+    }
+    
     const response = await authFetch(url);
     console.log('📡 Response status:', response.status);
     
@@ -116,7 +132,34 @@ export const getMyOrders = async (params = {}) => {
     
     if (!response.ok) {
       console.error('❌ Response not OK:', data);
-      throw new Error(data.message || 'Không thể lấy danh sách đơn hàng');
+      
+      // Handle 403 - token customerId doesn't match requested customerId
+      if (response.status === 403) {
+        console.error('🚫 403 Forbidden - Token không khớp với customer ID');
+        // Try to refresh customer ID from token
+        const token = getAuthToken();
+        if (token && token !== 'logged_in') {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const tokenCustomerId = payload.customer_id;
+            if (tokenCustomerId && tokenCustomerId !== customerId) {
+              console.log('🔄 Updating customer_id in localStorage to:', tokenCustomerId);
+              localStorage.setItem('customer_id', tokenCustomerId.toString());
+              // Retry with correct customer ID
+              const newUrl = `${API_BASE_URL}/customers/${tokenCustomerId}/orders${queryString ? `?${queryString}` : ''}`;
+              const retryResponse = await authFetch(newUrl);
+              const retryData = await retryResponse.json();
+              if (retryResponse.ok) {
+                return retryData;
+              }
+            }
+          } catch (e) {
+            console.error('❌ Error fixing customer ID:', e);
+          }
+        }
+      }
+      
+      throw new Error(data.error || data.message || 'Không thể lấy danh sách đơn hàng');
     }
     
     return data;

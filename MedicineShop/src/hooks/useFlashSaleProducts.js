@@ -16,7 +16,6 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
         setLoading(true);
         setError(null);
 
-        console.log('🔥 Fetching flash sale products from API...');
         const res = await fetch(`${API_BASE_URL}/flashsales/active`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
@@ -27,16 +26,13 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
         }
 
         const payload = await res.json();
-        console.log('📦 Flash sale API response:', payload);
 
         // Extract products from flashsale response
         let products = [];
         if (payload && payload.success && payload.data) {
           const flashsale = payload.data;
           const items = flashsale.flashsale_products || [];
-          
-          console.log('📦 Found', items.length, 'flashsale items');
-          
+                    
           items.forEach(item => {
             const product = item.products || item.product;
             if (product && product.id) {
@@ -54,8 +50,6 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
             }
           });
         }
-
-        console.log('✅ Loaded', products.length, 'flash sale products');
         
         // Transform products similar to ProductListing
         const transformedProducts = products.map(p => {

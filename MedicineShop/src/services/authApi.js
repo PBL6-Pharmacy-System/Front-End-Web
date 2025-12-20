@@ -4,6 +4,44 @@ import { API_CONFIG } from '../config/api';
 const BASE_URL = API_CONFIG.BASE_URL;
 
 /**
+ * Sync customer_id from JWT token to localStorage
+ * This ensures customer_id in localStorage matches the token
+ */
+export const syncCustomerIdFromToken = () => {
+  const token = localStorage.getItem('authToken');
+  if (token && token !== 'logged_in') {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const tokenCustomerId = payload.customer_id;
+      
+      if (tokenCustomerId) {
+        const storedCustomerId = localStorage.getItem('customer_id');
+        if (storedCustomerId !== tokenCustomerId.toString()) {
+          console.log('🔄 Syncing customer_id from token:', tokenCustomerId);
+          localStorage.setItem('customer_id', tokenCustomerId.toString());
+          
+          // Also update user object
+          const userStr = localStorage.getItem('user');
+          if (userStr) {
+            try {
+              const user = JSON.parse(userStr);
+              user.customer_id = tokenCustomerId;
+              localStorage.setItem('user', JSON.stringify(user));
+            } catch (e) {
+              console.error('Error updating user object:', e);
+            }
+          }
+        }
+        return tokenCustomerId;
+      }
+    } catch (e) {
+      console.error('Error syncing customer_id from token:', e);
+    }
+  }
+  return null;
+};
+
+/**
  * Request OTP for email or phone
  * @param {string} email - User email (optional)
  * @param {string} phone - User phone (optional)
@@ -137,19 +175,35 @@ export const loginWithEmailOTP = async (email, otp) => {
     }
 
     if (userData) {
-      // Extract customer_id for easy access
-      const customerId = userData.customers?.id || userData.customer_id || userData.id;
+      // Extract customer_id from token JWT first (most reliable)
+      let customerId = null;
+      if (token) {
+        try {
+          const decoded = JSON.parse(atob(token.split('.')[1]));
+          customerId = decoded.customer_id;
+          console.log('✅ Extracted customer_id from token:', customerId);
+        } catch (e) {
+          console.warn('⚠️ Failed to parse token');
+        }
+      }
+      
+      // Fallback to userData if token parsing failed
+      if (!customerId) {
+        customerId = userData.customer_id || userData.id || userData.customers?.id;
+        console.log('✅ Extracted customer_id from userData:', customerId);
+      }
+      
       const userToSave = {
         ...userData,
-        customer_id: customerId // Add customer_id at top level for easy access
+        customer_id: customerId
       };
       localStorage.setItem('user', JSON.stringify(userToSave));
-      console.log('✅ User data saved:', { customer_id: customerId, email: userToSave.email });
       
-      // Save customer_id separately for quick access
       if (customerId) {
         localStorage.setItem('customer_id', customerId.toString());
-        console.log('✅ Customer ID saved:', customerId);
+        console.log('✅ Final customer_id saved:', customerId);
+      } else {
+        console.error('❌ No customer_id found!');
       }
     }
 
@@ -191,74 +245,7 @@ export const loginWithEmailOTP = async (email, otp) => {
   }
 };
 
-/**
- * Verify OTP for phone login
- * @param {string} phone - User phone
- * @param {string} otp - OTP code
- * @returns {Promise<Object>} Response with user data and token
- */
-export const verifyPhoneOTP = async (phone, otp) => {
-  try {
-    const response = await fetch(`${BASE_URL}/auth/otp/verify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ phone, otp }),
-    });
-
-    const data = await response.json();
-    console.log('Verify phone response:', data); // Debug log
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Xác minh OTP thất bại');
-    }
-
-    // Save token and user to localStorage
-    // Handle different response structures
-    const token = data.token || data.data?.token || data.access_token || data.accessToken;
-    const userData = data.user || data.data?.user || data.customer || data.data?.customer;
-
-    if (token) {
-      localStorage.setItem('authToken', token);
-      console.log('Token saved:', token); // Debug log
-    }
-
-    if (userData) {
-      // Extract customer_id for easy access
-      const customerId = userData.customers?.id || userData.customer_id;
-      const userToSave = {
-        ...userData,
-        customer_id: customerId // Add customer_id at top level for easy access
-      };
-      localStorage.setItem('user', JSON.stringify(userToSave));
-      console.log('User saved:', userToSave); // Debug log
-      
-      // Save customer_id separately for quick access
-      if (customerId) {
-        localStorage.setItem('customer_id', customerId.toString());
-        console.log('Customer ID saved:', customerId);
-      }
-    }
-
-    // If no token but login was successful, still save something to mark as logged in
-    if (!token && response.ok) {
-      localStorage.setItem('authToken', 'logged_in');
-      localStorage.setItem('user', JSON.stringify({ phone }));
-    }
-
-    return {
-      success: true,
-      data: data
-    };
-  } catch (error) {
-    console.error('Verify phone OTP error:', error);
-    return {
-      success: false,
-      error: error.message || 'Xác minh OTP thất bại'
-    };
-  }
-};
+// Phone login removed - only email login supported
 
 /**
  * Logout user
@@ -305,7 +292,6 @@ export const getCurrentUser = () => {
  */
 export const isAuthenticated = () => {
   const token = localStorage.getItem('authToken');
-  console.log('Checking auth, token:', token); // Debug log
   return !!token;
 };
 
@@ -317,26 +303,130 @@ export const getAccessToken = () => {
 };
 
 /**
- * Get customer ID from localStorage
+ * Fetch and cache customer ID by phone number
+ */
+const fetchCustomerIdByPhone = async (phone) => {
+  try {
+    console.log('🔍 [fetchCustomerIdByPhone] Fetching customer for phone:', phone);
+    const response = await fetch(`${BASE_URL}/customers/by-phone/${phone}`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('📦 [fetchCustomerIdByPhone] Response:', data);
+      
+      const customerId = data?.id || data?.customer?.id || data?.data?.id;
+      if (customerId) {
+        localStorage.setItem('customer_id', customerId.toString());
+        console.log('✅ [fetchCustomerIdByPhone] Saved customer_id:', customerId);
+        return customerId;
+      }
+    }
+  } catch (e) {
+    console.error('❌ [fetchCustomerIdByPhone] Failed:', e);
+  }
+  return null;
+};
+
+/**
+ * Get customer ID from localStorage (async version)
+ */
+export const getCustomerIdAsync = async () => {
+  let customerId = localStorage.getItem('customer_id');
+  
+  if (!customerId) {
+    const user = getCurrentUser();
+    customerId = user?.customer_id || user?.id || user?.customers?.id || user?.user_id;
+    
+    if (!customerId) {
+      const token = localStorage.getItem('authToken');
+      if (token && token !== 'logged_in') {
+        try {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const decoded = JSON.parse(atob(parts[1]));
+            customerId = decoded.customer_id;
+          }
+        } catch (e) {
+          // Token parsing failed
+        }
+      }
+    }
+    
+    // If still no customer_id but we have phone, fetch from API
+    if (!customerId && user?.phone) {
+      customerId = await fetchCustomerIdByPhone(user.phone);
+    }
+    
+    if (customerId) {
+      localStorage.setItem('customer_id', customerId.toString());
+    }
+  }
+  
+  return customerId ? parseInt(customerId) : null;
+};
+
+/**
+ * Get customer ID from localStorage (sync version - deprecated, use getCustomerIdAsync)
  */
 export const getCustomerId = () => {
   // Try to get from separate storage first
   let customerId = localStorage.getItem('customer_id');
+  console.log('🔍 [getCustomerId] localStorage customer_id:', customerId);
   
   // If not found, try to extract from user object
   if (!customerId) {
     try {
       const user = getCurrentUser();
-      customerId = user?.customer_id || user?.customers?.id;
+      console.log('🔍 [getCustomerId] user object:', user);
+      
+      // Priority: customer_id field first, then id, then customers?.id, user_id (fallback)
+      customerId = user?.customer_id || user?.id || user?.customers?.id || user?.user_id;
+      console.log('🔍 [getCustomerId] from user object:', customerId);
+      
+      // If still no customer_id, try to extract from token JWT
+      if (!customerId) {
+        const token = localStorage.getItem('authToken');
+        console.log('🔍 [getCustomerId] token:', token ? `${token.substring(0, 50)}...` : 'null');
+        
+        if (token && token !== 'logged_in') {
+          try {
+            const parts = token.split('.');
+            console.log('🔍 [getCustomerId] token parts count:', parts.length);
+            
+            if (parts.length === 3) {
+              const decoded = JSON.parse(atob(parts[1]));
+              console.log('🔍 [getCustomerId] decoded token:', decoded);
+              customerId = decoded.customer_id;
+              console.log('🔍 [getCustomerId] customer_id from token:', customerId);
+            }
+          } catch (e) {
+            console.error('❌ [getCustomerId] Token parsing failed:', e);
+          }
+        }
+      }
       
       // Save it for next time
       if (customerId) {
         localStorage.setItem('customer_id', customerId.toString());
+        console.log('✅ [getCustomerId] Saved to localStorage:', customerId);
       }
     } catch (error) {
-      console.error('Error getting customer_id:', error);
+      console.error('❌ Error getting customer_id:', error);
     }
   }
   
-  return customerId ? parseInt(customerId) : null;
+  // Last resort: if still no customer_id but we have phone, fetch from API synchronously
+  if (!customerId) {
+    const user = getCurrentUser();
+    if (user?.phone) {
+      console.log('🔍 [getCustomerId] No customer_id found, will fetch by phone:', user.phone);
+      // Note: This is a synchronous function, so we can't await. 
+      // We'll return null here and the caller should handle the fallback
+      // Better approach: cache the phone and fetch customer_id lazily
+    }
+  }
+  
+  const result = customerId ? parseInt(customerId) : null;
+  console.log('🎯 [getCustomerId] Final result:', result);
+  return result;
 };
