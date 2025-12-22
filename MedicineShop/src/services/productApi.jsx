@@ -1,50 +1,7 @@
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// THÊM: Function để gộp tất cả catalog products
-const getAllCatalogProductsData = () => {
-  const allProducts = [];
-  
-  try {
-    // Từ vitaminProducts.json
-    if (vitaminData && vitaminData.products) {
-      const vitaminProducts = vitaminData.products.map(product => ({
-        ...product,
-        categoryKey: vitaminData.category,
-        categoryName: vitaminData.categoryName,
-        source: 'vitamin'
-      }));
-      allProducts.push(...vitaminProducts);
-    }
-    
-    // Từ hormonalProducts.json
-    if (hormonalData && hormonalData.products) {
-      const hormonalProducts = hormonalData.products.map(product => ({
-        ...product,
-        categoryKey: hormonalData.category,
-        categoryName: hormonalData.categoryName,
-        source: 'hormonal'
-      }));
-      allProducts.push(...hormonalProducts);
-    }
-    
-    // Từ functionalProducts.json
-    if (functionalData && functionalData.products) {
-      const functionalProducts = functionalData.products.map(product => ({
-        ...product,
-        categoryKey: functionalData.category,
-        categoryName: functionalData.categoryName,
-        source: 'functional'
-      }));
-      allProducts.push(...functionalProducts);
-    }
-    
-    console.log('📦 Loaded catalog products:', allProducts.length);
-    return allProducts;
-  } catch (error) {
-    console.error('❌ Error loading catalog products:', error);
-    return [];
-  }
-};
+import { API_CONFIG } from '../config/api';
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 export class MockApiService {
   // Get flash sale products
@@ -69,17 +26,39 @@ export class MockApiService {
   // Get listing products
   static async getListingProducts() {
     try {
-      await delay(450);
+      console.log('🔍 Fetching listing products from API...');
+      
+      const response = await fetch(`${API_BASE_URL}/products/best-sellers`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      // Normalize response
+      let products = [];
+      if (result.success && Array.isArray(result.data)) {
+        products = result.data;
+      } else if (Array.isArray(result.data)) {
+        products = result.data;
+      } else if (Array.isArray(result)) {
+        products = result;
+      }
       
       return {
         success: true,
-        data: listingProductsData,
+        data: products,
         message: 'Listing products fetched successfully'
       };
     } catch (error) {
+      console.error('❌ Error fetching listing products:', error);
       return {
         success: false,
-        error: 'Failed to fetch listing products',
+        error: error.message || 'Failed to fetch listing products',
         data: []
       };
     }
@@ -88,64 +67,42 @@ export class MockApiService {
   // CẬP NHẬT: Get single product by ID
   static async getProductById(id) {
     try {
-      await delay(300);
+      console.log('🔍 Fetching product by ID from API:', id);
       
-      console.log('Searching for product ID:', id, 'Type:', typeof id);
+      // Call real API instead of mock data
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
       
-      const numericId = parseInt(id);
-      const stringId = String(id);
-      
-      // Tìm theo thứ tự: listing -> catalog (vitamin, hormonal, functional) -> medical
-      const searchSources = [
-        // { name: 'Flash Sale', data: flashSaleData }, // Commented - flashSaleData not defined
-        { name: 'Listing', data: listingProductsData || [] },
-        { name: 'Catalog Products', data: getAllCatalogProductsData() }
-      ].filter(source => source.data && source.data.length > 0); // Lọc bỏ sources rỗng
-      
-      for (const source of searchSources) {
-        console.log(`🔍 Searching in ${source.name}, products count:`, source.data.length);
-        
-        const product = source.data.find(p => {
-          const match = p.id === id || 
-                       p.id === numericId || 
-                       p.id === stringId ||
-                       String(p.id) === stringId ||
-                       parseInt(p.id) === numericId;
-          
-          if (match) {
-            console.log(`✅ Found product in ${source.name}:`, p);
-          }
-          return match;
-        });
-        
-        if (product) {
-          return {
-            success: true,
-            data: product,
-            message: `Product found in ${source.name}`,
-            source: source.name
-          };
-        }
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
       }
       
-      // Nếu không tìm thấy, thử tìm trong medical products
-      console.log('Not found in main sources, searching medical products...');
-      const medicalResponse = await this.getMedicalProductById(id);
-      if (medicalResponse.success) {
-        return medicalResponse;
-      }
+      const result = await response.json();
+      console.log('✅ Product fetched from API:', result);
       
-      console.log('❌ Product not found in any source');
-      return {
-        success: false,
-        error: 'Product not found',
-        data: null
-      };
+      // Normalize response
+      if (result.success && result.data) {
+        return {
+          success: true,
+          data: result.data,
+          message: 'Product found'
+        };
+      } else if (result.data) {
+        return {
+          success: true,
+          data: result.data,
+          message: 'Product found'
+        };
+      } else {
+        return result;
+      }
     } catch (error) {
-      console.error('Error in getProductById:', error);
+      console.error('❌ Error in getProductById:', error);
       return {
         success: false,
-        error: 'Failed to fetch product',
+        error: error.message || 'Failed to fetch product',
         data: null
       };
     }

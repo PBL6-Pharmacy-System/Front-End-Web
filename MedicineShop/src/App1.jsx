@@ -53,8 +53,14 @@ export default function App() {
   const handleNavigate = (page, params = {}) => {
     console.log('🔄 Navigating to:', page, 'with params:', params);
     
-    if (page === 'product-detail' || page === 'productDetail') {
-      if (params.productId) {
+    // Handle product navigation - support both formats
+    if (page === 'product' || page === 'product-detail' || page === 'productDetail') {
+      // If params is a number/string (productId passed directly)
+      if (typeof params === 'number' || typeof params === 'string') {
+        setSelectedProductId(params);
+        setProductSource('order-history');
+      } else if (params.productId) {
+        // If params is an object with productId
         setSelectedProductId(params.productId);
         setProductSource(params.productSource || 'listing');
       }

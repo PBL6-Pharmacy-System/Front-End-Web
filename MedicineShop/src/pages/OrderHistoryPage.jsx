@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getMyOrders, getOrderById } from '../services/orderApi';
+import { createReview, getMyReviews } from '../services/reviewApi';
 import { formatPrice } from '../utils/productHelpers';
 import { useToast } from '../components/Toast';
+import ReviewModal from '../components/ReviewModal';
 import './OrderHistoryPage.css';
 
 export default function OrderHistoryPage({ onNavigate }) {
@@ -11,6 +13,10 @@ export default function OrderHistoryPage({ onNavigate }) {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [orderDetails, setOrderDetails] = useState({});
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [myReviews, setMyReviews] = useState([]);
 
   // Order status config
   const statusConfig = {
@@ -35,7 +41,19 @@ export default function OrderHistoryPage({ onNavigate }) {
 
   useEffect(() => {
     fetchOrders();
+    fetchMyReviews();
   }, [selectedStatus]);
+
+  const fetchMyReviews = async () => {
+    try {
+      const response = await getMyReviews();
+      if (response.success && response.data && response.data.reviews) {
+        setMyReviews(response.data.reviews);
+      }
+    } catch (error) {
+      console.error('Error fetching my reviews:', error);
+    }
+  };
 
   const fetchOrders = async () => {
     console.log('🔄 fetchOrders called, selectedStatus:', selectedStatus);
@@ -127,6 +145,46 @@ export default function OrderHistoryPage({ onNavigate }) {
     }
   };
 
+  const handleProductClick = (productId) => {
+    if (onNavigate && productId) {
+      onNavigate('product', productId);
+    }
+  };
+
+  const handleOpenReviewModal = (product) => {
+    setSelectedProduct(product);
+    setReviewModalOpen(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    setReviewModalOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const handleSubmitReview = async (reviewData) => {
+    try {
+      setIsSubmittingReview(true);
+      const response = await createReview(reviewData);
+      
+      if (response.success) {
+        toast.success('Đánh giá sản phẩm thành công!');
+        handleCloseReviewModal();
+        fetchMyReviews(); // Refresh reviews list
+      } else {
+        toast.error(response.error || 'Không thể gửi đánh giá');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('Đã xảy ra lỗi khi gửi đánh giá');
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  const hasReviewed = (productId) => {
+    return myReviews.some(review => review.product_id === productId);
+  };
+
   return (
     <div className="order-history-page">
       <div className="order-history-container">
@@ -199,7 +257,14 @@ export default function OrderHistoryPage({ onNavigate }) {
                   {/* Order Items Preview */}
                   <div className="order-items-preview">
                     {(order.orderitems || order.items || []).slice(0, 2).map((item, index) => (
-                      <div key={index} className="preview-item">
+                      <div 
+                        key={index} 
+                        className="preview-item clickable"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProductClick(item.product_id || item.products?.id);
+                        }}
+                      >
                         <img 
                           src={item.products?.image_url || item.products?.images?.[0] || item.image || '/api/placeholder/60/60'} 
                           alt={item.products?.name || item.name}
@@ -229,7 +294,11 @@ export default function OrderHistoryPage({ onNavigate }) {
                         <h4>Chi tiết sản phẩm</h4>
                         <div className="order-items-list">
                           {(details?.orderitems || order.orderitems || order.items || []).map((item, index) => (
-                            <div key={index} className="order-item">
+                            <div 
+                              key={index} 
+                              className="order-item clickable"
+                              onClick={() => handleProductClick(item.product_id || item.products?.id)}
+                            >
                               <img 
                                 src={item.products?.image_url || item.products?.images?.[0] || item.image || '/api/placeholder/80/80'} 
                                 alt={item.products?.name || item.name}
@@ -317,10 +386,49 @@ export default function OrderHistoryPage({ onNavigate }) {
 
                       {/* Actions */}
                       <div className="order-actions">
-                        {order.status === 'delivered' && (
-                          <button className="btn-review">
-                            Đánh giá sản phẩm
-                          </button>
+                        {(order.status === 'delivered' || order.status === 'completed') && (
+                          <div className="order-review-actions">
+                            {(() => {
+                              const items = details?.orderitems || order.orderitems || order.items || [];
+                              console.log('🔍 Order items for review:', items);
+                              console.log('🔍 Order status:', order.status);
+                              console.log('🔍 My reviews:', myReviews);
+                              
+                              return items.map((item) => {
+                                const productId = item.product_id || item.products?.id;
+                                const alreadyReviewed = hasReviewed(productId);
+                                
+                                console.log('🔍 Product ID:', productId, 'Already reviewed:', alreadyReviewed);
+                                
+                                return (
+                                  <div key={item.id || productId} className="review-action-item">
+                                    <span className="review-product-name">
+                                      {item.products?.name || item.name}
+                                    </span>
+                                    {alreadyReviewed ? (
+                                      <span className="reviewed-badge">✓ Đã đánh giá</span>
+                                    ) : (
+                                      <button 
+                                        className="btn-review-product"
+                                        onClick={(e) => {
+                                          console.log('🎯 Review button clicked!', productId);
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          handleOpenReviewModal({
+                                            id: productId,
+                                            name: item.products?.name || item.name,
+                                            image_url: item.products?.image_url || item.image
+                                          });
+                                        }}
+                                      >
+                                        Viết đánh giá
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              });
+                            })()}
+                          </div>
                         )}
                         {order.status === 'completed' && (
                           <button className="btn-reorder" onClick={() => onNavigate('home')}>
@@ -340,6 +448,17 @@ export default function OrderHistoryPage({ onNavigate }) {
             })
           )}
         </div>
+
+        {/* Review Modal */}
+        {reviewModalOpen && selectedProduct && (
+          <ReviewModal
+            isOpen={reviewModalOpen}
+            onClose={handleCloseReviewModal}
+            onSubmit={handleSubmitReview}
+            product={selectedProduct}
+            isLoading={isSubmittingReview}
+          />
+        )}
       </div>
     </div>
   );
