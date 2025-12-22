@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Flash Sale Time</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+            padding: 10px;
+            background: #e6f3ff;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            color: #388e3c;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        .time-unit {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .time-value {
+            font-size: 32px;
+            display: block;
+        }
+        .time-label {
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Test Flash Sale Countdown Timer</h1>
+        
+        <button onclick="fetchFlashSale()">🔄 Fetch Flash Sale Data</button>
+        <button onclick="location.reload()">🔃 Reload Page</button>
+        
+        <div class="section">
+            <h2>📊 API Response</h2>
+            <div id="apiResponse">Click "Fetch Flash Sale Data" to load...</div>
+        </div>
+        
+        <div class="section">
+            <h2>⏱️ Countdown Timer</h2>
+            <div id="countdown" class="timer">--:--:--</div>
+            <div id="countdownDetails"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🕐 Time Information</h2>
+            <div id="timeInfo">No data loaded</div>
+        </div>
+        
+        <div class="section">
+            <h2>📦 Products</h2>
+            <div id="products">No products loaded</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api/v1';
+        let timerInterval = null;
+        let flashSaleData = null;
+
+        async function fetchFlashSale() {
+            try {
+                document.getElementById('apiResponse').innerHTML = '<div class="success">Loading...</div>';
+                
+                const response = await fetch(`${API_BASE_URL}/flashsales/active`);
+                const data = await response.json();
+                
+                console.log('🔍 Full API Response:', data);
+                
+                flashSaleData = data;
+                
+                // Display raw API response
+                document.getElementById('apiResponse').innerHTML = 
+                    '<div class="success">✅ Data loaded successfully</div>' +
+                    '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+                // Extract flash sale info
+                if (data.success && data.data) {
+                    const flashsale = data.data;
+                    
+                    // Display time information
+                    const timeHtml = `
+                        <p><strong>Flash Sale ID:</strong> ${flashsale.id}</p>
+                        <p><strong>Name:</strong> ${flashsale.name}</p>
+                        <p><strong>Start Time:</strong> ${flashsale.start_time}</p>
+                        <p><strong>End Time:</strong> ${flashsale.end_time}</p>
+                        <p><strong>Status:</strong> ${flashsale.status}</p>
+                        <p><strong>Products Count:</strong> ${flashsale.flashsale_products?.length || 0}</p>
+                    `;
+                    document.getElementById('timeInfo').innerHTML = timeHtml;
+                    
+                    // Display products
+                    if (flashsale.flashsale_products && flashsale.flashsale_products.length > 0) {
+                        const productsHtml = flashsale.flashsale_products.map((item, idx) => {
+                            const product = item.products || item.product;
+                            return `
+                                <div style="padding: 10px; margin: 10px 0; background: white; border-radius: 4px; border: 1px solid #ddd;">
+                                    <strong>${idx + 1}. ${product?.name || 'Unknown'}</strong><br>
+                                    Price: ${product?.price || 'N/A'}<br>
+                                    Flash Price: ${item.flash_price || 'N/A'}<br>
+                                    Stock: ${item.stock_limit - (item.sold_count || 0)}<br>
+                                    In Stock: ${product?.in_stock !== false ? '✅ Yes' : '❌ No'}
+                                </div>
+                            `;
+                        }).join('');
+                        document.getElementById('products').innerHTML = productsHtml;
+                    }
+                    
+                    // Start countdown
+                    startCountdown(flashsale.start_time, flashsale.end_time);
+                } else {
+                    document.getElementById('timeInfo').innerHTML = '<div class="error">No flash sale data found</div>';
+                }
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('apiResponse').innerHTML = 
+                    '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+
+        function startCountdown(startTime, endTime) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            const updateTimer = () => {
+                const now = new Date();
+                const nowVN = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+                
+                const start = startTime ? new Date(startTime) : null;
+                const end = endTime ? new Date(endTime) : null;
+                
+                let targetTime;
+                let label;
+                
+                if (start && nowVN < start) {
+                    targetTime = start;
+                    label = '🚀 Bắt đầu trong';
+                } else if (end && nowVN < end) {
+                    targetTime = end;
+                    label = '⏰ Kết thúc trong';
+                } else {
+                    document.getElementById('countdown').innerHTML = '⏹️ Flash Sale đã kết thúc';
+                    document.getElementById('countdownDetails').innerHTML = '';
+                    if (timerInterval) clearInterval(timerInterval);
+                    return;
+                }
+                
+                const diff = targetTime.getTime() - nowVN.getTime();
+                
+                if (diff <= 0) {
+                    document.getElementById('countdown').innerHTML = '⏹️ Đã hết thời gian';
+                    if (timerInterval) clearInterval(timerInterval);
+                    return;
+                }
+                
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                const timeHtml = `
+                    ${label}
+                    <div style="margin-top: 10px;">
+                        ${days > 0 ? `<span class="time-unit"><span class="time-value">${String(days).padStart(2, '0')}</span><span class="time-label">ngày</span></span>` : ''}
+                        <span class="time-unit"><span class="time-value">${String(hours).padStart(2, '0')}</span><span class="time-label">giờ</span></span>
+                        <span class="time-unit"><span class="time-value">${String(minutes).padStart(2, '0')}</span><span class="time-label">phút</span></span>
+                        <span class="time-unit"><span class="time-value">${String(seconds).padStart(2, '0')}</span><span class="time-label">giây</span></span>
+                    </div>
+                `;
+                
+                document.getElementById('countdown').innerHTML = timeHtml;
+                
+                const detailsHtml = `
+                    <p><strong>Current VN Time:</strong> ${nowVN.toLocaleString('vi-VN')}</p>
+                    <p><strong>Target Time:</strong> ${targetTime.toLocaleString('vi-VN')}</p>
+                    <p><strong>Time Difference:</strong> ${diff}ms</p>
+                `;
+                document.getElementById('countdownDetails').innerHTML = detailsHtml;
+            };
+            
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Auto-load on page load
+        window.onload = () => {
+            fetchFlashSale();
+        };
+    </script>
+</body>
+</html>

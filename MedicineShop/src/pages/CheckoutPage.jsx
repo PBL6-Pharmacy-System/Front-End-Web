@@ -168,6 +168,19 @@ export default function CheckoutPage({ onNavigate }) {
       return;
     }
 
+    // Check duplicate address
+    const isDuplicate = savedAddresses.some(addr => 
+      addr.recipient_name === addressData.recipient_name &&
+      addr.recipient_phone === addressData.recipient_phone &&
+      addr.address_line === addressData.address_line &&
+      addr.city === addressData.city
+    );
+
+    if (isDuplicate) {
+      toast.error('Địa chỉ này đã tồn tại trong danh sách của bạn');
+      return;
+    }
+
     try {
       const result = await shippingAddressApi.createAddress(customerId, addressData);
       if (result.success && result.data) {
@@ -660,7 +673,7 @@ export default function CheckoutPage({ onNavigate }) {
                 </div>
               )}
 
-              {/* Form nhập địa chỉ mới - hiển thị khi chưa có địa chỉ đã lưu hoặc chưa đăng nhập */}
+              {/* Form nhập địa chỉ mới - hiển thị khi chưa có địa chỉ đã lưu hoặc chưa đăng nhập
               {(!useAddressFromList || !selectedAddress) && (
                 <>
                   <div className="checkout-form-grid">
@@ -725,9 +738,9 @@ export default function CheckoutPage({ onNavigate }) {
                     {errors.address && <span className="checkout-error-message">{errors.address}</span>}
                   </div>
                 </>
-              )}
+              )} */}
 
-              <div className="checkout-delivery-type">
+              {/* <div className="checkout-delivery-type">
                 <label className="checkout-radio-label">
                   <input
                     type="radio"
@@ -748,7 +761,7 @@ export default function CheckoutPage({ onNavigate }) {
                   />
                   <span>Giao vào giờ hành chính</span>
                 </label>
-              </div>
+              </div> */}
 
               <textarea
                 placeholder="Ghi chú thêm (Ví dụ: Giao hàng giờ hành chính)"

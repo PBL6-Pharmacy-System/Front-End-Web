@@ -9,7 +9,6 @@ import CatalogPage from "./pages/CatalogPage";
 import BannerSlider from './components/BannerSlider';
 import FlashSaleSection from './components/FlashSaleSection';
 import ProductListing from './components/ProductListing';
-import MedicalProductsTabs from './components/MedicalProductsTabs';
 import ChatBox from './components/ChatBox';
 
 export default function App() {

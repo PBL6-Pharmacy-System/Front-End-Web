@@ -13,6 +13,7 @@ import { formatPrice } from '../utils/productHelpers';
 import { getCart, removeFromCart as removeFromCartAPI, updateCartItem } from '../services/cartApi';
 import { isAuthenticated } from '../services/authApi';
 import { useToast } from './Toast';
+import ConfirmDialog from './ConfirmDialog';
 import './Cart.css';
 
 export default function Cart({ onNavigate }) {
@@ -25,6 +26,7 @@ export default function Cart({ onNavigate }) {
   const [isLoading, setIsLoading] = useState(true);
   const [backendCartItems, setBackendCartItems] = useState([]);
   const [displayItems, setDisplayItems] = useState([]);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, itemId: null });
 
   // Check authentication and fetch cart from backend
   useEffect(() => {
@@ -137,11 +139,15 @@ export default function Cart({ onNavigate }) {
     }
   };
 
-  const handleRemoveItem = async (backendItemId) => {
-    if (window.confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+  const handleRemoveItem = (backendItemId) => {
+    setConfirmDialog({ isOpen: true, itemId: backendItemId });
+  };
+
+  const handleConfirmRemove = async () => {
+    if (confirmDialog.itemId) {
       try {
         // Call backend API
-        await removeFromCartAPI(backendItemId);
+        await removeFromCartAPI(confirmDialog.itemId);
         // Refresh cart from backend
         const response = await getCart();
         if (response.success && response.data && response.data.orderitems) {
@@ -163,11 +169,17 @@ export default function Cart({ onNavigate }) {
         }
         // Trigger cart count refresh in header
         window.dispatchEvent(new Event('cartUpdated'));
+        toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
       } catch (error) {
         console.error('❌ Error removing item:', error);
         toast.error('Có lỗi xảy ra khi xóa sản phẩm');
       }
+      setConfirmDialog({ isOpen: false, itemId: null });
     }
+  };
+
+  const handleCancelRemove = () => {
+    setConfirmDialog({ isOpen: false, itemId: null });
   };
   
   const handleBackToHome = () => {
@@ -195,7 +207,18 @@ export default function Cart({ onNavigate }) {
   const totalQuantityInCart = displayItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="cart-page">
+    <>
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Xác nhận xóa"
+        message="Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng không?"
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        type="danger"
+      />
+      <div className="cart-page">
       <div className="cart-container">
         {/* Header */}
         <div className="cart-header">
@@ -390,6 +413,7 @@ export default function Cart({ onNavigate }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

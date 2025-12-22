@@ -32,12 +32,25 @@ export default function ProductDetail({ product, onNavigate }) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
 
-  // Xử lý giá tiền - ưu tiên theo thứ tự: support, price, originalPrice
+  // Xử lý giá tiền - ưu tiên theo thứ tự: flashPrice (Flash Sale), support, price, originalPrice
   const getCurrentPrice = () => {
-    return actualProduct.support || actualProduct.price || actualProduct.originalPrice || '0';
+    // Ưu tiên flashPrice cho sản phẩm Flash Sale
+    const flashPrice = actualProduct.flashPrice || actualProduct.flash_price;
+    if (flashPrice) {
+      console.log('🔥 getCurrentPrice: Using Flash Sale price:', flashPrice);
+      return flashPrice;
+    }
+    const regularPrice = actualProduct.support || actualProduct.price || actualProduct.originalPrice || '0';
+    console.log('💵 getCurrentPrice: Using regular price:', regularPrice);
+    return regularPrice;
   };
 
   const getOriginalPrice = () => {
+    const flashPrice = actualProduct.flashPrice || actualProduct.flash_price;
+    // Nếu có flashPrice và price khác nhau
+    if (flashPrice && actualProduct.price && flashPrice !== actualProduct.price) {
+      return actualProduct.price;
+    }
     // Nếu có support và price khác nhau
     if (actualProduct.support && actualProduct.price && actualProduct.support !== actualProduct.price) {
       return actualProduct.price;
@@ -93,10 +106,15 @@ export default function ProductDetail({ product, onNavigate }) {
 
   // Xử lý stock
   const getStock = () => {
+    // Check in_stock field first (from API)
+    if (actualProduct.in_stock === false) return 0;
     if (actualProduct.inStock !== undefined) return actualProduct.inStock ? 100 : 0;
     if (actualProduct.stock !== undefined) return actualProduct.stock;
     return 100; // default
   };
+  
+  // Check if product is out of stock
+  const isOutOfStock = actualProduct.in_stock === false || getStock() === 0;
 
   // Tạo mảng hình ảnh từ sản phẩm hoặc sử dụng placeholder
   const placeholderImage = "https://via.placeholder.com/500x500/f5f5f5/ccc?text=No+Image";
@@ -325,7 +343,7 @@ export default function ProductDetail({ product, onNavigate }) {
                   <button 
                     className="qty-btn"
                     onClick={() => handleQuantityChange(-1)}
-                    disabled={getStock() === 0}
+                    disabled={isOutOfStock}
                   >
                     −
                   </button>
@@ -334,12 +352,12 @@ export default function ProductDetail({ product, onNavigate }) {
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     className="qty-input"
-                    disabled={getStock() === 0}
+                    disabled={isOutOfStock}
                   />
                   <button 
                     className="qty-btn"
                     onClick={() => handleQuantityChange(1)}
-                    disabled={getStock() === 0}
+                    disabled={isOutOfStock}
                   >
                     +
                   </button>
@@ -350,9 +368,15 @@ export default function ProductDetail({ product, onNavigate }) {
                 <button 
                   className="btn-add-cart"
                   onClick={handleAddToCart}
-                  disabled={getStock() === 0}
+                  disabled={isOutOfStock}
+                  style={isOutOfStock ? {
+                    backgroundColor: '#ccc',
+                    color: '#666',
+                    cursor: 'not-allowed',
+                    opacity: 0.6
+                  } : {}}
                 >
-                  Thêm vào giỏ hàng
+                  {isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
                 </button>
               </div>
             </div>

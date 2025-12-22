@@ -112,6 +112,7 @@
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 48px;
@@ -367,9 +368,9 @@
 }
 
 /* Out of Stock */
-.product-card.out-of-stock {
+/* .product-card.out-of-stock {
   opacity: 0.6;
-}
+} */
 
 .product-card.out-of-stock::after {
   content: 'HẾT HÀNG';
@@ -377,8 +378,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
+  background: rgba(255, 255, 255, 0.8);
+  color: white !important;
   padding: 8px 16px;
   border-radius: 8px;
   font-weight: bold;

@@ -444,8 +444,15 @@ const CatalogProducts = ({ onNavigate, onProductClick, category, searchQuery = '
                       <button 
                         className="add-to-cart-btn"
                         onClick={(e) => handleBuyProduct(product, e)}
+                        disabled={product.in_stock === false}
+                        style={product.in_stock === false ? {
+                          backgroundColor: '#ccc',
+                          color: '#666',
+                          cursor: 'not-allowed',
+                          opacity: 0.6
+                        } : {}}
                       >
-                        Thêm vào giỏ
+                        {product.in_stock === false ? 'Hết hàng' : 'Thêm vào giỏ'}
                       </button>
                     </div>
                   </div>

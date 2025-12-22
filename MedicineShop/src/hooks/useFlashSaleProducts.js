@@ -43,6 +43,10 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
                 flashSaleName: flashsale.name,
                 startTime: flashsale.start_time,
                 endTime: flashsale.end_time,
+                startTimeISO: flashsale.start_time,
+                endTimeISO: flashsale.end_time,
+                start_time: flashsale.start_time,
+                end_time: flashsale.end_time,
                 flashPrice: item.flash_price,
                 originalPrice: product.price,
                 flashStock: item.stock_limit - (item.sold_count || 0)
@@ -51,20 +55,42 @@ export const useFlashSaleProducts = (itemsPerPage = 6) => {
           });
         }
         
+        console.log('🔍 Flash Sale data from API:', {
+          flashsaleId: payload?.data?.id,
+          name: payload?.data?.name,
+          start_time: payload?.data?.start_time,
+          end_time: payload?.data?.end_time,
+          productCount: products.length
+        });
+        
         // Transform products similar to ProductListing
         const transformedProducts = products.map(p => {
           const base = transformProductFromAPI(p);
-          // Override price with flash price
+          // Override price with flash price and preserve time fields
           return {
             ...base,
             price: p.originalPrice || p.price,
             support: p.flashPrice || p.price,
             startTime: p.startTime,
             endTime: p.endTime,
+            startTimeISO: p.startTimeISO,
+            endTimeISO: p.endTimeISO,
+            start_time: p.start_time,
+            end_time: p.end_time,
             flashSaleId: p.flashSaleId,
             flashSaleName: p.flashSaleName
           };
         });
+        
+        console.log('✅ Transformed products:', transformedProducts.length);
+        if (transformedProducts.length > 0) {
+          console.log('📦 Sample product time data:', {
+            startTime: transformedProducts[0].startTime,
+            endTime: transformedProducts[0].endTime,
+            start_time: transformedProducts[0].start_time,
+            end_time: transformedProducts[0].end_time
+          });
+        }
         
         setAllProducts(transformedProducts);
       } catch (err) {

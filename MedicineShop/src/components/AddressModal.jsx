@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from './Toast';
+import ConfirmDialog from './ConfirmDialog';
 import './AddressModal.css';
 
 export default function AddressModal({ 
@@ -13,15 +15,16 @@ export default function AddressModal({
   onSetDefault,
   isLoading 
 }) {
+  const toast = useToast();
   const [editingAddress, setEditingAddress] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, addressId: null });
   const [formData, setFormData] = useState({
     recipient_name: '',
     recipient_phone: '',
     address_line: '',
     city: '',      // Tỉnh/Thành phố (required by API)
     state: '',     // Quận/Huyện/Phường/Xã
-    postal_code: '',
     is_default: false
   });
 
@@ -40,7 +43,6 @@ export default function AddressModal({
       address_line: '',
       city: '',
       state: '',
-      postal_code: '',
       is_default: false
     });
   };
@@ -53,7 +55,6 @@ export default function AddressModal({
       address_line: address.address_line || '',
       city: address.city || '',
       state: address.state || '',
-      postal_code: address.postal_code || '',
       is_default: address.is_default || false
     });
     setShowAddForm(false);
@@ -72,7 +73,7 @@ export default function AddressModal({
   const handleSubmitForm = async () => {
     // Validate required fields
     if (!formData.recipient_name || !formData.recipient_phone || !formData.address_line || !formData.city) {
-      alert('Vui lòng điền đầy đủ thông tin: Tên, SĐT, Địa chỉ và Tỉnh/Thành phố');
+      toast.error('Vui lòng điền đầy đủ thông tin: Tên, SĐT, Địa chỉ và Tỉnh/Thành phố');
       return;
     }
 
@@ -91,10 +92,19 @@ export default function AddressModal({
     }
   };
 
-  const handleDeleteClick = async (addressId) => {
-    if (window.confirm('Bạn có chắc muốn xóa địa chỉ này?')) {
-      await onDelete(addressId);
+  const handleDeleteClick = (addressId) => {
+    setConfirmDialog({ isOpen: true, addressId });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (confirmDialog.addressId) {
+      await onDelete(confirmDialog.addressId);
+      setConfirmDialog({ isOpen: false, addressId: null });
     }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDialog({ isOpen: false, addressId: null });
   };
 
   const handleSetDefaultClick = async (addressId) => {
@@ -108,7 +118,18 @@ export default function AddressModal({
   if (!isOpen) return null;
 
   return (
-    <div className="address-modal-overlay" onClick={onClose}>
+    <>
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Xác nhận xóa"
+        message="Bạn có chắc muốn xóa địa chỉ này không?"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        type="danger"
+      />
+      <div className="address-modal-overlay" onClick={onClose}>
       <div className="address-modal" onClick={e => e.stopPropagation()}>
         <div className="address-modal-header">
           <h2>Địa Chỉ Của Tôi</h2>
@@ -304,6 +325,7 @@ export default function AddressModal({
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

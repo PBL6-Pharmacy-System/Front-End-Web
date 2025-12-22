@@ -418,7 +418,7 @@
 
 .medical-tabs-buy-button.out-of-stock {
   background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
-  color: #757575;
+  color: #fff !important;
   cursor: not-allowed;
   box-shadow: 0 4px 15px rgba(224, 224, 224, 0.3);
 }

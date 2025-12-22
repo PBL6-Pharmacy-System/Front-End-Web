@@ -320,13 +320,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                   <span className="login-method-text">Email</span>
                 </button>
               </div>
-
-              {/* Icon */}
-              <div className="login-phone-icon-wrapper">
-                <div className="login-phone-icon">
-                  {loginMethod === 'email' ? '📧' : '📱'}
-                </div>
-              </div>
               
               {/* Email Method */}
               {loginMethod === 'email' && (

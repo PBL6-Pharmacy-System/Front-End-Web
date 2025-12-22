@@ -10,7 +10,7 @@ export default function UserProfilePage({ onNavigate }) {
   const tabs = [
     { key: 'account', label: 'Thông tin tài khoản'},
     { key: 'orders', label: 'Lịch sử đơn hàng'},
-    { key: 'vouchers', label: 'Vouchers' }
+    // { key: 'vouchers', label: 'Vouchers' }
   ];
 
   const renderTabContent = () => {
@@ -19,8 +19,8 @@ export default function UserProfilePage({ onNavigate }) {
         return <AccountPage onNavigate={onNavigate} />;
       case 'orders':
         return <OrderHistoryPage onNavigate={onNavigate} />;
-      case 'vouchers':
-        return <VouchersPage onNavigate={onNavigate} />;
+      // case 'vouchers':
+      //   return <VouchersPage onNavigate={onNavigate} />;
       default:
         return <AccountPage onNavigate={onNavigate} />;
     }

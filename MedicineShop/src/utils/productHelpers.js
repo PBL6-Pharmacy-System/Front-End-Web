@@ -25,8 +25,8 @@ export const normalizePrice = (price) => {
  * @returns {number} - Giá hiện tại
  */
 export const getCurrentPrice = (product) => {
-  // Ưu tiên: support (giá khuyến mãi) > price > originalPrice
-  const priceToUse = product.support || product.price || product.originalPrice || 0;
+  // Ưu tiên: flashPrice (Flash Sale) > support (giá KM) > price > originalPrice
+  const priceToUse = product.flashPrice || product.flash_price || product.support || product.price || product.originalPrice || 0;
   return normalizePrice(priceToUse);
 };
 
@@ -36,6 +36,11 @@ export const getCurrentPrice = (product) => {
  * @returns {number|null} - Giá gốc hoặc null nếu không có
  */
 export const getOriginalPrice = (product) => {
+  // Nếu có flashPrice (Flash Sale) và price khác nhau
+  const flashPrice = product.flashPrice || product.flash_price;
+  if (flashPrice && product.price && flashPrice !== product.price) {
+    return normalizePrice(product.price);
+  }
   // Nếu có support (giá KM) và price khác nhau
   if (product.support && product.price && product.support !== product.price) {
     return normalizePrice(product.price);
