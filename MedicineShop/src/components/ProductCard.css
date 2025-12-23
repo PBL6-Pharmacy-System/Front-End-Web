@@ -269,6 +269,20 @@
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
+/* Out of Stock Button */
+.add-to-cart-btn:disabled {
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: #ffffff !important;
+  cursor: not-allowed;
+  opacity: 0.8;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.add-to-cart-btn:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
 /* Alternative: Outline style for view detail button */
 .view-detail-btn.outline {
   background: transparent;

@@ -198,19 +198,15 @@ const ProductCard = ({
             className="add-to-cart-btn"
             onClick={handleAddToCart}
             disabled={isLoading || productOutOfStock}
-            style={productOutOfStock ? {
-              color: '#700b0bff',
-              cursor: 'not-allowed',
-              opacity: 0.6
-            } : {}}
+            title={productOutOfStock ? 'Sản phẩm hiện đang hết hàng' : 'Thêm vào giỏ hàng'}
           >
             {productOutOfStock ? (
               <>
-                <span>Hết hàng</span>
+                <span>🚫 Hết hàng</span>
               </>
             ) : (
               <>
-                <span>Thêm vào giỏ</span>
+                <span>🛒 Thêm vào giỏ</span>
               </>
             )}
           </button>

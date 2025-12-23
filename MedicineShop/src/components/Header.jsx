@@ -7,7 +7,7 @@ import ConfirmDialog from './ConfirmDialog';
 import { getCurrentUser, logout, isAuthenticated } from '../services/authApi';
 import './Header.css';
 
-export default function Header({ onNavigate, onCategoryClick }) {
+export default function Header({ onNavigate, onCategoryClick, onSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -161,6 +161,9 @@ export default function Header({ onNavigate, onCategoryClick }) {
     e.preventDefault();
     if (searchQuery.trim()) {
       console.log('Searching for:', searchQuery);
+      if (onSearch) {
+        onSearch(searchQuery.trim());
+      }
     }
   };
 

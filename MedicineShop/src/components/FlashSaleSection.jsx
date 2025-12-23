@@ -291,12 +291,12 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                     </div>
                   )}
                   
-                  {/* Mô tả ngắn */}
+                  {/* Mô tả ngắn
                   {product.description && (
                     <div className="product-description">
                       {product.description}
                     </div>
-                  )}
+                  )} */}
                   
                   {/* Định lượng */}
                   {product.quantity && (

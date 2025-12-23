@@ -16,6 +16,36 @@ import { useToast } from './Toast';
 import ConfirmDialog from './ConfirmDialog';
 import './Cart.css';
 
+// Helper function to get product image from multiple sources
+const getProductImage = (product) => {
+  const placeholder = '/api/placeholder/150/150';
+  
+  if (!product) return placeholder;
+  
+  // Priority 1: images array
+  if (Array.isArray(product.images) && product.images.length > 0) {
+    const firstImage = product.images[0];
+    if (typeof firstImage === 'string' && firstImage.trim()) {
+      return firstImage.trim();
+    }
+    if (typeof firstImage === 'object' && (firstImage.url || firstImage.path || firstImage.src)) {
+      return firstImage.url || firstImage.path || firstImage.src;
+    }
+  }
+  
+  // Priority 2: image_url field
+  if (product.image_url && typeof product.image_url === 'string') {
+    return product.image_url.trim();
+  }
+  
+  // Priority 3: Other fields
+  if (product.image && typeof product.image === 'string') return product.image.trim();
+  if (product.imageUrl && typeof product.imageUrl === 'string') return product.imageUrl.trim();
+  if (product.thumbnail && typeof product.thumbnail === 'string') return product.thumbnail.trim();
+  
+  return placeholder;
+};
+
 export default function Cart({ onNavigate }) {
   const dispatch = useDispatch();
   const cartItems = useSelector(selectCartItems);
@@ -57,7 +87,7 @@ export default function Cart({ onNavigate }) {
             name: item.products?.name || 'Sản phẩm',
             price: Number(item.price) || 0,
             originalPrice: Number(item.products?.price) || null,
-            image: item.products?.images?.[0] || '/api/placeholder/150/150',
+            image: getProductImage(item.products),
             quantity: item.quantity,
             unit: item.productunits?.unit_name || 'Hộp',
             totalPrice: Number(item.subtotal) || 0,
@@ -123,7 +153,7 @@ export default function Cart({ onNavigate }) {
           name: item.products?.name || 'Sản phẩm',
           price: Number(item.price) || 0,
           originalPrice: Number(item.products?.price) || null,
-          image: item.products?.images?.[0] || '/api/placeholder/150/150',
+          image: getProductImage(item.products),
           quantity: item.quantity,
           unit: item.productunits?.unit_name || 'Hộp',
           totalPrice: Number(item.subtotal) || 0,
@@ -159,7 +189,7 @@ export default function Cart({ onNavigate }) {
             name: item.products?.name || 'Sản phẩm',
             price: Number(item.price) || 0,
             originalPrice: Number(item.products?.price) || null,
-            image: item.products?.images?.[0] || '/api/placeholder/150/150',
+            image: getProductImage(item.products),
             quantity: item.quantity,
             unit: item.productunits?.unit_name || 'Hộp',
             totalPrice: Number(item.subtotal) || 0,
