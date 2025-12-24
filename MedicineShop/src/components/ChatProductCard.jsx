@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './ChatProductCard.css';
 
 export default function ChatProductCard({ product, onNavigate }) {
@@ -55,65 +55,37 @@ export default function ChatProductCard({ product, onNavigate }) {
   const discount = calculateDiscount();
   const productImage = getProductImage();
 
-  // Xử lý click vào sản phẩm - Lấy API và navigate
+  // Xử lý click vào sản phẩm - Navigate trực tiếp, không fetch API
   const handleProductClick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     console.log('🎯 ChatProductCard clicked, product:', product);
     console.log('🎯 Product ID:', product.id, 'Type:', typeof product.id);
-    
+
     if (!product.id) {
       console.error('❌ No product ID available');
       return;
     }
-    
+
     if (isLoading) return;
-    
+
     setIsLoading(true);
-    
+
     try {
-      // Lấy thông tin chi tiết sản phẩm từ API
-      const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      const productUrl = `${baseUrl}/products/${product.id}`;
-      console.log('📡 Fetching product from:', productUrl);
-      
-      const response = await fetch(productUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Product detail fetched:', data);
-      
-      // Dispatch custom event để App.jsx bắt được
+      // Dispatch event để navigate - không cần fetch API trước
+      // ProductDetailPage sẽ tự fetch khi render
       const event = new CustomEvent('navigateToProduct', {
         detail: {
           productId: product.id,
-          productData: data.data || data,
           productSource: 'chatbot'
         }
       });
       console.log('📤 Dispatching navigateToProduct event:', event.detail);
       window.dispatchEvent(event);
-      
+
     } catch (error) {
-      console.error('❌ Error fetching product detail:', error);
-      // Fallback: Navigate trực tiếp với ID
-      const event = new CustomEvent('navigateToProduct', {
-        detail: {
-          productId: product.id,
-          productSource: 'chatbot'
-        }
-      });
-      console.log('📤 Dispatching navigateToProduct event (fallback):', event.detail);
-      window.dispatchEvent(event);
+      console.error('❌ Error navigating to product:', error);
     } finally {
       setIsLoading(false);
     }
@@ -127,11 +99,11 @@ export default function ChatProductCard({ product, onNavigate }) {
           -{discount}%
         </div>
       )}
-      
+
       {/* Product Image */}
       <div className="chat-product-image-wrapper">
-        <img 
-          src={productImage} 
+        <img
+          src={productImage}
           alt={product.name}
           className="chat-product-image"
           onError={(e) => {
@@ -145,7 +117,7 @@ export default function ChatProductCard({ product, onNavigate }) {
         <h4 className="chat-product-name" title={product.name}>
           {product.name}
         </h4>
-        
+
         {product.specification && (
           <p className="chat-product-spec">
             {product.specification}
@@ -156,17 +128,17 @@ export default function ChatProductCard({ product, onNavigate }) {
           <span className="chat-product-price">
             {formatPrice(product.price)}
           </span>
-          {(product.originalPrice || product.original_price) && 
-           (product.originalPrice || product.original_price) > product.price && (
-            <>
-              <span className="chat-product-divider">/</span>
-              <span className="chat-product-original-price">
-                {formatPrice(product.originalPrice || product.original_price)}
-              </span>
-            </>
-          )}
+          {(product.originalPrice || product.original_price) &&
+            (product.originalPrice || product.original_price) > product.price && (
+              <>
+                <span className="chat-product-divider">/</span>
+                <span className="chat-product-original-price">
+                  {formatPrice(product.originalPrice || product.original_price)}
+                </span>
+              </>
+            )}
         </div>
-        
+
         {discount > 0 && (
           <div className="chat-product-savings">
             Tiết kiệm: {discount}% ({formatPrice((product.originalPrice || product.original_price) - product.price)})
@@ -176,8 +148,8 @@ export default function ChatProductCard({ product, onNavigate }) {
 
       {/* Action Buttons */}
       <div className="chat-product-actions">
-        <button 
-          className="chat-product-detail-btn" 
+        <button
+          className="chat-product-detail-btn"
           disabled={isLoading}
           onClick={(e) => {
             e.stopPropagation();

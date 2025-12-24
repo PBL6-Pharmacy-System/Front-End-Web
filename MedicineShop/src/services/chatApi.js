@@ -651,6 +651,7 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
     const productsMap = new Map();
     let responseSessionId = sessionId;
     let conversationTitle = null;
+    let ordersData = null; // ✅ Declare ordersData variable
 
     const processLine = (line) => {
       if (!line || !line.startsWith('data: ')) return;
