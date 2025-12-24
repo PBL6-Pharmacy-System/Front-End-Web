@@ -74,14 +74,9 @@ export default function ChatProductCard({ product, onNavigate }) {
     
     try {
       // Lấy thông tin chi tiết sản phẩm từ API
-<<<<<<< HEAD
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
       const productUrl = `${baseUrl}/products/${product.id}`;
       console.log('📡 Fetching product from:', productUrl);
-=======
-      const baseUrl = import.meta.env.VITE_API_BASE_URL ;
-      console.log('📡 Fetching product from:', `${baseUrl}/products/${product.id}`);
->>>>>>> 57e99b1d10222f9eff9382e2bd2bdfda118841c0
       
       const response = await fetch(productUrl, {
         method: 'GET',
