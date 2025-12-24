@@ -1,6 +1,6 @@
 // Chat API Configuration
 const AI_BASE_URL = import.meta.env.VITE_AI_BASE_URL || 'https://unendowed-placably-aviana.ngrok-free.dev';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ;
 
 // Session storage key
 const SESSION_STORAGE_KEY = 'chat_session_id';

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getAccessToken } from '../services/authApi';
-import { useToast } from './Toast';
 import { formatPrice } from '../utils/productHelpers';
+import { useToast } from './Toast';
 import './VouchersTab.css';
 
 export default function VouchersTab({ onNavigate }) {
@@ -32,7 +32,7 @@ export default function VouchersTab({ onNavigate }) {
 
       // TODO: Replace with actual API endpoint
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/vouchers/my-vouchers`,
+        `${import.meta.env.VITE_API_BASE_URL}/vouchers/my-vouchers`,
         {
           method: 'GET',
           headers: {

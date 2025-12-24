@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getAccessToken, getCustomerId } from '../services/authApi';
 import { updateCustomerInfo } from '../services/customerApi';
-import { useToast } from './Toast';
 import './Account.css';
+import { useToast } from './Toast';
 
 export default function Account({ onNavigate }) {
   const toast = useToast();
@@ -25,7 +25,7 @@ export default function Account({ onNavigate }) {
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/auth/me`,
+        `${import.meta.env.VITE_API_BASE_URL }/auth/me`,
         {
           method: 'GET',
           headers: {

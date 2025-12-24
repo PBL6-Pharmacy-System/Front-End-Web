@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ProductDetail from '../components/ProductDetail';
-import './ProductDetailPage.css';
-import { MockApiService } from '../services/productApi';
 import { API_CONFIG } from '../config/api';
+import { MockApiService } from '../services/productApi';
+import './ProductDetailPage.css';
 
 const API_BASE_URL = API_CONFIG.BASE_URL;
 
@@ -119,7 +119,7 @@ export default function ProductDetailPage({ onNavigate, productId, productSource
           case 'chatbot':
             console.log('🤖 Fetching product from chatbot - using backend API');
             try {
-              const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+              const baseUrl = import.meta.env.VITE_API_BASE_URL ;
               const res = await fetch(`${baseUrl}/products/${productId}`, { 
                 method: 'GET', 
                 headers: { 'Content-Type': 'application/json' } 

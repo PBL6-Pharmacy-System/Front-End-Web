@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './ChatProductCard.css';
 
 export default function ChatProductCard({ product, onNavigate }) {
@@ -54,7 +54,7 @@ export default function ChatProductCard({ product, onNavigate }) {
     
     try {
       // Lấy thông tin chi tiết sản phẩm từ API
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ;
       console.log('📡 Fetching product from:', `${baseUrl}/products/${product.id}`);
       
       const response = await fetch(`${baseUrl}/products/${product.id}`, {
