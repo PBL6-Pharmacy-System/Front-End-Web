@@ -261,8 +261,11 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
         } else if (data.type === 'text') {
           // Text: chứa chunk text
           if (data.chunk) {
-            textChunks.push(data.chunk);
-            onChunk?.(data.chunk, textChunks.join(''));
+            // ✅ Push vào đầu mảng để đảo ngược thứ tự (vì server gửi ngược)
+            textChunks.unshift(data.chunk);
+            // Join và đảo ngược lại để hiển thị đúng
+            const fullText = textChunks.slice().reverse().join('');
+            onChunk?.(data.chunk, fullText);
           }
         } else if (data.type === 'product' || data.type === 'products') {
           // Product: chứa thông tin sản phẩm (hỗ trợ cả "product" và "products")
@@ -306,8 +309,10 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
             storeSessionId(responseSessionId);
           }
           if (data.chunk) {
-            textChunks.push(data.chunk);
-            onChunk?.(data.chunk, textChunks.join(''));
+            // ✅ Đảo ngược cho fallback
+            textChunks.unshift(data.chunk);
+            const fullText = textChunks.slice().reverse().join('');
+            onChunk?.(data.chunk, fullText);
           }
           if (data.products?.length) {
             for (const product of data.products) {
@@ -545,8 +550,11 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
         } else if (data.type === 'text') {
           // Text: chứa chunk text
           if (data.chunk) {
-            textChunks.push(data.chunk);
-            onChunk?.(data.chunk, textChunks.join(''));
+            // ✅ Push vào đầu mảng để đảo ngược thứ tự (vì server gửi ngược)
+            textChunks.unshift(data.chunk);
+            // Join và đảo ngược lại để hiển thị đúng
+            const fullText = textChunks.slice().reverse().join('');
+            onChunk?.(data.chunk, fullText);
           }
         } else if (data.type === 'product' || data.type === 'products') {
           // Product: chứa thông tin sản phẩm (hỗ trợ cả "product" và "products")
@@ -590,8 +598,10 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
             storeSessionId(responseSessionId);
           }
           if (data.chunk) {
-            textChunks.push(data.chunk);
-            onChunk?.(data.chunk, textChunks.join(''));
+            // ✅ Đảo ngược cho fallback (auth)
+            textChunks.unshift(data.chunk);
+            const fullText = textChunks.slice().reverse().join('');
+            onChunk?.(data.chunk, fullText);
           }
           if (data.products?.length) {
             for (const product of data.products) {

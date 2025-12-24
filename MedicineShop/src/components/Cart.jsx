@@ -13,7 +13,38 @@ import { formatPrice } from '../utils/productHelpers';
 import { getCart, removeFromCart as removeFromCartAPI, updateCartItem } from '../services/cartApi';
 import { isAuthenticated } from '../services/authApi';
 import { useToast } from './Toast';
+import ConfirmDialog from './ConfirmDialog';
 import './Cart.css';
+
+// Helper function to get product image from multiple sources
+const getProductImage = (product) => {
+  const placeholder = '/api/placeholder/150/150';
+  
+  if (!product) return placeholder;
+  
+  // Priority 1: images array
+  if (Array.isArray(product.images) && product.images.length > 0) {
+    const firstImage = product.images[0];
+    if (typeof firstImage === 'string' && firstImage.trim()) {
+      return firstImage.trim();
+    }
+    if (typeof firstImage === 'object' && (firstImage.url || firstImage.path || firstImage.src)) {
+      return firstImage.url || firstImage.path || firstImage.src;
+    }
+  }
+  
+  // Priority 2: image_url field
+  if (product.image_url && typeof product.image_url === 'string') {
+    return product.image_url.trim();
+  }
+  
+  // Priority 3: Other fields
+  if (product.image && typeof product.image === 'string') return product.image.trim();
+  if (product.imageUrl && typeof product.imageUrl === 'string') return product.imageUrl.trim();
+  if (product.thumbnail && typeof product.thumbnail === 'string') return product.thumbnail.trim();
+  
+  return placeholder;
+};
 
 export default function Cart({ onNavigate }) {
   const dispatch = useDispatch();
@@ -25,6 +56,7 @@ export default function Cart({ onNavigate }) {
   const [isLoading, setIsLoading] = useState(true);
   const [backendCartItems, setBackendCartItems] = useState([]);
   const [displayItems, setDisplayItems] = useState([]);
+  const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, itemId: null });
 
   // Check authentication and fetch cart from backend
   useEffect(() => {
@@ -55,7 +87,7 @@ export default function Cart({ onNavigate }) {
             name: item.products?.name || 'Sản phẩm',
             price: Number(item.price) || 0,
             originalPrice: Number(item.products?.price) || null,
-            image: item.products?.images?.[0] || '/api/placeholder/150/150',
+            image: getProductImage(item.products),
             quantity: item.quantity,
             unit: item.productunits?.unit_name || 'Hộp',
             totalPrice: Number(item.subtotal) || 0,
@@ -121,7 +153,7 @@ export default function Cart({ onNavigate }) {
           name: item.products?.name || 'Sản phẩm',
           price: Number(item.price) || 0,
           originalPrice: Number(item.products?.price) || null,
-          image: item.products?.images?.[0] || '/api/placeholder/150/150',
+          image: getProductImage(item.products),
           quantity: item.quantity,
           unit: item.productunits?.unit_name || 'Hộp',
           totalPrice: Number(item.subtotal) || 0,
@@ -137,11 +169,15 @@ export default function Cart({ onNavigate }) {
     }
   };
 
-  const handleRemoveItem = async (backendItemId) => {
-    if (window.confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+  const handleRemoveItem = (backendItemId) => {
+    setConfirmDialog({ isOpen: true, itemId: backendItemId });
+  };
+
+  const handleConfirmRemove = async () => {
+    if (confirmDialog.itemId) {
       try {
         // Call backend API
-        await removeFromCartAPI(backendItemId);
+        await removeFromCartAPI(confirmDialog.itemId);
         // Refresh cart from backend
         const response = await getCart();
         if (response.success && response.data && response.data.orderitems) {
@@ -153,7 +189,7 @@ export default function Cart({ onNavigate }) {
             name: item.products?.name || 'Sản phẩm',
             price: Number(item.price) || 0,
             originalPrice: Number(item.products?.price) || null,
-            image: item.products?.images?.[0] || '/api/placeholder/150/150',
+            image: getProductImage(item.products),
             quantity: item.quantity,
             unit: item.productunits?.unit_name || 'Hộp',
             totalPrice: Number(item.subtotal) || 0,
@@ -163,11 +199,17 @@ export default function Cart({ onNavigate }) {
         }
         // Trigger cart count refresh in header
         window.dispatchEvent(new Event('cartUpdated'));
+        toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
       } catch (error) {
         console.error('❌ Error removing item:', error);
         toast.error('Có lỗi xảy ra khi xóa sản phẩm');
       }
+      setConfirmDialog({ isOpen: false, itemId: null });
     }
+  };
+
+  const handleCancelRemove = () => {
+    setConfirmDialog({ isOpen: false, itemId: null });
   };
   
   const handleBackToHome = () => {
@@ -195,7 +237,18 @@ export default function Cart({ onNavigate }) {
   const totalQuantityInCart = displayItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="cart-page">
+    <>
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="Xác nhận xóa"
+        message="Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng không?"
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        type="danger"
+      />
+      <div className="cart-page">
       <div className="cart-container">
         {/* Header */}
         <div className="cart-header">
@@ -390,6 +443,7 @@ export default function Cart({ onNavigate }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

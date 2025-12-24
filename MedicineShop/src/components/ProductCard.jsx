@@ -16,8 +16,12 @@ const ProductCard = ({
 }) => {
   const { handleAddToCart: addToCart } = useAddToCart();
   const toast = useToast();
+  
+  // Check if product is out of stock from product data
+  const productOutOfStock = product?.in_stock === false || isOutOfStock;
+  
   const handleClick = () => {
-    if (isLoading || isOutOfStock) return;
+    if (isLoading || productOutOfStock) return;
     console.log('🎯 ProductCard clicked:', product.id, 'variant:', variant);
     if (onClick) {
       onClick(product);
@@ -26,7 +30,7 @@ const ProductCard = ({
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
-    if (isLoading || isOutOfStock) return;
+    if (isLoading || productOutOfStock) return;
     
     console.log(`🛒 [ProductCard-${source}] Adding to cart:`, product.id, product.name);
     
@@ -45,7 +49,7 @@ const ProductCard = ({
     variant,
     isFlashSale ? 'flash-sale' : '',
     isLoading ? 'loading' : '',
-    isOutOfStock ? 'out-of-stock' : ''
+    productOutOfStock ? 'out-of-stock' : ''
   ].filter(Boolean).join(' ');
 
   const formatPrice = (price) => {
@@ -177,7 +181,7 @@ const ProductCard = ({
         <button 
           className="view-detail-btn"
           onClick={handleClick}
-          disabled={isLoading || isOutOfStock}
+          disabled={isLoading || productOutOfStock}
         >
           {isLoading ? (
             <>
@@ -193,15 +197,16 @@ const ProductCard = ({
           <button 
             className="add-to-cart-btn"
             onClick={handleAddToCart}
-            disabled={isLoading || isOutOfStock}
+            disabled={isLoading || productOutOfStock}
+            title={productOutOfStock ? 'Sản phẩm hiện đang hết hàng' : 'Thêm vào giỏ hàng'}
           >
-            {isOutOfStock ? (
+            {productOutOfStock ? (
               <>
-                <span>Hết hàng</span>
+                <span>🚫 Hết hàng</span>
               </>
             ) : (
               <>
-                <span>Thêm vào giỏ</span>
+                <span>🛒 Thêm vào giỏ</span>
               </>
             )}
           </button>

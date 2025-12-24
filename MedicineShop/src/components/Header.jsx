@@ -3,10 +3,11 @@ import { useSelector } from 'react-redux';
 import { selectCartTotalQuantity } from '../store/cartSlice';
 import { MENU_DATA } from '../constants/categories';
 import LoginModal from './LoginModal';
+import ConfirmDialog from './ConfirmDialog';
 import { getCurrentUser, logout, isAuthenticated } from '../services/authApi';
 import './Header.css';
 
-export default function Header({ onNavigate, onCategoryClick }) {
+export default function Header({ onNavigate, onCategoryClick, onSearch }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [hoveredCategory, setHoveredCategory] = useState(null);
@@ -17,6 +18,7 @@ export default function Header({ onNavigate, onCategoryClick }) {
   const userMenuRef = useRef(null);
   const cartTotalQuantity = useSelector(selectCartTotalQuantity);
   const [backendCartCount, setBackendCartCount] = useState(0);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
   // Thêm timeout để delay việc ẩn dropdown
   const [hideTimeout, setHideTimeout] = useState(null);
@@ -83,13 +85,20 @@ export default function Header({ onNavigate, onCategoryClick }) {
   };
 
   const handleLogout = () => {
-    if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
-      logout();
-      setIsLoggedIn(false);
-      setCurrentUser(null);
-      setShowUserMenu(false);
-      window.location.reload();
-    }
+    setShowLogoutConfirm(true);
+  };
+
+  const handleConfirmLogout = () => {
+    logout();
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    setShowUserMenu(false);
+    setShowLogoutConfirm(false);
+    window.location.reload();
+  };
+
+  const handleCancelLogout = () => {
+    setShowLogoutConfirm(false);
   };
 
   const handleLoginSuccess = () => {
@@ -152,6 +161,9 @@ export default function Header({ onNavigate, onCategoryClick }) {
     e.preventDefault();
     if (searchQuery.trim()) {
       console.log('Searching for:', searchQuery);
+      if (onSearch) {
+        onSearch(searchQuery.trim());
+      }
     }
   };
 
@@ -196,7 +208,18 @@ export default function Header({ onNavigate, onCategoryClick }) {
   };
 
   return (
-    <header className="header-main">
+    <>
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        title="Xác nhận đăng xuất"
+        message="Bạn có chắc chắn muốn đăng xuất không?"
+        onConfirm={handleConfirmLogout}
+        onCancel={handleCancelLogout}
+        confirmText="Đăng xuất"
+        cancelText="Hủy"
+        type="warning"
+      />
+      <header className="header-main">
       {/* Main Header */}
       <div className="header-main-header">
         <div className="header-container">
@@ -454,6 +477,7 @@ export default function Header({ onNavigate, onCategoryClick }) {
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
       />
-    </header>
+      </header>
+    </>
   );
 }

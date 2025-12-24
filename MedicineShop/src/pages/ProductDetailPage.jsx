@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ProductDetail from '../components/ProductDetail';
 import './ProductDetailPage.css';
 import { MockApiService } from '../services/productApi';
+import { API_CONFIG } from '../config/api';
+
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 export default function ProductDetailPage({ onNavigate, productId, productSource = 'listing' }) {
   const [product, setProduct] = useState(null);
@@ -23,6 +26,93 @@ export default function ProductDetailPage({ onNavigate, productId, productSource
         setLoading(true);
         setError(null);
         
+        // Fetch active flash sales to check if this product has a flash sale price
+        let flashSaleProduct = null;
+        try {
+          const flashSaleResponse = await fetch(`${API_BASE_URL}/flashsales/active`);
+          if (flashSaleResponse.ok) {
+            const flashSales = await flashSaleResponse.json();
+            console.log('🔍 Raw API Response from /flashsales/active:', JSON.stringify(flashSales, null, 2));
+            
+            // Check different possible response structures
+            const flashSalesList = flashSales.data?.flashsales || flashSales.data || flashSales.flashsales || [];
+            console.log('📋 Flashsales list:', flashSalesList);
+            console.log('📋 Flashsales count:', Array.isArray(flashSalesList) ? flashSalesList.length : 'Not an array');
+            
+            // Find if current product is in any active flash sale
+            if (Array.isArray(flashSalesList) && flashSalesList.length > 0) {
+              for (const flashSale of flashSalesList) {
+                console.log('🔍 Checking flashsale:', flashSale.id, flashSale.name || flashSale.title);
+                
+                // Check different possible item array names
+                const items = flashSale.flashsale_products || flashSale.items || flashSale.products || [];
+                console.log('   Items in this flashsale:', items.length);
+                
+                if (Array.isArray(items) && items.length > 0) {
+                  console.log('   Searching for productId:', productId, 'in', items.length, 'items');
+                  
+                  const foundItem = items.find(item => {
+                    const itemProductId = item.product_id || item.productId;
+                    console.log('      Checking item:', itemProductId, '===', parseInt(productId));
+                    return itemProductId === parseInt(productId);
+                  });
+                  
+                  if (foundItem) {
+                    console.log('✅ FOUND matching item:', foundItem);
+                    
+                    // Get product data from item
+                    const productData = foundItem.products || foundItem.product || foundItem;
+                    console.log('   Product data:', productData);
+                    console.log('   Flash price:', foundItem.flash_price);
+                    
+                    if (productData) {
+                      // Sản phẩm nằm trong Flash Sale - lấy toàn bộ thông tin từ API flash sale
+                      flashSaleProduct = {
+                        ...productData,
+                        flashPrice: foundItem.flash_price,
+                        flash_price: foundItem.flash_price,
+                        flashSaleId: flashSale.id,
+                        flashSaleItemId: foundItem.id,
+                        startTime: flashSale.start_time,
+                        endTime: flashSale.end_time,
+                        flashSaleTitle: flashSale.title || flashSale.name,
+                        flashSaleName: flashSale.name || flashSale.title,
+                        flashSaleDescription: flashSale.description,
+                        flashSaleStatus: flashSale.status,
+                        flashStockLimit: foundItem.stock_limit,
+                        flashSoldCount: foundItem.sold_count || 0
+                      };
+                      console.log('✨ Final flashSaleProduct object:', {
+                        id: flashSaleProduct.id,
+                        name: flashSaleProduct.name,
+                        price: flashSaleProduct.price,
+                        flashPrice: flashSaleProduct.flashPrice,
+                        flash_price: flashSaleProduct.flash_price
+                      });
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+          }
+          
+          if (!flashSaleProduct) {
+            console.log('📦 Product NOT in any active Flash Sale, will fetch from regular API');
+          }
+        } catch (flashSaleError) {
+          console.log('⚠️ Flash Sale check failed (non-critical):', flashSaleError.message);
+        }
+        
+        // Nếu sản phẩm có trong Flash Sale, dùng luôn data từ Flash Sale
+        if (flashSaleProduct) {
+          console.log('🔥 Using Flash Sale product data directly');
+          setProduct(flashSaleProduct);
+          setLoading(false);
+          return;
+        }
+        
+        // Nếu không có trong Flash Sale, fetch từ nguồn bình thường
         let response = null;
 
         switch(productSource) {
@@ -104,6 +194,7 @@ export default function ProductDetailPage({ onNavigate, productId, productSource
         }
         
         if (response && response.success && response.data) {
+          console.log('📦 Using regular product data from API');
           setProduct(response.data);
         } else {
           setError(response?.error || 'Không tìm thấy sản phẩm');

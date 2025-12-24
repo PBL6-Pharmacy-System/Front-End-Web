@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from './Toast';
 import { useAddToCart } from '../hooks/useAddToCart';
+import ReviewModal from './ReviewModal';
+import { createReview, getProductReviews, getProductRatingStats } from '../services/reviewApi';
 import './ProductDetail.css';
 
 export default function ProductDetail({ product, onNavigate }) {
@@ -31,13 +33,66 @@ export default function ProductDetail({ product, onNavigate }) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [ratingStats, setRatingStats] = useState(null);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
-  // Xử lý giá tiền - ưu tiên theo thứ tự: support, price, originalPrice
+  // Fetch reviews when component mounts or product changes
+  useEffect(() => {
+    if (actualProduct?.id) {
+      fetchReviews();
+    }
+  }, [actualProduct?.id]);
+
+  const fetchReviews = async () => {
+    try {
+      setIsLoadingReviews(true);
+      const productId = actualProduct.id;
+      
+      // Fetch reviews and rating stats in parallel
+      const [reviewsResponse, statsResponse] = await Promise.all([
+        getProductReviews(productId, { limit: 10 }),
+        getProductRatingStats(productId)
+      ]);
+
+      console.log('📊 Reviews response:', reviewsResponse);
+      console.log('📊 Stats response:', statsResponse);
+
+      if (reviewsResponse.success && reviewsResponse.data) {
+        setReviews(reviewsResponse.data.reviews || []);
+      }
+
+      if (statsResponse.success && statsResponse.data) {
+        setRatingStats(statsResponse.data.stats);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  };
+
+  // Xử lý giá tiền - ưu tiên theo thứ tự: flashPrice (Flash Sale), support, price, originalPrice
   const getCurrentPrice = () => {
-    return actualProduct.support || actualProduct.price || actualProduct.originalPrice || '0';
+    // Ưu tiên flashPrice cho sản phẩm Flash Sale
+    const flashPrice = actualProduct.flashPrice || actualProduct.flash_price;
+    if (flashPrice) {
+      console.log('🔥 getCurrentPrice: Using Flash Sale price:', flashPrice);
+      return flashPrice;
+    }
+    const regularPrice = actualProduct.support || actualProduct.price || actualProduct.originalPrice || '0';
+    console.log('💵 getCurrentPrice: Using regular price:', regularPrice);
+    return regularPrice;
   };
 
   const getOriginalPrice = () => {
+    const flashPrice = actualProduct.flashPrice || actualProduct.flash_price;
+    // Nếu có flashPrice và price khác nhau
+    if (flashPrice && actualProduct.price && flashPrice !== actualProduct.price) {
+      return actualProduct.price;
+    }
     // Nếu có support và price khác nhau
     if (actualProduct.support && actualProduct.price && actualProduct.support !== actualProduct.price) {
       return actualProduct.price;
@@ -93,10 +148,15 @@ export default function ProductDetail({ product, onNavigate }) {
 
   // Xử lý stock
   const getStock = () => {
+    // Check in_stock field first (from API)
+    if (actualProduct.in_stock === false) return 0;
     if (actualProduct.inStock !== undefined) return actualProduct.inStock ? 100 : 0;
     if (actualProduct.stock !== undefined) return actualProduct.stock;
     return 100; // default
   };
+  
+  // Check if product is out of stock
+  const isOutOfStock = actualProduct.in_stock === false || getStock() === 0;
 
   // Tạo mảng hình ảnh từ sản phẩm hoặc sử dụng placeholder
   const placeholderImage = "https://via.placeholder.com/500x500/f5f5f5/ccc?text=No+Image";
@@ -177,6 +237,35 @@ export default function ProductDetail({ product, onNavigate }) {
       setQuantity(1);
     } else {
       toast.error(result.message);
+    }
+  };
+
+  const handleOpenReviewModal = () => {
+    setReviewModalOpen(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    setReviewModalOpen(false);
+  };
+
+  const handleSubmitReview = async (reviewData) => {
+    try {
+      setIsSubmittingReview(true);
+      const response = await createReview(reviewData);
+      
+      if (response.success) {
+        toast.success('Đánh giá sản phẩm thành công!');
+        handleCloseReviewModal();
+        // Reload reviews after successful submission
+        await fetchReviews();
+      } else {
+        toast.error(response.error || 'Không thể gửi đánh giá');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('Đã xảy ra lỗi khi gửi đánh giá');
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -325,7 +414,7 @@ export default function ProductDetail({ product, onNavigate }) {
                   <button 
                     className="qty-btn"
                     onClick={() => handleQuantityChange(-1)}
-                    disabled={getStock() === 0}
+                    disabled={isOutOfStock}
                   >
                     −
                   </button>
@@ -334,12 +423,12 @@ export default function ProductDetail({ product, onNavigate }) {
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                     className="qty-input"
-                    disabled={getStock() === 0}
+                    disabled={isOutOfStock}
                   />
                   <button 
                     className="qty-btn"
                     onClick={() => handleQuantityChange(1)}
-                    disabled={getStock() === 0}
+                    disabled={isOutOfStock}
                   >
                     +
                   </button>
@@ -350,9 +439,15 @@ export default function ProductDetail({ product, onNavigate }) {
                 <button 
                   className="btn-add-cart"
                   onClick={handleAddToCart}
-                  disabled={getStock() === 0}
+                  disabled={isOutOfStock}
+                  style={isOutOfStock ? {
+                    backgroundColor: '#ccc',
+                    color: '#666',
+                    cursor: 'not-allowed',
+                    opacity: 0.6
+                  } : {}}
                 >
-                  Thêm vào giỏ hàng
+                  {isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
                 </button>
               </div>
             </div>
@@ -565,55 +660,110 @@ export default function ProductDetail({ product, onNavigate }) {
               <div className="product-tab-panel">
                 <h3 className="tab-title">⭐ Đánh giá sản phẩm</h3>
                 <div className="tab-content-wrapper">
-                  <div className="reviews-section">
-                    <div className="reviews-summary">
-                      <div className="rating-overview">
-                        <div className="rating-score">
-                          <span className="score-number">5.0</span>
-                          <div className="stars-large">★★★★★</div>
-                          <p className="rating-text">Chưa có đánh giá</p>
+                  {isLoadingReviews ? (
+                    <div className="loading-reviews">
+                      <p>Đang tải đánh giá...</p>
+                    </div>
+                  ) : (
+                    <div className="reviews-section">
+                      <div className="reviews-summary">
+                        <div className="rating-overview">
+                          <div className="rating-score">
+                            <span className="score-number">
+                              {ratingStats?.averageRating?.toFixed(1) || '0.0'}
+                            </span>
+                            <div className="stars-large">
+                              {'★'.repeat(Math.round(ratingStats?.averageRating || 0))}
+                              {'☆'.repeat(5 - Math.round(ratingStats?.averageRating || 0))}
+                            </div>
+                            <p className="rating-text">
+                              {ratingStats?.totalReviews > 0 
+                                ? `${ratingStats.totalReviews} đánh giá`
+                                : 'Chưa có đánh giá'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="rating-breakdown">
+                          {[5, 4, 3, 2, 1].map(star => {
+                            const count = ratingStats?.ratingDistribution?.[star] || 0;
+                            const percentage = ratingStats?.totalReviews > 0 
+                              ? (count / ratingStats.totalReviews * 100).toFixed(0)
+                              : 0;
+                            return (
+                              <div key={star} className="rating-bar-item">
+                                <span>{star} ⭐</span>
+                                <div className="rating-bar">
+                                  <div className="bar-fill" style={{width: `${percentage}%`}}></div>
+                                </div>
+                                <span>{count}</span>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-                      <div className="rating-breakdown">
-                        <div className="rating-bar-item">
-                          <span>5 ⭐</span>
-                          <div className="rating-bar"><div className="bar-fill" style={{width: '0%'}}></div></div>
-                          <span>0</span>
+                      
+                      {reviews.length === 0 ? (
+                        <div className="no-reviews">
+                          <p className="no-data">Chưa có đánh giá nào cho sản phẩm này.</p>
+                          <p className="be-first">Hãy là người đầu tiên đánh giá sản phẩm!</p>
+                          <button className="btn-write-review" onClick={handleOpenReviewModal}>
+                            Viết đánh giá
+                          </button>
                         </div>
-                        <div className="rating-bar-item">
-                          <span>4 ⭐</span>
-                          <div className="rating-bar"><div className="bar-fill" style={{width: '0%'}}></div></div>
-                          <span>0</span>
+                      ) : (
+                        <div className="reviews-list">
+                          <div className="reviews-list-header">
+                            <h4>Tất cả đánh giá ({reviews.length})</h4>
+                            <button className="btn-write-review" onClick={handleOpenReviewModal}>
+                              Viết đánh giá
+                            </button>
+                          </div>
+                          {reviews.map(review => (
+                            <div key={review.id} className="review-item">
+                              <div className="review-header">
+                                <div className="reviewer-info">
+                                  <span className="reviewer-name">
+                                    {review.customers?.users?.full_name || 'Người dùng'}
+                                  </span>
+                                  <div className="review-stars">
+                                    {'★'.repeat(review.rating)}
+                                    {'☆'.repeat(5 - review.rating)}
+                                  </div>
+                                </div>
+                                <span className="review-date">
+                                  {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                                </span>
+                              </div>
+                              <div className="review-content">
+                                <p>{review.comment}</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                        <div className="rating-bar-item">
-                          <span>3 ⭐</span>
-                          <div className="rating-bar"><div className="bar-fill" style={{width: '0%'}}></div></div>
-                          <span>0</span>
-                        </div>
-                        <div className="rating-bar-item">
-                          <span>2 ⭐</span>
-                          <div className="rating-bar"><div className="bar-fill" style={{width: '0%'}}></div></div>
-                          <span>0</span>
-                        </div>
-                        <div className="rating-bar-item">
-                          <span>1 ⭐</span>
-                          <div className="rating-bar"><div className="bar-fill" style={{width: '0%'}}></div></div>
-                          <span>0</span>
-                        </div>
-                      </div>
+                      )}
                     </div>
-                    <div className="no-reviews">
-                      <p className="no-data">Chưa có đánh giá nào cho sản phẩm này.</p>
-                      <p className="be-first">Hãy là người đầu tiên đánh giá sản phẩm!</p>
-                      <button className="btn-write-review">Viết đánh giá</button>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {reviewModalOpen && (
+        <ReviewModal
+          isOpen={reviewModalOpen}
+          onClose={handleCloseReviewModal}
+          onSubmit={handleSubmitReview}
+          product={{
+            id: actualProduct.id,
+            name: getProductName(),
+            image_url: productImages[0]
+          }}
+          isLoading={isSubmittingReview}
+        />
+      )}
     </div>
   );
 }

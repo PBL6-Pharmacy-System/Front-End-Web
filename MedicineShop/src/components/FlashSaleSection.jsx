@@ -21,26 +21,36 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
       if (!v) return null;
       try {
         const d = new Date(v);
+        console.log('📅 Parsing date:', v, '→', d.toISOString(), 'Valid:', !isNaN(d.getTime()));
         return isNaN(d.getTime()) ? null : d;
-      } catch {
+      } catch (e) {
+        console.error('❌ Error parsing date:', v, e);
         return null;
       }
     };
 
     const compute = (startDate, endDate) => {
       const now = new Date();
-      const nowVN = new Date(now.getTime() + (7 * 60 * 60 * 1000));
       
-      if (startDate && nowVN < startDate) {
-        const diff = startDate.getTime() - nowVN.getTime();
+      console.log('⏰ Computing countdown:', {
+        now: now.toISOString(),
+        startDate: startDate?.toISOString(),
+        endDate: endDate?.toISOString()
+      });
+      
+      if (startDate && now < startDate) {
+        const diff = startDate.getTime() - now.getTime();
+        console.log('🚀 Event starts in:', diff, 'ms');
         setCountdownLabel('Bắt đầu trong');
         return diff;
       }
-      if (endDate) {
-        const diff = endDate.getTime() - nowVN.getTime();
+      if (endDate && now < endDate) {
+        const diff = endDate.getTime() - now.getTime();
+        console.log('⏳ Event ends in:', diff, 'ms');
         setCountdownLabel('Kết thúc trong');
         return diff;
       }
+      console.log('⏹️ Event has ended');
       return 0;
     };
 
@@ -55,23 +65,48 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
     };
 
     const p0 = products && products.length > 0 ? products[0] : null;
-    const startKey = p0 ? (p0.startTimeISO || p0.startTime || p0.start_time) : '';
-    const endKey = p0 ? (p0.endTimeISO || p0.endTime || p0.end_time) : '';
-
+    
+    // Debug: log available time fields
+    if (p0) {
+      console.log('🕐 FlashSale - Product data:', p0);
+      console.log('🕐 FlashSale - Available time fields:', {
+        startTime: p0.startTime,
+        endTime: p0.endTime,
+        startTimeISO: p0.startTimeISO,
+        endTimeISO: p0.endTimeISO,
+        start_time: p0.start_time,
+        end_time: p0.end_time
+      });
+    } else {
+      console.warn('⚠️ No products available for Flash Sale timer');
+    }
+    
     const setupTimerFromProducts = () => {
       if (!p0) {
         setTimeLeft(null);
         return;
       }
 
+      // Get time values directly from product
+      const startKey = p0.startTime || p0.startTimeISO || p0.start_time;
+      const endKey = p0.endTime || p0.endTimeISO || p0.end_time;
+      
+      console.log('🎯 Timer setup with:', { startKey, endKey });
+
       const startDate = parseDate(startKey);
       const endDate = parseDate(endKey);
+      
+      console.log('📅 Parsed dates:', { 
+        startDate: startDate?.toISOString(), 
+        endDate: endDate?.toISOString() 
+      });
 
       const update = () => {
         const ms = compute(startDate, endDate);
         setTimeLeft(prev => {
           const next = msToHms(ms);
           if (!prev || prev.days !== next.days || prev.hours !== next.hours || prev.minutes !== next.minutes || prev.seconds !== next.seconds) {
+            console.log('⏱️ Timer update:', next);
             return next;
           }
           return prev;
@@ -177,18 +212,30 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
           <div className="countdown-timer">
             <span>{countdownLabel}: </span>
             <div className="timer">
-              <span>
-                {timeLeft ? (
-                  <>
-                    {timeLeft.days > 0 && <>{timeLeft.days} ngày </>}
-                    {String(timeLeft.hours).padStart(2, '0')} giờ{' '}
-                    {String(timeLeft.minutes).padStart(2, '0')} phút{' '}
-                    {String(timeLeft.seconds).padStart(2, '0')} giây
-                  </>
-                ) : (
-                  '-- ngày -- giờ -- phút'
-                )}
-              </span>
+              {timeLeft ? (
+                <>
+                  {timeLeft.days > 0 && (
+                    <span className="time-unit">
+                      <span className="time-value">{String(timeLeft.days).padStart(2, '0')}</span>
+                      <span className="time-label">ngày</span>
+                    </span>
+                  )}
+                  <span className="time-unit">
+                    <span className="time-value">{String(timeLeft.hours).padStart(2, '0')}</span>
+                    <span className="time-label">giờ</span>
+                  </span>
+                  <span className="time-unit">
+                    <span className="time-value">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                    <span className="time-label">phút</span>
+                  </span>
+                  <span className="time-unit">
+                    <span className="time-value">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                    <span className="time-label">giây</span>
+                  </span>
+                </>
+              ) : (
+                <span>00 giờ 00 phút 00 giây</span>
+              )}
             </div>
           </div>
         </div>
@@ -244,12 +291,12 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                     </div>
                   )}
                   
-                  {/* Mô tả ngắn */}
+                  {/* Mô tả ngắn
                   {product.description && (
                     <div className="product-description">
                       {product.description}
                     </div>
-                  )}
+                  )} */}
                   
                   {/* Định lượng */}
                   {product.quantity && (
@@ -269,8 +316,15 @@ export default function FlashSaleSection({ onNavigate, onProductClick }) {
                     <button 
                       className="add-to-cart-btn"
                       onClick={(e) => handleAddToCartClick(product, e)}
+                      disabled={product.in_stock === false}
+                      style={product.in_stock === false ? {
+                        backgroundColor: '#ccc',
+                        color: '#666',
+                        cursor: 'not-allowed',
+                        opacity: 0.6
+                      } : {}}
                     >
-                      🛒 Thêm vào giỏ
+                      {product.in_stock === false ? 'Hết hàng' : '🛒 Thêm vào giỏ'}
                     </button>
                   </div>
                 </div>

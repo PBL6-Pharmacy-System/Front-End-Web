@@ -43,7 +43,7 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
     console.log(`[Medical] Adding to cart:`, product.name);
     
     // Kiểm tra stock trước
-    if (!product.inStock) {
+    if (product.in_stock === false) {
       toast.error(`Sản phẩm "${product.name}" hiện đang hết hàng!`);
       return;
     }
@@ -151,7 +151,7 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
                 {product.discount && (
                   <div className="medical-tabs-discount-badge">{product.discount}</div>
                 )}
-                {!product.inStock && (
+                {product.in_stock === false && (
                   <div className="medical-tabs-stock-badge">Hết hàng</div>
                 )}
                 
@@ -182,10 +182,17 @@ const MedicalProductsTabs = ({ onNavigate, onProductClick }) => {
                     <span className="medical-tabs-unit">/ {product.quantity}</span>
                   </div>
                   <button 
-                    className={`medical-tabs-buy-button ${product.inStock ? 'available' : 'out-of-stock'}`}
+                    className={`medical-tabs-buy-button ${product.in_stock !== false ? 'available' : 'out-of-stock'}`}
                     onClick={(e) => handleBuyProduct(product, e)}
+                    disabled={product.in_stock === false}
+                    style={product.in_stock === false ? {
+                      backgroundColor: '#ccc',
+                      color: '#666',
+                      cursor: 'not-allowed',
+                      opacity: 0.6
+                    } : {}}
                   >
-                    {product.inStock ? 'Chọn mua' : 'Hết hàng'}
+                    {product.in_stock === false ? 'Hết hàng' : 'Chọn mua'}
                   </button>
                 </div>
               </div>

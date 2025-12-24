@@ -6,10 +6,10 @@ import CheckoutPage from "./pages/CheckoutPage";
 import UserProfilePage from "./pages/UserProfilePage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import CatalogPage from "./pages/CatalogPage";
+import SearchResultsPage from "./pages/SearchResultsPage";
 import BannerSlider from './components/BannerSlider';
 import FlashSaleSection from './components/FlashSaleSection';
 import ProductListing from './components/ProductListing';
-import MedicalProductsTabs from './components/MedicalProductsTabs';
 import ChatBox from './components/ChatBox';
 
 export default function App() {
@@ -17,6 +17,7 @@ export default function App() {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [productSource, setProductSource] = useState('listing');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   // Lắng nghe event từ ChatProductCard
   useEffect(() => {
@@ -42,9 +43,19 @@ export default function App() {
     };
   }, []); // Empty deps - sử dụng setState trực tiếp
 
-  const handleProductClick = (productId, source = 'listing') => {
+  const handleProductClick = (productOrId, source = 'listing') => {
+    // Support both formats: product object or productId number
+    const productId = typeof productOrId === 'object' ? productOrId?.id : productOrId;
+    
     console.log('🎯 Product clicked with ID:', productId, 'Source:', source);
     console.log('📍 Current page before:', currentPage);
+    
+    // Validate productId
+    if (!productId || typeof productId !== 'number') {
+      console.error('❌ Invalid product ID:', productId);
+      return;
+    }
+    
     setSelectedProductId(productId);
     setProductSource(source);
     setCurrentPage('productDetail');
@@ -54,8 +65,14 @@ export default function App() {
   const handleNavigate = (page, params = {}) => {
     console.log('🔄 Navigating to:', page, 'with params:', params);
     
-    if (page === 'product-detail' || page === 'productDetail') {
-      if (params.productId) {
+    // Handle product navigation - support both formats
+    if (page === 'product' || page === 'product-detail' || page === 'productDetail') {
+      // If params is a number/string (productId passed directly)
+      if (typeof params === 'number' || typeof params === 'string') {
+        setSelectedProductId(params);
+        setProductSource('order-history');
+      } else if (params.productId) {
+        // If params is an object with productId
         setSelectedProductId(params.productId);
         setProductSource(params.productSource || 'listing');
       }
@@ -69,6 +86,12 @@ export default function App() {
     console.log('Category clicked:', category);
     setSelectedCategory(category);
     setCurrentPage('catalog');
+  };
+
+  const handleSearch = (keyword) => {
+    console.log('Search triggered with keyword:', keyword);
+    setSearchKeyword(keyword);
+    setCurrentPage('search');
   };
 
   const renderPage = () => {
@@ -88,6 +111,14 @@ export default function App() {
             onNavigate={handleNavigate}
             onProductClick={handleProductClick} // QUAN TRỌNG: Truyền handleProductClick
             category={selectedCategory}
+          />
+        );
+      case 'search':
+        return (
+          <SearchResultsPage
+            searchKeyword={searchKeyword}
+            onNavigate={handleNavigate}
+            onProductClick={handleProductClick}
           />
         );
       case 'productDetail':
@@ -125,6 +156,7 @@ export default function App() {
         <Header 
           onNavigate={setCurrentPage} 
           onCategoryClick={handleCategoryClick}
+          onSearch={handleSearch}
         />
       )}
       <main className={currentPage === 'login' ? '' : 'main-content'}>

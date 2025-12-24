@@ -683,6 +683,7 @@ body {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
@@ -1247,6 +1248,7 @@ body {
   min-height: 40px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1360,42 +1362,6 @@ body {
   font-size: 18px;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .catalog-container {
-    flex-direction: column;
-  }
-  
-  .catalog-sidebar {
-    width: 100%;
-  }
-  
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .catalog-controls {
-    flex-direction: column;
-  }
-  
-  .sort-controls {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .products-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Enhanced Catalog Product Card Styles - Modern & Premium */
 .catalog-product-card {
   background: white;
@@ -1465,10 +1431,6 @@ body {
   transform: scale(1.08);
 }
 
-.catalog-product-card:hover .product-image img {
-  transform: scale(1.05);
-}
-
 .catalog-product-card .product-info {
   padding: 16px;
   display: flex;
@@ -1484,6 +1446,7 @@ body {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 42px;
@@ -1533,6 +1496,7 @@ body {
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-top: 4px;
@@ -1565,7 +1529,7 @@ body {
 .catalog-product-card .available-stock.out-of-stock {
   background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   border-color: #f87171;
-  color: #991b1b;
+  color: #fefefe;
 }
 
 .catalog-product-card .stock-number {
@@ -1814,4 +1778,8 @@ body {
   .load-more-count {
     font-size: 11px;
   }
+}
+
+.catalog-product-card .add-to-cart-btn:disabled {
+  color: #fff !important;
 }
