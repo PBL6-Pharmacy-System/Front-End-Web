@@ -4,6 +4,20 @@ import './ChatProductCard.css';
 export default function ChatProductCard({ product, onNavigate }) {
   const [isLoading, setIsLoading] = useState(false);
 
+  // Validate product data
+  if (!product) {
+    console.warn('⚠️ ChatProductCard: No product data provided');
+    return null;
+  }
+
+  // Log product info for debugging
+  console.log('🎯 ChatProductCard rendering:', {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    hasImages: !!product.images
+  });
+
   // Format giá tiền
   const formatPrice = (price) => {
     if (!price) return 'Liên hệ';
@@ -46,7 +60,13 @@ export default function ChatProductCard({ product, onNavigate }) {
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('🎯 ChatProductCard clicked, product ID:', product.id);
+    console.log('🎯 ChatProductCard clicked, product:', product);
+    console.log('🎯 Product ID:', product.id, 'Type:', typeof product.id);
+    
+    if (!product.id) {
+      console.error('❌ No product ID available');
+      return;
+    }
     
     if (isLoading) return;
     
@@ -55,9 +75,10 @@ export default function ChatProductCard({ product, onNavigate }) {
     try {
       // Lấy thông tin chi tiết sản phẩm từ API
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-      console.log('📡 Fetching product from:', `${baseUrl}/products/${product.id}`);
+      const productUrl = `${baseUrl}/products/${product.id}`;
+      console.log('📡 Fetching product from:', productUrl);
       
-      const response = await fetch(`${baseUrl}/products/${product.id}`, {
+      const response = await fetch(productUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -99,7 +120,14 @@ export default function ChatProductCard({ product, onNavigate }) {
   };
 
   return (
-    <div className="chat-product-card">
+    <div className="chat-product-card" onClick={handleProductClick}>
+      {/* Discount Badge */}
+      {discount > 0 && (
+        <div className="chat-product-discount-badge">
+          -{discount}%
+        </div>
+      )}
+      
       {/* Product Image */}
       <div className="chat-product-image-wrapper">
         <img 
@@ -110,11 +138,6 @@ export default function ChatProductCard({ product, onNavigate }) {
             e.target.src = '/images/placeholder-product.png';
           }}
         />
-        {discount > 0 && (
-          <div className="chat-product-discount-badge">
-            -{discount}%
-          </div>
-        )}
       </div>
 
       {/* Product Info */}
@@ -123,8 +146,10 @@ export default function ChatProductCard({ product, onNavigate }) {
           {product.name}
         </h4>
         
-        {product.brand && (
-          <p className="chat-product-brand">{product.brand}</p>
+        {product.specification && (
+          <p className="chat-product-spec">
+            {product.specification}
+          </p>
         )}
 
         <div className="chat-product-pricing">
@@ -133,38 +158,39 @@ export default function ChatProductCard({ product, onNavigate }) {
           </span>
           {(product.originalPrice || product.original_price) && 
            (product.originalPrice || product.original_price) > product.price && (
-            <span className="chat-product-original-price">
-              {formatPrice(product.originalPrice || product.original_price)}
-            </span>
+            <>
+              <span className="chat-product-divider">/</span>
+              <span className="chat-product-original-price">
+                {formatPrice(product.originalPrice || product.original_price)}
+              </span>
+            </>
           )}
         </div>
-
-        {product.specification && (
-          <div className="chat-product-spec">
-            {product.specification}
+        
+        {discount > 0 && (
+          <div className="chat-product-savings">
+            Tiết kiệm: {discount}% ({formatPrice((product.originalPrice || product.original_price) - product.price)})
           </div>
         )}
       </div>
 
-      {/* Action Button */}
-      <button 
-        className="chat-product-view-btn" 
-        disabled={isLoading}
-        onClick={handleProductClick}
-      >
-        {isLoading ? (
-          <>
-            
-          </>
-        ) : (
-          <>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
-            </svg>
-            Xem
-          </>
-        )}
-      </button>
+      {/* Action Buttons */}
+      <div className="chat-product-actions">
+        <button 
+          className="chat-product-detail-btn" 
+          disabled={isLoading}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleProductClick(e);
+          }}
+        >
+          {isLoading ? (
+            <span className="loading-spinner">⏳</span>
+          ) : (
+            'Xem chi tiết'
+          )}
+        </button>
+      </div>
     </div>
   );
 }

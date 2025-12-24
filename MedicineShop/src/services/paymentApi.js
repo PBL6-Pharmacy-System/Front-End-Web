@@ -154,10 +154,41 @@ export const createVnpayPayment = async (paymentData) => {
   }
 };
 
+/**
+ * Tạo PayPal payment
+ * POST /payments/paypal/create
+ */
+export const createPaypalPayment = async (paymentData) => {
+  try {
+    console.log('💰 PayPal API called with data:', paymentData);
+    console.log('💰 PayPal URL:', `${API_BASE_URL}/payments/paypal/create`);
+    
+    const response = await authFetch(`${API_BASE_URL}/payments/paypal/create`, {
+      method: 'POST',
+      body: JSON.stringify(paymentData),
+    });
+    
+    console.log('💰 PayPal Response status:', response.status);
+    const data = await response.json();
+    console.log('💰 PayPal Response data:', data);
+    
+    if (!response.ok) {
+      console.error('💰 PayPal failed:', data);
+      throw new Error(data.message || data.error || 'Failed to create PayPal payment');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Create PayPal payment error:', error);
+    throw error;
+  }
+};
+
 export default {
   checkout,
   getPaymentById,
   processCodPayment,
   createMomoPayment,
   createVnpayPayment,
+  createPaypalPayment,
 };

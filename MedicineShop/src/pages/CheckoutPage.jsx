@@ -5,7 +5,7 @@ import AddressModal from '../components/AddressModal';
 import OrderSuccessModal from '../components/OrderSuccessModal';
 import * as shippingAddressApi from '../services/shippingAddressApi';
 import { getCart } from '../services/cartApi';
-import { checkout, processCodPayment, createMomoPayment, createVnpayPayment } from '../services/paymentApi';
+import { checkout, processCodPayment, createMomoPayment, createVnpayPayment, createPaypalPayment } from '../services/paymentApi';
 import { getCustomerId, isAuthenticated } from '../services/authApi';
 import './CheckoutPage.css';
 
@@ -486,10 +486,40 @@ export default function CheckoutPage({ onNavigate }) {
         } else {
           throw new Error('Không thể tạo link thanh toán VNPay');
         }
+      } else if (paymentMethod === 'paypal') {
+        // PayPal: Get payment approval URL and redirect
+        console.log('💙 Creating PayPal payment for orderId:', orderId);
+        try {
+          const paypalResponse = await createPaypalPayment({ orderId: orderId });
+          console.log('PayPal response:', paypalResponse);
+          
+          const approvalUrl = paypalResponse.data?.approvalUrl || paypalResponse.approvalUrl;
+          if (approvalUrl) {
+            toast.info('Đang chuyển đến trang thanh toán PayPal...');
+            window.location.href = approvalUrl;
+          } else {
+            throw new Error('Không thể tạo link thanh toán PayPal');
+          }
+        } catch (paypalError) {
+          console.error('PayPal payment error:', paypalError);
+          
+          // Check if it's a configuration error (503)
+          if (paypalError.message?.includes('không khả dụng') || 
+              paypalError.message?.includes('chưa được cấu hình')) {
+            toast.error('PayPal hiện chưa khả dụng. Vui lòng chọn phương thức thanh toán khác (COD, VNPay, hoặc MoMo).');
+          } else {
+            toast.error(paypalError.message || 'Không thể tạo thanh toán PayPal. Vui lòng thử lại hoặc chọn phương thức khác.');
+          }
+          throw paypalError; // Re-throw to be caught by outer try-catch
+        }
       }
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại!');
+      
+      // Only show error if not already shown by PayPal specific handler
+      if (!error.message?.includes('PayPal') && !error.message?.includes('không khả dụng')) {
+        toast.error(error.message || 'Đặt hàng thất bại. Vui lòng thử lại!');
+      }
     } finally {
       setIsProcessingPayment(false);
     }
@@ -833,6 +863,26 @@ export default function CheckoutPage({ onNavigate }) {
                     <span style={{ display: 'none' }}>🔴</span>
                   </span>
                   <span className="checkout-payment-text">Thanh toán bằng ví MoMo</span>
+                </label>
+
+                <label className="checkout-payment-method">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="paypal"
+                    checked={paymentMethod === 'paypal'}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
+                  <span className="checkout-payment-icon">
+                    <img src="/icons/paypal.png" alt="PayPal" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'inline'; }} />
+                    <span style={{ display: 'none' }}>💙</span>
+                  </span>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <span className="checkout-payment-text">Thanh toán qua PayPal</span>
+                    <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: '500' }}>
+                      ⚠️ Đang trong quá trình cấu hình
+                    </span>
+                  </div>
                 </label>
               </div>
             </div>

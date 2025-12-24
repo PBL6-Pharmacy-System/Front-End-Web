@@ -163,16 +163,31 @@ export const clearStoredSessionId = () => {
  * Get chat history for a session
  * @param {string} sessionId - Session ID
  * @param {number} limit - Number of messages to fetch (default 50)
+ * @param {string|null} accessToken - Optional access token for authenticated users
  * @returns {Promise<Array>} - Array of messages
  */
-export const getChatHistory = async (sessionId, limit = 50) => {
+export const getChatHistory = async (sessionId, limit = 50, accessToken = null) => {
   try {
-    const response = await fetch(`${AI_BASE_URL}/chat/sessions/${sessionId}/history?limit=${limit}`, {
+    const headers = {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    };
+    
+    // Add authorization if user is logged in
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    // Use different endpoint based on authentication
+    const endpoint = accessToken 
+      ? `${AI_BASE_URL}/api/auth-chat/sessions/${sessionId}/history?limit=${limit}`
+      : `${AI_BASE_URL}/chat/sessions/${sessionId}/history?limit=${limit}`;
+    
+    console.log('📡 Fetching chat history from:', endpoint);
+    
+    const response = await fetch(endpoint, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true'
-      }
+      headers
     });
 
     if (!response.ok) {
@@ -244,8 +259,30 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
         console.log('📦 Stream data type:', data.type, data); // Debug
         
         // Xử lý theo type
-        if (data.type === 'metadata') {
-          // Metadata: chứa session_id và title
+        if (data.type === 'routing') {
+          // Routing: chứa intent, reasoning (câu hỏi khách hàng)
+          console.log('🧭 Routing data:', data.data);
+          // Có thể log hoặc hiển thị reasoning nếu cần
+        } else if (data.type === 'conversation') {
+          // Conversation: chứa session_id, title, message_count
+          if (data.data?.session_id) {
+            responseSessionId = data.data.session_id;
+            storeSessionId(responseSessionId);
+          }
+          if (data.data?.title) {
+            conversationTitle = data.data.title;
+          }
+          // Gọi callback metadata
+          onMetadata?.({
+            sessionId: responseSessionId,
+            title: conversationTitle
+          });
+        } else if (data.type === 'metadata') {
+          // Metadata: có thể chứa data.data với thông tin sản phẩm hoặc công cụ
+          console.log('📊 Metadata received:', data);
+          console.log('📊 Metadata.data:', data.data);
+          
+          // Kiểm tra nếu có session_id trong metadata (cấu trúc cũ)
           if (data.session_id) {
             responseSessionId = data.session_id;
             storeSessionId(responseSessionId);
@@ -253,6 +290,76 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
           if (data.title) {
             conversationTitle = data.title;
           }
+          
+          // Xử lý tool_results nếu có products
+          if (data.data?.tool_results && Array.isArray(data.data.tool_results)) {
+            console.log('🔧 Processing tool_results:', data.data.tool_results.length, 'results');
+            for (const toolResult of data.data.tool_results) {
+              console.log('🔧 Tool result:', toolResult);
+              console.log('🔧 Tool name:', toolResult.tool);
+              
+              // Xử lý các tool khác nhau
+              const toolName = toolResult.tool;
+              const isProductTool = [
+                'search_products_for_health',  // medical_agent
+                'search_medical_qa',            // medical_agent
+                'get_vouchers',                 // general_agent
+                'get_flashsales',               // general_agent
+                'get_branches'                  // general_agent
+              ].includes(toolName);
+              
+              const isOrderTool = toolName === 'get_user_orders'; // order_agent
+              
+              // Xử lý products - backend trả về trong result.data thay vì result.products
+              const productsArray = toolResult.result?.data || toolResult.result?.products;
+              if (productsArray && Array.isArray(productsArray)) {
+                console.log('🛍️ Products from tool_results:', productsArray.length, 'products');
+                console.log('🛍️ Product details:', productsArray);
+                
+                // Lọc sản phẩm có recommend = true (hoặc recommended)
+                const recommendedProducts = productsArray.filter(product => {
+                  const isRecommended = product.recommend === true || product.recommended === true;
+                  console.log(`🎯 Product "${product.name}" - recommend: ${product.recommend || product.recommended}, include: ${isRecommended}`);
+                  return isRecommended;
+                });
+                
+                console.log('✅ Recommended products:', recommendedProducts.length, 'out of', productsArray.length);
+                
+                // Chỉ thêm sản phẩm được recommend
+                for (const product of recommendedProducts) {
+                  if (product.id) {
+                    if (!productsMap.has(product.id)) {
+                      console.log('➕ Adding recommended product to map:', product.id, product.name);
+                      productsMap.set(product.id, product);
+                    } else {
+                      console.log('⏭️ Product already in map:', product.id);
+                    }
+                  } else {
+                    console.warn('⚠️ Product missing ID:', product);
+                  }
+                }
+                
+                // Gọi callback với tất cả products
+                if (recommendedProducts.length > 0) {
+                  const allProducts = Array.from(productsMap.values());
+                  console.log('✅ Calling onProduct callback with', allProducts.length, 'recommended products');
+                  onProduct?.(null, allProducts);
+                }
+              } else if (toolResult.result?.data && isProductTool) {
+                // Xử lý trường hợp data không ở dạng products array
+                console.log('📊 Tool result has data field:', toolResult.result.data);
+              }
+              
+              // Xử lý orders từ order_agent
+              if (isOrderTool && toolResult.result?.data) {
+                ordersData = toolResult.result.data;
+                console.log('📦 Orders from order_agent:', ordersData);
+              }
+            }
+          } else {
+            console.log('ℹ️ No tool_results in metadata');
+          }
+          
           // Gọi callback metadata
           onMetadata?.({
             sessionId: responseSessionId,
@@ -261,10 +368,8 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
         } else if (data.type === 'text') {
           // Text: chứa chunk text
           if (data.chunk) {
-            // ✅ Push vào đầu mảng để đảo ngược thứ tự (vì server gửi ngược)
-            textChunks.unshift(data.chunk);
-            // Join và đảo ngược lại để hiển thị đúng
-            const fullText = textChunks.slice().reverse().join('');
+            textChunks.push(data.chunk);
+            const fullText = textChunks.join('');
             onChunk?.(data.chunk, fullText);
           }
         } else if (data.type === 'product' || data.type === 'products') {
@@ -301,6 +406,9 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
             // Gọi callback với tất cả products
             onProduct?.(null, Array.from(productsMap.values()));
           }
+        } else if (data.type === 'done') {
+          // Stream done signal
+          console.log('✅ Stream completed');
         }
         // Fallback: hỗ trợ cấu trúc cũ
         else {
@@ -309,9 +417,8 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
             storeSessionId(responseSessionId);
           }
           if (data.chunk) {
-            // ✅ Đảo ngược cho fallback
-            textChunks.unshift(data.chunk);
-            const fullText = textChunks.slice().reverse().join('');
+            textChunks.push(data.chunk);
+            const fullText = textChunks.join('');
             onChunk?.(data.chunk, fullText);
           }
           if (data.products?.length) {
@@ -324,6 +431,7 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
         }
       } catch (e) {
         // Silent fail for invalid JSON - continue processing
+        console.warn('⚠️ Failed to parse line:', line, e);
       }
     };
 
@@ -359,6 +467,7 @@ export const streamChatWithoutSession = async (message, sessionId, onChunk, onMe
         onComplete?.({
           text: fullText,
           products: finalProducts,
+          orders: ordersData,
           sessionId: responseSessionId,
           title: conversationTitle
         });
@@ -462,6 +571,7 @@ export const chatWithoutSession = async (message, sessionId = null) => {
  */
 export const getConversations = async (accessToken) => {
   try {
+    console.log('📡 Fetching conversations...');
     const response = await fetch(`${AI_BASE_URL}/api/auth-chat/conversations`, {
       method: 'GET',
       headers: {
@@ -472,14 +582,30 @@ export const getConversations = async (accessToken) => {
     });
 
     if (!response.ok) {
+      console.error('❌ Failed to fetch conversations:', response.status);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    return data.conversations || data.data || data || [];
+    console.log('📜 getConversations response:', data);
+    
+    // Handle different response formats
+    let conversationsList = [];
+    if (Array.isArray(data)) {
+      conversationsList = data;
+    } else if (data.conversations && Array.isArray(data.conversations)) {
+      conversationsList = data.conversations;
+    } else if (data.data && Array.isArray(data.data)) {
+      conversationsList = data.data;
+    } else if (data.data && data.data.conversations && Array.isArray(data.data.conversations)) {
+      conversationsList = data.data.conversations;
+    }
+    
+    console.log('✅ Parsed conversations:', conversationsList.length, 'items');
+    return conversationsList;
   } catch (error) {
     console.error('Error fetching conversations:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };
 
@@ -533,8 +659,30 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
         const data = JSON.parse(line.slice(6));
         
         // Xử lý theo type
-        if (data.type === 'metadata') {
-          // Metadata: chứa session_id và title
+        if (data.type === 'routing') {
+          // Routing: chứa intent, reasoning (câu hỏi khách hàng)
+          console.log('🧭 Routing data (auth):', data.data);
+        } else if (data.type === 'conversation') {
+          // Conversation: chứa session_id, title, message_count
+          if (data.data?.session_id) {
+            responseSessionId = data.data.session_id;
+            storeSessionId(responseSessionId);
+          }
+          if (data.data?.title) {
+            conversationTitle = data.data.title;
+          }
+          // Gọi callback metadata
+          onMetadata?.({
+            sessionId: responseSessionId,
+            title: conversationTitle
+          });
+        } else if (data.type === 'metadata') {
+          // Metadata: có thể chứa data.data với thông tin sản phẩm hoặc công cụ
+          console.log('📊 Metadata received (auth):', data);
+          console.log('📊 Metadata.data (auth):', data.data);
+          console.log('🔍 FULL metadata object (auth):', JSON.stringify(data, null, 2));
+          
+          // Kiểm tra nếu có session_id trong metadata (cấu trúc cũ)
           if (data.session_id) {
             responseSessionId = data.session_id;
             storeSessionId(responseSessionId);
@@ -542,6 +690,76 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
           if (data.title) {
             conversationTitle = data.title;
           }
+          
+          // Xử lý tool_results nếu có products
+          if (data.data?.tool_results && Array.isArray(data.data.tool_results)) {
+            console.log('🔧 Processing tool_results (auth):', data.data.tool_results.length, 'results');
+            for (const toolResult of data.data.tool_results) {
+              console.log('🔧 Tool result (auth):', toolResult);
+              console.log('🔧 Tool name (auth):', toolResult.tool);
+              
+              // Xử lý các tool khác nhau
+              const toolName = toolResult.tool;
+              const isProductTool = [
+                'search_products_for_health',  // medical_agent
+                'search_medical_qa',            // medical_agent
+                'get_vouchers',                 // general_agent
+                'get_flashsales',               // general_agent
+                'get_branches'                  // general_agent
+              ].includes(toolName);
+              
+              const isOrderTool = toolName === 'get_user_orders'; // order_agent
+              
+              // Xử lý products - backend trả về trong result.data thay vì result.products
+              const productsArray = toolResult.result?.data || toolResult.result?.products;
+              if (productsArray && Array.isArray(productsArray)) {
+                console.log('🛍️ Products from tool_results (auth):', productsArray.length, 'products');
+                console.log('🛍️ Product details (auth):', productsArray);
+                
+                // Lọc sản phẩm có recommend = true (hoặc recommended)
+                const recommendedProducts = productsArray.filter(product => {
+                  const isRecommended = product.recommend === true || product.recommended === true;
+                  console.log(`🎯 Product "${product.name}" (auth) - recommend: ${product.recommend || product.recommended}, include: ${isRecommended}`);
+                  return isRecommended;
+                });
+                
+                console.log('✅ Recommended products (auth):', recommendedProducts.length, 'out of', productsArray.length);
+                
+                // Chỉ thêm sản phẩm được recommend
+                for (const product of recommendedProducts) {
+                  if (product.id) {
+                    if (!productsMap.has(product.id)) {
+                      console.log('➕ Adding recommended product to map (auth):', product.id, product.name);
+                      productsMap.set(product.id, product);
+                    } else {
+                      console.log('⏭️ Product already in map (auth):', product.id);
+                    }
+                  } else {
+                    console.warn('⚠️ Product missing ID (auth):', product);
+                  }
+                }
+                
+                // Gọi callback với tất cả products
+                if (recommendedProducts.length > 0) {
+                  const allProducts = Array.from(productsMap.values());
+                  console.log('✅ Calling onProduct callback with', allProducts.length, 'recommended products (auth)');
+                  onProduct?.(null, allProducts);
+                }
+              } else if (toolResult.result?.data && isProductTool) {
+                // Xử lý trường hợp data không ở dạng products array
+                console.log('📊 Tool result has data field (auth):', toolResult.result.data);
+              }
+              
+              // Xử lý orders từ order_agent
+              if (isOrderTool && toolResult.result?.data) {
+                ordersData = toolResult.result.data;
+                console.log('📦 Orders from order_agent (auth):', ordersData);
+              }
+            }
+          } else {
+            console.log('ℹ️ No tool_results in metadata (auth)');
+          }
+          
           // Gọi callback metadata
           onMetadata?.({
             sessionId: responseSessionId,
@@ -550,10 +768,8 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
         } else if (data.type === 'text') {
           // Text: chứa chunk text
           if (data.chunk) {
-            // ✅ Push vào đầu mảng để đảo ngược thứ tự (vì server gửi ngược)
-            textChunks.unshift(data.chunk);
-            // Join và đảo ngược lại để hiển thị đúng
-            const fullText = textChunks.slice().reverse().join('');
+            textChunks.push(data.chunk);
+            const fullText = textChunks.join('');
             onChunk?.(data.chunk, fullText);
           }
         } else if (data.type === 'product' || data.type === 'products') {
@@ -590,6 +806,9 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
             // Gọi callback với tất cả products
             onProduct?.(null, Array.from(productsMap.values()));
           }
+        } else if (data.type === 'done') {
+          // Stream done signal
+          console.log('✅ Stream completed (auth)');
         }
         // Fallback: hỗ trợ cấu trúc cũ
         else {
@@ -598,9 +817,8 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
             storeSessionId(responseSessionId);
           }
           if (data.chunk) {
-            // ✅ Đảo ngược cho fallback (auth)
-            textChunks.unshift(data.chunk);
-            const fullText = textChunks.slice().reverse().join('');
+            textChunks.push(data.chunk);
+            const fullText = textChunks.join('');
             onChunk?.(data.chunk, fullText);
           }
           if (data.products?.length) {
@@ -613,6 +831,7 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
         }
       } catch (e) {
         // Silent fail
+        console.warn('⚠️ Failed to parse line (auth):', line, e);
       }
     };
 
@@ -627,6 +846,7 @@ export const streamChatWithAuth = async (message, accessToken, sessionId, onChun
         onComplete?.({
           text: textChunks.join(''),
           products: Array.from(productsMap.values()),
+          orders: ordersData,
           sessionId: responseSessionId,
           title: conversationTitle
         });

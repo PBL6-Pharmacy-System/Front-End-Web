@@ -13,6 +13,7 @@ import {
 import { isAuthenticated, getAccessToken } from '../services/authApi';
 import { useToast } from './Toast';
 import ChatProductCard from './ChatProductCard';
+import ChatOrderCard from './ChatOrderCard';
 
 // Default welcome message
 const getWelcomeMessage = () => ({
@@ -106,16 +107,28 @@ export default function ChatBox() {
   const loadConversations = async () => {
     try {
       const token = getAccessToken();
-      if (!token) return;
+      if (!token) {
+        console.log('⚠️ No access token, skipping conversations load');
+        return;
+      }
 
+      console.log('📡 Loading conversations for authenticated user...');
       const conversationsList = await getConversations(token);
-      setConversations(conversationsList.map(conv => ({
-        id: conv.session_id,
-        title: conv.title,
-        active: conv.session_id === currentSessionId
-      })));
+      console.log('✅ Received conversations:', conversationsList);
+      
+      const formattedConversations = conversationsList.map(conv => ({
+        id: conv.session_id || conv.id,
+        title: conv.title || 'Untitled Conversation',
+        active: (conv.session_id || conv.id) === currentSessionId,
+        created_at: conv.created_at,
+        updated_at: conv.updated_at
+      }));
+      
+      console.log('✅ Formatted conversations:', formattedConversations);
+      setConversations(formattedConversations);
     } catch (error) {
-      console.error('Error loading conversations:', error);
+      console.error('❌ Error loading conversations:', error);
+      setConversations([]); // Set empty array on error
     }
   };
 
@@ -156,11 +169,18 @@ export default function ChatBox() {
 
   // Load chat history from session
   const loadChatHistory = async (sessionId) => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      console.warn('⚠️ No sessionId provided to loadChatHistory');
+      return;
+    }
     
+    console.log('📡 Loading chat history for session:', sessionId);
     setIsLoadingHistory(true);
+    
     try {
-      const historyData = await getChatHistory(sessionId, 50);
+      // Get access token if user is logged in
+      const token = isLoggedIn ? getAccessToken() : null;
+      const historyData = await getChatHistory(sessionId, 50, token);
       
       console.log('📜 Chat history loaded:', historyData);
       
@@ -183,14 +203,22 @@ export default function ChatBox() {
             }
           }
           
+          // Extract orders từ message
+          let orders = null;
+          if (msg.orders) {
+            orders = msg.orders;
+          }
+          
           console.log('✅ Extracted products:', products.length, products);
+          console.log('✅ Extracted orders:', orders);
           
           return {
             id: Date.now() + index,
             text: msg.content || msg.message || msg.text,
             sender: msg.role === 'user' ? 'user' : 'bot',
             timestamp: new Date(msg.timestamp || msg.created_at || Date.now()),
-            products: products
+            products: products,
+            orders: orders
           };
         });
         
@@ -198,9 +226,12 @@ export default function ChatBox() {
         
         // Add welcome message at the beginning if needed
         setMessages([getWelcomeMessage(), ...historyMessages]);
+      } else {
+        console.log('ℹ️ No messages in history, starting fresh');
+        setMessages([getWelcomeMessage()]);
       }
     } catch (error) {
-      console.error('Error loading chat history:', error);
+      console.error('❌ Error loading chat history:', error);
       // If history load fails, just start fresh with the session
       setMessages([getWelcomeMessage()]);
     } finally {
@@ -265,10 +296,20 @@ export default function ChatBox() {
 
   // Handle conversation selection
   const handleConversationSelect = (sessionId) => {
+    console.log('🔄 Conversation selected:', sessionId);
+    console.log('🔄 Current sessionId:', currentSessionId);
+    
+    // Don't reload if selecting the same conversation
+    if (currentSessionId === sessionId) {
+      console.log('ℹ️ Same conversation already active');
+      return;
+    }
+    
     // Lưu conversation hiện tại trước khi chuyển
     if (currentSessionId && messages.length > 1 && currentConversationTitle) {
       const existingConv = conversations.find(c => c.id === currentSessionId);
       if (!existingConv) {
+        console.log('➕ Adding current conversation to list');
         setConversations(prev => [
           { id: currentSessionId, title: currentConversationTitle, active: false },
           ...prev
@@ -277,6 +318,7 @@ export default function ChatBox() {
     }
     
     // Cập nhật active state
+    console.log('🔄 Updating active conversation to:', sessionId);
     setConversations(conversations.map(conv => ({
       ...conv,
       active: conv.id === sessionId
@@ -343,15 +385,30 @@ export default function ChatBox() {
 
   // Render message với products được chèn vào {products} placeholder
   const renderMessageWithProducts = (message) => {
+    console.log('🎨 renderMessageWithProducts called for message:', message.id, {
+      hasText: !!message.text,
+      products: message.products,
+      productsLength: message.products?.length,
+      orders: message.orders,
+      ordersLength: Array.isArray(message.orders) ? message.orders.length : (message.orders ? 1 : 0),
+      isStreaming: message.isStreaming
+    });
+    
     if (!message.text) return null;
 
     const hasProducts = message.products && message.products.length > 0 && !message.isStreaming;
+    const hasOrders = message.orders && !message.isStreaming;
     const hasProductsPlaceholder = message.text.includes('{products}');
+    const hasOrdersPlaceholder = message.text.includes('{orders}');
 
     console.log('🎨 Rendering message:', {
       hasProducts,
       productsCount: message.products?.length,
+      productsList: message.products,
+      hasOrders,
+      ordersData: message.orders,
       hasProductsPlaceholder,
+      hasOrdersPlaceholder,
       isStreaming: message.isStreaming
     });
 
@@ -366,14 +423,56 @@ export default function ChatBox() {
           {parts[0] && renderMessageContent(parts[0])}
           
           {/* Products grid tại vị trí {products} */}
+          <div className="chat-products-separator">
+            <span>🛍️ Sản phẩm tham khảo</span>
+          </div>
           <div className="chat-products-grid">
-            {message.products.map((product) => (
-              <ChatProductCard key={product.id} product={product} />
-            ))}
+            {message.products.map((product, index) => {
+              const productKey = product.id || `product-${message.id}-${index}`;
+              console.log('🎯 Rendering product card:', { productKey, product });
+              return <ChatProductCard key={productKey} product={product} />;
+            })}
           </div>
           
           {/* Phần text sau {products} nếu có */}
           {parts[1] && renderMessageContent(parts[1])}
+          
+          {/* Render orders nếu có */}
+          {hasOrders && renderOrders(message.orders)}
+        </>
+      );
+    }
+
+    // Nếu có orders và có placeholder {orders}
+    if (hasOrders && hasOrdersPlaceholder) {
+      const parts = message.text.split('{orders}');
+      console.log('✅ Rendering with orders placeholder, parts:', parts.length);
+      
+      return (
+        <>
+          {/* Phần text trước {orders} */}
+          {parts[0] && renderMessageContent(parts[0])}
+          
+          {/* Orders tại vị trí {orders} */}
+          {renderOrders(message.orders)}
+          
+          {/* Phần text sau {orders} nếu có */}
+          {parts[1] && renderMessageContent(parts[1])}
+          
+          {/* Render products nếu có */}
+          {hasProducts && (
+            <>
+              <div className="chat-products-separator">
+                <span>🛍️ Sản phẩm tham khảo</span>
+              </div>
+              <div className="chat-products-grid">
+                {message.products.map((product, index) => {
+                  const productKey = product.id || `product-${message.id}-${index}`;
+                  return <ChatProductCard key={productKey} product={product} />;
+                })}
+              </div>
+            </>
+          )}
         </>
       );
     }
@@ -384,11 +483,28 @@ export default function ChatBox() {
       return (
         <>
           {renderMessageContent(message.text)}
-          <div className="chat-products-grid">
-            {message.products.map((product) => (
-              <ChatProductCard key={product.id} product={product} />
-            ))}
+          <div className="chat-products-separator">
+            <span>🛍️ Sản phẩm tham khảo</span>
           </div>
+          <div className="chat-products-grid">
+            {message.products.map((product, index) => {
+              const productKey = product.id || `product-${message.id}-${index}`;
+              console.log('🎯 Rendering product card:', { productKey, product });
+              return <ChatProductCard key={productKey} product={product} />;
+            })}
+          </div>
+          {hasOrders && renderOrders(message.orders)}
+        </>
+      );
+    }
+
+    // Nếu có orders nhưng không có placeholder
+    if (hasOrders && !hasOrdersPlaceholder) {
+      console.log('✅ Rendering orders after text');
+      return (
+        <>
+          {renderMessageContent(message.text)}
+          {renderOrders(message.orders)}
         </>
       );
     }
@@ -396,6 +512,42 @@ export default function ChatBox() {
     // Không có products, chỉ render text bình thường
     console.log('ℹ️ No products, rendering text only');
     return renderMessageContent(message.text);
+  };
+
+  // Render orders list
+  const renderOrders = (orders) => {
+    if (!orders) return null;
+    
+    // Convert orders to array if it's an object with orders property
+    let ordersList = [];
+    if (Array.isArray(orders)) {
+      ordersList = orders;
+    } else if (orders.orders && Array.isArray(orders.orders)) {
+      ordersList = orders.orders;
+    } else if (orders.data && Array.isArray(orders.data)) {
+      ordersList = orders.data;
+    } else {
+      // Single order object
+      ordersList = [orders];
+    }
+
+    if (ordersList.length === 0) return null;
+
+    console.log('📦 Rendering orders:', ordersList.length, ordersList);
+
+    return (
+      <>
+        <div className="chat-products-separator">
+          <span>📦 Đơn hàng của bạn</span>
+        </div>
+        <div className="chat-orders-grid">
+          {ordersList.map((order, index) => {
+            const orderKey = order.id || `order-${index}`;
+            return <ChatOrderCard key={orderKey} order={order} />;
+          })}
+        </div>
+      </>
+    );
   };
 
   // Render nội dung tin nhắn với định dạng
@@ -549,7 +701,8 @@ export default function ChatBox() {
       sender: "bot",
       timestamp: new Date(),
       isStreaming: true,
-      products: []
+      products: [],
+      orders: null
     };
     
     setMessages(prev => [...prev, botMessage]);
@@ -614,15 +767,20 @@ export default function ChatBox() {
           },
           // onProduct - khi nhận sản phẩm gợi ý
           (product, allProducts) => {
+            console.log('🛍️ [AUTH] onProduct callback - received products:', allProducts?.length, allProducts);
             // Cập nhật products ngay lập tức
-            setMessages(prev => prev.map(msg => 
-              msg.id === botMessageId 
-                ? { ...msg, products: allProducts }
-                : msg
-            ));
+            setMessages(prev => prev.map(msg => {
+              if (msg.id === botMessageId) {
+                console.log('🛍️ [AUTH] Updating message with products:', allProducts);
+                return { ...msg, products: allProducts };
+              }
+              return msg;
+            }));
           },
           // onComplete - khi stream kết thúc
           (data) => {
+            console.log('🏁 [AUTH] Stream completed, data.products:', data.products?.length, data.products);
+            console.log('🏁 [AUTH] Stream completed, data.orders:', data.orders);
             // Update session ID from response
             if (data.sessionId) {
               setCurrentSessionId(data.sessionId);
@@ -634,6 +792,7 @@ export default function ChatBox() {
                     ...msg, 
                     text: data.text, 
                     products: data.products || [],
+                    orders: data.orders || null,
                     isStreaming: false 
                   }
                 : msg
@@ -685,15 +844,20 @@ export default function ChatBox() {
           },
           // onProduct - khi nhận sản phẩm gợi ý
           (product, allProducts) => {
+            console.log('🛍️ [NO-AUTH] onProduct callback - received products:', allProducts?.length, allProducts);
             // Cập nhật products ngay lập tức
-            setMessages(prev => prev.map(msg => 
-              msg.id === botMessageId 
-                ? { ...msg, products: allProducts }
-                : msg
-            ));
+            setMessages(prev => prev.map(msg => {
+              if (msg.id === botMessageId) {
+                console.log('🛍️ [NO-AUTH] Updating message with products:', allProducts);
+                return { ...msg, products: allProducts };
+              }
+              return msg;
+            }));
           },
           // onComplete - khi stream kết thúc
           (data) => {
+            console.log('🏁 [NO-AUTH] Stream completed, data.products:', data.products?.length, data.products);
+            console.log('🏁 [NO-AUTH] Stream completed, data.orders:', data.orders);
             // Update session ID from response
             if (data.sessionId) {
               setCurrentSessionId(data.sessionId);
@@ -705,6 +869,7 @@ export default function ChatBox() {
                     ...msg, 
                     text: data.text, 
                     products: data.products || [],
+                    orders: data.orders || null,
                     isStreaming: false 
                   }
                 : msg

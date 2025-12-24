@@ -1,0 +1,133 @@
+.chat-order-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.chat-order-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.chat-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.chat-order-id {
+  font-size: 14px;
+  color: #333;
+}
+
+.chat-order-status {
+  font-size: 11px;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.chat-order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.chat-order-date,
+.chat-order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-order-info .label {
+  color: #666;
+  font-weight: 400;
+}
+
+.chat-order-info .value {
+  color: #333;
+  font-weight: 500;
+}
+
+.chat-order-info .value.price {
+  color: #00B14F;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.chat-order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.chat-order-items .label {
+  color: #666;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  color: #555;
+  font-size: 12px;
+}
+
+.items-list li {
+  padding: 2px 0;
+  padding-left: 12px;
+  position: relative;
+}
+
+.items-list li:before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #00B14F;
+}
+
+.items-list .more-items {
+  color: #999;
+  font-style: italic;
+}
+
+.chat-order-view-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #00B14F 0%, #00D65B 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.chat-order-view-btn:hover {
+  background: linear-gradient(135deg, #00a046 0%, #00c252 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 177, 79, 0.3);
+}
+
+.chat-order-view-btn:active {
+  transform: translateY(0);
+}

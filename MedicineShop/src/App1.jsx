@@ -11,13 +11,37 @@ import BannerSlider from './components/BannerSlider';
 import FlashSaleSection from './components/FlashSaleSection';
 import ProductListing from './components/ProductListing';
 import ChatBox from './components/ChatBox';
+import { useToast } from './components/Toast';
 
 export default function App() {
+  const toast = useToast();
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [productSource, setProductSource] = useState('listing');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState('');
+
+  // Handle PayPal callback từ URL params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const payment = urlParams.get('payment');
+    const orderId = urlParams.get('orderId');
+    const error = urlParams.get('error');
+
+    if (payment === 'success') {
+      toast.success(`Thanh toán PayPal thành công! Mã đơn hàng: #${orderId}`);
+      // Navigate to orders page after showing success
+      setTimeout(() => {
+        setCurrentPage('orders');
+      }, 1500);
+      // Clean URL
+      window.history.replaceState({}, '', '/');
+    } else if (payment === 'failed') {
+      toast.error(`Thanh toán PayPal thất bại: ${error || 'Vui lòng thử lại'}`);
+      // Clean URL
+      window.history.replaceState({}, '', '/');
+    }
+  }, [toast]);
 
   // Lắng nghe event từ ChatProductCard
   useEffect(() => {
